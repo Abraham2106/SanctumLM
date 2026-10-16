@@ -1,20 +1,24 @@
-# Reserva de archivos — OLA 1 (G1)
+# Reserva de archivos
 
-**Vigente desde:** 2026-10-16. **Dueño del mapa:** planner (TASK-0008).
-**Base:** `integration/mvp` @ `4ff44a7` (main = merge de TASK-0007).
+**Dueño del mapa:** planner. **Bitácora canónica:** rama `integration/mvp` (worktree `SanctumLM-wt-integration`).
 
-Los archivos de dueño único **no** los edita ningún agente de esta ola. Cada tarea escribe solo su superficie.
+## OLA 1 (G1) — cerrada
 
-| Tarea | Superficie exclusiva | Prohibido |
+Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia histórica: base `4ff44a7`.
+
+## OLA 2 — B1 cimientos
+
+**Vigente desde:** 2026-10-16 post-merge TASK-0018. **Base integración:** `integration/mvp` @ **`77eb850`**.
+
+| Tarea | Superficie exclusiva | Estado |
 | --- | --- | --- |
-| TASK-0008 planner | `.agents/*` (excepto briefs ya publicados), `docs/03-architecture/adr/README.md`, `docs/01-requirements/TRACEABILITY.md`, `docs/02-planning/RISK_REGISTER.md` | código de producto |
-| TASK-0009 A1 | `docs/03-architecture/adr/ADR-0006-desktop-stack.md` | índice ADR, `.agents/*`, crear `apps/` |
-| TASK-0010 A2 | `docs/03-architecture/adr/ADR-0007-storage.md`, `docs/04-quality/evidence/spike-sqlite-vec-windows.md` | `Cargo.toml`, migraciones reales, índice ADR |
-| TASK-0011 A3 | `docs/03-architecture/adr/ADR-0008-model-router.md`, `docs/04-quality/evidence/spike-ollama-local-models.md` | APIs de pago, modelos >4 GB, índice ADR |
-| TASK-0012 A4 | `docs/03-architecture/adr/ADR-0009-ingestion.md` | workers reales, índice ADR |
-| TASK-0013 A5 | `docs/03-architecture/adr/ADR-0010-artifact-engine.md` | implementar PptxGenJS/SVG, §8.3, índice ADR |
-| TASK-0014 A6 | `docs/03-architecture/adr/ADR-0011-threat-model-egress.md`, `docs/03-architecture/THREAT_MODEL.md` (nuevo) | `docs/04-quality/SECURITY.md` (proceso), índice ADR, `.agents/*` |
+| TASK-0008 planner | `.agents/*` (excepto briefs publicados), consolidación post-merge | activa (solo bitácora) |
+| TASK-0017 | `benchmarks/**` (corpus B3) | **liberada** — merged `1cc29e3` |
+| TASK-0018 | raíz `Cargo.toml`, `Cargo.lock`, `crates/**`, `workers/documents/**`, `packages/artifacts/**`, `scripts/verify.ps1`, `security/README.md`, entradas `.gitignore` de workspace | **liberada** — merged `77eb850`; cambios futuros vía nueva tarea |
+| TASK-0019 | `apps/desktop/**`, config Tauri (`src-tauri/**` bajo desktop), `package.json` / lockfile UI del desktop, miembros workspace que añada solo el stub desktop | **activa** — en curso |
+| TASK-0020 | `.github/workflows/**` (CI Rust/workspace), plantillas revisión CI | **bloqueada** — espera TASK-0019 |
+| TASK-0021 | contratos B2 en `docs/03-architecture/DATA_AND_INTERFACES.md` y anexos acordados en ficha | **bloqueada** — espera TASK-0019 |
 
-**Compartidos (planner, secuencial al integrar):** `adr/README.md`, `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`, `OPEN_QUESTIONS.md`.
+**Compartidos (planner, secuencial al integrar):** `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `docs/03-architecture/adr/README.md` cuando aplique.
 
-**A7 (TASK-0015)** exclusiva: `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`. No `.agents`, no índice ADR, no OPEN_QUESTIONS, no TRACEABILITY.
+**Prohibido cross-task:** ningún agente en vuelo edita la superficie activa de otra fila. TASK-0019 **no** debe modificar lógica de crates ya merged salvo el wiring mínimo autorizado en su ficha (p. ej. member en `Cargo.toml`).

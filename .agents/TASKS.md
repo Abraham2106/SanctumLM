@@ -1,13 +1,13 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T12:00Z. **Consolidador:** planner (TASK-0008); G1 cerrado TASK-0016.
+**Última actualización:** 2026-10-16T18:10Z. **Consolidador:** planner (post-merge TASK-0018).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
 | TASK-0001 | Validar misión, usuarios y MVP | WBS-1.1 | done | Humano + planner | G0 aprobado |
 | TASK-0002 | Completar SRS funcional | WBS-1.2 | done | Planner | Línea base R-PROD en SRS §5; TC-PROD en G1 (A7) |
 | TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | done | Architect + humano | G1 aprobado 2026-10-16; ADR-0006–0011 accepted |
-| TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras G1; B1 CI |
+| TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras TASK-0019; ver TASK-0020 |
 | TASK-0005 | Primer vertical slice | WBS-4.1 | ready | Por asignar | G1 aprobado; pendiente ficha y asignación |
 | TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
 | TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | done | Implementer | PR #3 merge a main |
@@ -19,6 +19,11 @@
 | TASK-0013 | A5 ADR-0010 ArtifactSpec | WBS-3.2 | done | Architect | ADR-0010 accepted G1 2026-10-16 |
 | TASK-0014 | A6 ADR-0011 amenazas/egress/§15 | WBS-3.3 | done | Security | ADR-0011 accepted G1 2026-10-16 |
 | TASK-0015 | A7 C4, contratos, TC-PROD, OPEN-005..008 | WBS-3.2 | done | Architect | PARADA 1; soporte G1 |
-| TASK-0016 | Consolidación G1: accept ADR-0006–0011 y merge main | WBS-3.2 | done | Implementer | Evidencia humana 2026-10-16; push autorizado |
+| TASK-0016 | Consolidación G1: accept ADR-0006–0011 y merge main | WBS-3.2 | done | Implementer | Evidencia humana 2026-10-16; `origin/main` @ `828415a` |
+| TASK-0017 | Corpus de evaluación B3 | WBS-3.4 | done | Implementer | Merge `integration/mvp` @ `1cc29e3` ← `047e3c4` |
+| TASK-0018 | Esqueleto Cargo workspace y crates §12 | WBS-3.4 | done | Implementer | Merge `77eb850` ← `dee152d` APPROVED; 6 tests workspace |
+| TASK-0019 | Stub desktop Tauri 2 + React/TS (B1) | WBS-3.4 | in_progress | Implementer | Depende 0018; worktree `agent/TASK-0019-b1-desktop` |
+| TASK-0020 | CI workspace Rust + reglas revisión (B1) | WBS-2.5, WBS-3.4 | draft | Planner | **No lanzar** hasta TASK-0019 merged |
+| TASK-0021 | Contratos B2 en docs | WBS-3.4 | draft | Architect | **No lanzar** hasta TASK-0019 merged |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
