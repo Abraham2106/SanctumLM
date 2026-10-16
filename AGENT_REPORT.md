@@ -6,6 +6,7 @@
 - **Rama:** `agent/TASK-0027-tauri-import-jobs`
 - **Worktree:** `C:\Users\solan\Documents\Personal\Startup\SanctumLM-wt-TASK-0027`
 - **Base:** `4df4de5` (TASK-0028 contratos IPC)
+- **HEAD:** `ee1a87b` (post CHANGES_REQUESTED PR #8)
 
 ## Jobs in-memory (sin migración SQL)
 
