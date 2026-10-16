@@ -19,10 +19,19 @@ pub struct ExtractedChunk {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExtractionMetadata {
+    pub adapter_id: String,
+    pub adapter_version: String,
+    pub duration_ms: u64,
+    pub sidecar_exit_code: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExtractionOutput {
     pub normalized_text: String,
     pub chunks: Vec<ExtractedChunk>,
     pub warnings: Vec<String>,
+    pub extraction_metadata: ExtractionMetadata,
 }
 
 pub trait DocumentExtractor: Send + Sync {
@@ -30,3 +39,5 @@ pub trait DocumentExtractor: Send + Sync {
 }
 
 pub mod fake;
+pub mod ipc;
+pub mod staging;

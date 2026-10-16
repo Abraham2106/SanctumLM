@@ -1,6 +1,11 @@
 use core_domain::{ProductError, ProductErrorCode};
 
-use crate::{DocumentExtractor, ExtractionInput, ExtractionOutput, ExtractedChunk};
+use crate::{
+    DocumentExtractor, ExtractionInput, ExtractionMetadata, ExtractionOutput, ExtractedChunk,
+};
+
+const STUB_ADAPTER_ID: &str = "stub-native";
+const STUB_ADAPTER_VERSION: &str = "0.0.0-skeleton";
 
 pub struct FakeDocumentExtractor;
 
@@ -13,15 +18,22 @@ impl DocumentExtractor for FakeDocumentExtractor {
             ));
         }
         let text = format!("contenido-stub:{}", input.mime);
+        let char_end = text.len() as u32;
         Ok(ExtractionOutput {
             normalized_text: text.clone(),
             chunks: vec![ExtractedChunk {
                 text,
                 page: Some(1),
                 char_start: 0,
-                char_end: 32,
+                char_end,
             }],
             warnings: vec![],
+            extraction_metadata: ExtractionMetadata {
+                adapter_id: STUB_ADAPTER_ID.into(),
+                adapter_version: STUB_ADAPTER_VERSION.into(),
+                duration_ms: 0,
+                sidecar_exit_code: 0,
+            },
         })
     }
 }
@@ -41,5 +53,6 @@ mod tests {
             })
             .unwrap();
         assert_eq!(out.chunks.len(), 1);
+        assert_eq!(out.chunks[0].char_end, out.normalized_text.len() as u32);
     }
 }
