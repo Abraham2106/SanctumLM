@@ -1,0 +1,9 @@
+INFORME DE CALIDAD — TRIMESTRE Q3 (SINTÉTICO)
+==============================================
+Índice de defectos críticos: 2
+Índice de defectos menores: 17
+Tasa de reapertura: 4.2 %
+
+Conclusión: se cumple el umbral interno (< 5 % reapertura).
+
+Identificador: SRC-08-informe-calidad-es
