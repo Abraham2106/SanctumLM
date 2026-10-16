@@ -17,4 +17,4 @@ Los archivos de dueño único **no** los edita ningún agente de esta ola. Cada 
 
 **Compartidos (planner, secuencial al integrar):** `adr/README.md`, `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`, `OPEN_QUESTIONS.md`.
 
-**A7 (TASK-0015)** no se lanza hasta integrar A1–A6.
+**A7 (TASK-0015)** exclusiva: `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`. No `.agents`, no índice ADR, no OPEN_QUESTIONS, no TRACEABILITY.

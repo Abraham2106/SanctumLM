@@ -12,6 +12,7 @@ Formato: `ADR-####-slug.md` con título, estado (`proposed` / `accepted` / `reje
 | [0004](ADR-0004-agent-runtime-boundaries.md) | Estado efímero vs. durable | proposed |
 | [0005](ADR-0005-approval-gates.md) | Puertas de aprobación y controles | proposed |
 | [0006](ADR-0006-desktop-stack.md) | Stack Tauri 2 + React/TS + layout §12 | proposed |
+| [0007](ADR-0007-storage.md) | SQLite FTS5 sqlite-vec y cifrado | proposed |
 | [0008](ADR-0008-model-router.md) | Router ModelAdapter y Ollama loopback | proposed |
 | [0009](ADR-0009-ingestion.md) | Ingesta aislada y citas localizables | proposed |
 | [0010](ADR-0010-artifact-engine.md) | Motor ArtifactSpec SVG/PPTX | proposed |
