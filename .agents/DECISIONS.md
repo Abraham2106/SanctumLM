@@ -25,3 +25,13 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 **Integración TASK-0023 (2026-10-17):** reviewer + security APPROVE con residuales — `selected_source_ids` vacío interpreta todas las fuentes **ready** del notebook (contrato núcleo futuro); pruebas cubren no-fuga entre notebooks; R-PROD-105/007 al cablear chat e IPC; no bloquean merge del crate retrieval.
 
 **Integración TASK-0025 (2026-10-17):** planner — anexo OLA 4 en WBS, fichas TASK-0026..0028, reserva de archivos tramo 1; OPEN-014 resuelta; sin código Rust de producto; `validate_docs.py` OK.
+
+**Integración TASK-0026 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — `secure_io` canonicaliza bajo `staging_root` materializado (r2 `52d1b37`); offsets de chunks incluyen separadores de párrafo (`0e55eb0`); lote IPC no aborta por ítem fallido (R-PROD-002); R-PROD-105 al cablear spawn desktop; no bloquean merge del adaptador `native-text`.
+
+**Integración TASK-0028 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — `ipc-client` degrada a mock local sin `fetch` externo hasta comandos Tauri (TASK-0027); lectura de archivos import vía File API del usuario; validar límites de tamaño y sanitización al cablear invoke real (R-PROD-105); no bloquean merge PR #7 @ `e9c1d0a` (HEAD rama `11dea11`).
+
+**Integración TASK-0027 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — estado de jobs en memoria (`job_memory`) hasta migración/tabla `jobs`; sidecar spawn y paths bajo staging acordados; R-PROD-105 egress/capabilities al ampliar superficie IPC; no bloquean merge PR #8 @ `16acd90` + follow-up `8cc33d3`.
+
+**Planificación TASK-0029 (2026-10-17):** planner — anexo OLA 4 tramo 2 en WBS (WBS-4.1.4–4.1.7), fichas TASK-0030..0033, reserva tramo 2; OPEN-015 resuelta; sin código Rust de producto; G2 no declarado; `validate_docs.py` OK.
+
+**Integración TASK-0031 (2026-10-16):** reviewer + security APPROVE con residuales — orquestación RAG notebook vs chat general y abstención sin hits FTS en crate `retrieval`; revalidación SQL `chunk_id`/`quote` prepara TASK-0032 (R-PROD-104/105); egress/capabilities al cablear invoke Tauri; no bloquean merge PR #10 @ `2222bf4` → `integration/mvp` @ `7826254`.

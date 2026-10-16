@@ -7,9 +7,16 @@
 //! - La UI (renderer) no ejecuta `fetch()` ni equivalentes hacia red; toda salida pasa por IPC al núcleo Rust.
 
 pub mod adapter;
+pub mod config;
 pub mod fake;
+pub mod loopback;
+pub mod ollama;
+pub mod router;
 pub mod types;
 
 pub use adapter::ModelAdapter;
+pub use config::InferenceConfig;
 pub use fake::FakeModelAdapter;
+pub use ollama::OllamaLoopbackAdapter;
+pub use router::ModelRouter;
 pub use types::*;

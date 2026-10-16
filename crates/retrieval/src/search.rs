@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct ChunkHit {
     pub chunk_id: ChunkId,
     pub source_id: SourceId,
+    pub source_version_id: String,
     pub quote: String,
     pub score: f32,
 }

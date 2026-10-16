@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import ChatPanel from "./components/ChatPanel.tsx";
+import FuentesPanel from "./components/FuentesPanel.tsx";
 
 type PanelId = "fuentes" | "chat" | "estudio";
 
@@ -7,12 +9,12 @@ const PANELS: { id: PanelId; label: string; hint: string }[] = [
   {
     id: "fuentes",
     label: "Fuentes",
-    hint: "Aquí aparecerán documentos e importaciones del cuaderno (placeholder).",
+    hint: "Importación, listado y búsqueda FTS del cuaderno activo.",
   },
   {
     id: "chat",
     label: "Chat",
-    hint: "Conversación con el modelo local vía núcleo Rust (placeholder).",
+    hint: "Chat de cuaderno o general; modelos vía IPC (mock hasta TASK-0032).",
   },
   {
     id: "estudio",
@@ -40,7 +42,7 @@ export default function App() {
     <div className="app-shell">
       <header className="app-header">
         <h1>SanctumLM</h1>
-        <p className="tagline">Cuaderno local — esqueleto de interfaz (OLA 2)</p>
+        <p className="tagline">Cuaderno local — fuentes, búsqueda y chat (OLA 4 tramo 2)</p>
         <button type="button" className="ipc-button" onClick={() => void probeIpc()}>
           Probar IPC stub
         </button>
@@ -72,10 +74,18 @@ export default function App() {
             hidden={panel.id !== active}
           >
             <h2 id={`heading-${panel.id}`}>{panel.label}</h2>
-            <p>{panel.hint}</p>
-            <p className="placeholder-note">
-              Sin datos reales ni llamadas de red externa desde la UI.
-            </p>
+            {panel.id === "fuentes" ? (
+              <FuentesPanel />
+            ) : panel.id === "chat" ? (
+              <ChatPanel />
+            ) : (
+              <>
+                <p>{panel.hint}</p>
+                <p className="placeholder-note">
+                  Sin datos reales ni llamadas de red externa desde la UI.
+                </p>
+              </>
+            )}
           </section>
         ))}
       </main>

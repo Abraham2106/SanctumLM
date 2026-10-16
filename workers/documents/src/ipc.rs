@@ -6,12 +6,9 @@ use std::io::{self, Read, Write};
 use std::path::PathBuf;
 use std::time::Instant;
 
-use crate::fake::FakeDocumentExtractor;
+use crate::native_text::SidecarExtractor;
 use crate::staging::{validate_staging_path, validate_staging_root};
-use crate::{DocumentExtractor, ExtractionInput, ExtractionMetadata, ExtractionOutput};
-
-const STUB_ADAPTER_ID: &str = "stub-native";
-const STUB_ADAPTER_VERSION: &str = "0.0.0-skeleton";
+use crate::{DocumentExtractor, ExtractionInput, ExtractionOutput};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ExtractionItemRequest {
@@ -57,7 +54,7 @@ pub fn process_ingest_request(
     request: &IngestSidecarRequest,
     staging_root: &PathBuf,
 ) -> IngestSidecarResponse {
-    let extractor = FakeDocumentExtractor;
+    let extractor = SidecarExtractor;
     let mut items = Vec::with_capacity(request.items.len());
 
     for item in &request.items {
@@ -76,13 +73,15 @@ fn process_one_item(
 
     match validate_staging_path(staging_root, &item.staging_path) {
         Ok(validated_path) => match extractor.extract(ExtractionInput {
+            staging_root: staging_root.clone(),
             staging_path: validated_path,
             mime: item.mime.clone(),
             max_bytes: item.max_bytes,
         }) {
             Ok(mut output) => {
                 let duration_ms = started.elapsed().as_millis() as u64;
-                output.extraction_metadata = stub_metadata(duration_ms, 0);
+                output.extraction_metadata.duration_ms = duration_ms;
+                output.extraction_metadata.sidecar_exit_code = 0;
                 ExtractionItemResponse {
                     item_id: item.item_id.clone(),
                     state: ItemOutcomeState::Completed,
@@ -130,15 +129,6 @@ fn job_code_for_product(err: &ProductError) -> JobErrorCode {
     }
 }
 
-fn stub_metadata(duration_ms: u64, sidecar_exit_code: i32) -> ExtractionMetadata {
-    ExtractionMetadata {
-        adapter_id: STUB_ADAPTER_ID.into(),
-        adapter_version: STUB_ADAPTER_VERSION.into(),
-        duration_ms,
-        sidecar_exit_code,
-    }
-}
-
 /// Lee un JSON de stdin, escribe `IpcResult<IngestSidecarResponse>` en stdout.
 pub fn run_stdio_sidecar() -> io::Result<()> {
     let mut input = String::new();
@@ -175,28 +165,72 @@ pub fn run_stdio_sidecar() -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ExtractedChunk;
-    use core_domain::{ProductError, ProductErrorCode};
+    use crate::fake::FakeDocumentExtractor;
+    use crate::native_text::NATIVE_TEXT_ADAPTER_ID;
+    use core_domain::ProductErrorCode;
+    use std::fs;
+    use std::sync::atomic::{AtomicU64, Ordering};
     use std::sync::{Arc, Mutex};
 
-    fn sample_request(staging_root: &str, paths: &[(&str, &str)]) -> IngestSidecarRequest {
+    static TEST_DIR_SEQ: AtomicU64 = AtomicU64::new(0);
+
+    fn unique_test_dir(prefix: &str) -> PathBuf {
+        let seq = TEST_DIR_SEQ.fetch_add(1, Ordering::Relaxed);
+        std::env::temp_dir().join(format!("{prefix}-{seq}"))
+    }
+
+    struct TempStaging {
+        root: PathBuf,
+        validated_root: PathBuf,
+    }
+
+    impl TempStaging {
+        fn new() -> Self {
+            let root = unique_test_dir("documents-worker-ipc");
+            let _ = fs::remove_dir_all(&root);
+            fs::create_dir_all(&root).unwrap();
+            let validated_root =
+                validate_staging_root(root.to_str().unwrap()).expect("root de prueba válido");
+            Self {
+                root,
+                validated_root,
+            }
+        }
+
+        fn write(&self, name: &str, bytes: &[u8]) -> String {
+            let path = self.root.join(name);
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent).unwrap();
+            }
+            fs::write(&path, bytes).unwrap();
+            path.to_str().unwrap().to_string()
+        }
+
+        fn root_str(&self) -> String {
+            self.root.to_str().unwrap().to_string()
+        }
+    }
+
+    impl Drop for TempStaging {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.root);
+        }
+    }
+
+    fn sample_request(staging_root: &str, paths: &[(&str, &str, &str)]) -> IngestSidecarRequest {
         IngestSidecarRequest {
             staging_root: staging_root.into(),
             items: paths
                 .iter()
-                .map(|(id, path)| ExtractionItemRequest {
+                .map(|(id, path, mime)| ExtractionItemRequest {
                     item_id: (*id).into(),
                     staging_path: (*path).into(),
-                    mime: "text/plain".into(),
+                    mime: (*mime).into(),
                     max_bytes: 1_000_000,
                     adapter_hint: None,
                 })
                 .collect(),
         }
-    }
-
-    fn normalized_root(staging_root: &str) -> PathBuf {
-        validate_staging_root(staging_root).expect("root de prueba válido")
     }
 
     struct PathCaptureExtractor {
@@ -212,16 +246,17 @@ mod tests {
 
     #[test]
     fn batch_continues_when_one_item_fails() {
-        let root = normalized_root("/var/sanctum/staging");
+        let staging = TempStaging::new();
+        let ok_path = staging.write("a.txt", b"hola lote");
         let response = process_ingest_request(
             &sample_request(
-                "/var/sanctum/staging",
+                &staging.root_str(),
                 &[
-                    ("ok", "/var/sanctum/staging/a.txt"),
-                    ("bad", "/tmp/outside.txt"),
+                    ("ok", &ok_path, "text/plain"),
+                    ("bad", "/tmp/outside.txt", "text/plain"),
                 ],
             ),
-            &root,
+            &staging.validated_root,
         );
 
         assert_eq!(response.items.len(), 2);
@@ -234,11 +269,39 @@ mod tests {
     }
 
     #[test]
-    fn ipc_envelope_ok_shape() {
-        let root = normalized_root("/staging");
+    fn mixed_batch_txt_md_and_corrupt() {
+        let staging = TempStaging::new();
+        let txt = staging.write("one.txt", b"Primero.");
+        let md = staging.write("two.md", b"## Segundo\n\nParrafo.");
+        let bad = staging.write("bad.txt", &[0xff, 0xfe]);
         let response = process_ingest_request(
-            &sample_request("/staging", &[("1", "/staging/x.md")]),
-            &root,
+            &sample_request(
+                &staging.root_str(),
+                &[
+                    ("txt", &txt, "text/plain"),
+                    ("md", &md, "text/markdown"),
+                    ("bad", &bad, "text/plain"),
+                ],
+            ),
+            &staging.validated_root,
+        );
+        assert_eq!(response.items.len(), 3);
+        assert_eq!(response.items[0].state, ItemOutcomeState::Completed);
+        assert_eq!(response.items[1].state, ItemOutcomeState::Completed);
+        assert_eq!(response.items[2].state, ItemOutcomeState::Failed);
+        assert_eq!(
+            response.items[2].error_code,
+            Some(JobErrorCode::ExtractionCorrupt)
+        );
+    }
+
+    #[test]
+    fn ipc_envelope_ok_shape() {
+        let staging = TempStaging::new();
+        let md = staging.write("x.md", b"cuerpo");
+        let response = process_ingest_request(
+            &sample_request(&staging.root_str(), &[("1", &md, "text/markdown")]),
+            &staging.validated_root,
         );
         let envelope = IpcResult::ok(response);
         let raw = serde_json::to_value(&envelope).unwrap();
@@ -247,35 +310,34 @@ mod tests {
     }
 
     #[test]
-    fn stub_output_includes_metadata_and_chunks() {
-        let root = normalized_root("/data/staging");
+    fn native_output_includes_metadata_and_chunks() {
+        let staging = TempStaging::new();
+        let txt = staging.write("file.txt", b"contenido real");
         let response = process_ingest_request(
-            &sample_request("/data/staging", &[("doc", "/data/staging/file.txt")]),
-            &root,
+            &sample_request(&staging.root_str(), &[("doc", &txt, "text/plain")]),
+            &staging.validated_root,
         );
         let out = response.items[0].output.as_ref().unwrap();
-        assert_eq!(out.extraction_metadata.adapter_id, STUB_ADAPTER_ID);
+        assert_eq!(out.extraction_metadata.adapter_id, NATIVE_TEXT_ADAPTER_ID);
         assert!(!out.chunks.is_empty());
-        assert_eq!(out.chunks[0], ExtractedChunk {
-            text: out.normalized_text.clone(),
-            page: Some(1),
-            char_start: 0,
-            char_end: out.normalized_text.len() as u32,
-        });
+        assert_eq!(out.normalized_text, "contenido real");
     }
 
     #[test]
     fn extractor_receives_validated_path_not_raw_json() {
-        let root = normalized_root("/var/staging");
+        let staging = TempStaging::new();
+        staging.write("nested/doc.txt", b"x");
+        let root = staging.validated_root.clone();
         let capture = PathCaptureExtractor {
             last_path: Arc::new(Mutex::new(None)),
         };
         let last = Arc::clone(&capture.last_path);
+        let nested = staging.root.join("nested").join("doc.txt");
         let item = ExtractionItemRequest {
             item_id: "x".into(),
-            staging_path: "/var/staging/./nested/doc.txt".into(),
+            staging_path: format!("{}/./nested/doc.txt", staging.root_str()),
             mime: "text/plain".into(),
-            max_bytes: 1,
+            max_bytes: 1_000_000,
             adapter_hint: None,
         };
         let expected = validate_staging_path(&root, &item.staging_path).unwrap();
@@ -283,6 +345,7 @@ mod tests {
         process_one_item(&capture, &root, &item);
         let captured = last.lock().unwrap().take().expect("debe invocar extractor");
         assert_eq!(captured, expected);
+        assert_eq!(captured, nested);
     }
 
     #[test]
