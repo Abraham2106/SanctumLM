@@ -1,97 +1,133 @@
-import { useCallback, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState, type CSSProperties } from "react";
 import ChatPanel from "./components/ChatPanel.tsx";
 import FuentesPanel from "./components/FuentesPanel.tsx";
+import { getIpcTransport, notebookList } from "./lib/ipc-client.ts";
+import { shouldUseMockIpc } from "./lib/ipc-runtime.ts";
 
-type PanelId = "fuentes" | "chat" | "estudio";
+const ESTUDIO_EMPTY_TITLE = "Sin artefactos todavía";
+const ESTUDIO_EMPTY_BODY =
+  "Aquí irán notas, resúmenes y exportaciones del cuaderno activo. " +
+  "Mientras tanto puedes importar fuentes y conversar en el chat contextual.";
+const ESTUDIO_EMPTY_FOOTER =
+  "La UI no abre red ni proveedores de IA por su cuenta; todo pasa por IPC al núcleo.";
 
-const PANELS: { id: PanelId; label: string; hint: string }[] = [
-  {
-    id: "fuentes",
-    label: "Fuentes",
-    hint: "Importación, listado y búsqueda FTS del cuaderno activo.",
-  },
-  {
-    id: "chat",
-    label: "Chat",
-    hint: "Chat de cuaderno o general; modelos y mensajes vía IPC al núcleo Tauri.",
-  },
-  {
-    id: "estudio",
-    label: "Estudio",
-    hint: "Notas, resúmenes y artefactos del cuaderno (placeholder).",
-  },
-];
+function transportLabelFromMode(): string {
+  return getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri";
+}
 
 export default function App() {
-  const [active, setActive] = useState<PanelId>("fuentes");
-  const [ipcStatus, setIpcStatus] = useState<string>("sin probar");
+  const [transportLabel, setTransportLabel] = useState(() => transportLabelFromMode());
+  const [wideLayout, setWideLayout] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 960px)").matches,
+  );
 
-  const probeIpc = useCallback(async () => {
-    try {
-      const reply = await invoke<string>("ping");
-      setIpcStatus(reply);
-    } catch {
-      setIpcStatus("IPC no disponible (modo solo navegador)");
-    }
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 960px)");
+    const onChange = () => setWideLayout(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const current = PANELS.find((p) => p.id === active) ?? PANELS[0];
+  useEffect(() => {
+    let cancelled = false;
+    void notebookList().finally(() => {
+      if (!cancelled) {
+        setTransportLabel(transportLabelFromMode());
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const workspaceStyle: CSSProperties = {
+    flex: 1,
+    display: "grid",
+    gap: "1rem",
+    gridTemplateColumns: wideLayout
+      ? "minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 0.85fr)"
+      : "1fr",
+    alignItems: "start",
+  };
+
+  const mockDevNote = shouldUseMockIpc()
+    ? " Mock IPC activo (navegador sin Tauri o VITE_IPC_MOCK=1)."
+    : "";
 
   return (
     <div className="app-shell">
+      <style>{`
+        .skip-link {
+          position: absolute;
+          left: -9999px;
+          top: 0.5rem;
+          z-index: 100;
+          padding: 0.35rem 0.75rem;
+          background: var(--panel-bg);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          color: inherit;
+          text-decoration: none;
+        }
+        .skip-link:focus {
+          left: 1rem;
+        }
+        .transport-indicator {
+          margin: 0.5rem 0 0;
+          font-size: 0.9rem;
+          opacity: 0.92;
+        }
+        .estudio-empty h3 {
+          margin: 0 0 0.5rem;
+          font-size: 1rem;
+        }
+        .estudio-empty p {
+          margin: 0 0 0.65rem;
+        }
+      `}</style>
+      <a className="skip-link" href="#main-content">
+        Ir al contenido principal
+      </a>
+
       <header className="app-header">
         <h1>SanctumLM</h1>
-        <p className="tagline">Cuaderno local — fuentes, búsqueda y chat (OLA 4 tramo 2)</p>
-        <button type="button" className="ipc-button" onClick={() => void probeIpc()}>
-          Probar ping IPC
-        </button>
-        <span className="ipc-status" aria-live="polite">
-          Estado IPC: {ipcStatus}
-        </span>
+        <p className="tagline">
+          Cuaderno local en español — columnas fuentes, chat y estudio (hipótesis OPEN-007).
+        </p>
+        <p className="transport-indicator" role="status" aria-live="polite">
+          Transporte IPC: <strong>{transportLabel}</strong>.
+          {transportLabel === "núcleo Tauri"
+            ? " Los paneles usan comandos Tauri reales."
+            : " Datos de demostración en memoria para desarrollo UI."}
+          {mockDevNote}
+        </p>
       </header>
 
-      <nav className="panel-tabs" aria-label="Paneles principales">
-        {PANELS.map((panel) => (
-          <button
-            key={panel.id}
-            type="button"
-            className={panel.id === active ? "tab active" : "tab"}
-            aria-current={panel.id === active ? "page" : undefined}
-            onClick={() => setActive(panel.id)}
-          >
-            {panel.label}
-          </button>
-        ))}
-      </nav>
+      <main className="panel-grid workspace-layout" id="main-content" style={workspaceStyle}>
+        <section className="panel panel-visible" aria-labelledby="heading-fuentes">
+          <h2 id="heading-fuentes">Fuentes</h2>
+          <FuentesPanel />
+        </section>
 
-      <main className="panel-grid" id="main-content">
-        {PANELS.map((panel) => (
-          <section
-            key={panel.id}
-            className={`panel ${panel.id === active ? "panel-visible" : "panel-hidden"}`}
-            aria-labelledby={`heading-${panel.id}`}
-            hidden={panel.id !== active}
-          >
-            <h2 id={`heading-${panel.id}`}>{panel.label}</h2>
-            {panel.id === "fuentes" ? (
-              <FuentesPanel />
-            ) : panel.id === "chat" ? (
-              <ChatPanel />
-            ) : (
-              <>
-                <p>{panel.hint}</p>
-                <p className="placeholder-note">
-                  Sin datos reales ni llamadas de red externa desde la UI.
-                </p>
-              </>
-            )}
-          </section>
-        ))}
+        <section className="panel panel-visible" aria-labelledby="heading-chat">
+          <h2 id="heading-chat">Chat</h2>
+          <ChatPanel />
+        </section>
+
+        <section className="panel panel-visible" aria-labelledby="heading-estudio">
+          <h2 id="heading-estudio">Estudio</h2>
+          <div className="estudio-empty" aria-labelledby="estudio-empty-title">
+            <h3 id="estudio-empty-title">{ESTUDIO_EMPTY_TITLE}</h3>
+            <p>{ESTUDIO_EMPTY_BODY}</p>
+            <p className="placeholder-note">{ESTUDIO_EMPTY_FOOTER}</p>
+          </div>
+        </section>
       </main>
 
       <footer className="app-footer">
-        <span>Panel activo: {current.label}</span>
+        <span>
+          Diseño: fuentes | chat | estudio. Transporte: {transportLabel}.
+        </span>
       </footer>
     </div>
   );
