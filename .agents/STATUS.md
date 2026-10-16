@@ -6,12 +6,12 @@
 - **Gate actual:** G1 cerrado 2026-10-16; **no** declarar G2/G3/G4
 - **G0:** aprobado 2026-10-16
 - **`origin/main`:** `828415a` — G1 ADRs; **no modificar** en esta ola
-- **Integración:** `integration/mvp` @ HEAD post-merge TASK-0021 (`--no-ff` desde `d9a8b20`, APPROVED reviewer + security); base previa `6bf5eaa` (0019+0020)
+- **Integración:** `integration/mvp` @ **`a88f28f`** (merge TASK-0021 `--no-ff` desde `d9a8b20`, APPROVED reviewer + security); base previa `6bf5eaa` (0019+0020)
 - **OLA 1:** TASK-0008..0016 cerradas (G1)
 - **OLA 2:** TASK-0017..0021 **done** — cimientos B1+B2 integrados
 - **ADRs producto G1 accepted:** 0006–0011 (ratificados en main G1)
 - **Avance R-PROD (código+pruebas+revisión):** **0/26** — cimientos y contratos; sin features de producto cableadas
-- **Evidencia reciente (TASK-0021):** `cargo test --workspace`; `npm test` en `packages/contracts` si aplica; validador docs
+- **Evidencia reciente (TASK-0021):** `cargo test --workspace` **13** tests OK; `npm test` (`tsc --noEmit`) en `packages/contracts` OK; `python scripts/validate_docs.py` OK (84 MD)
 - **Validador:** `python scripts/validate_docs.py` — ejecutar tras cada consolidación documental en `.agents/`
 - **Spikes:** sqlite-vec 0.1.9 Windows **pass**; Ollama modelos **not-run** (RSK-12)
 - **Riesgos:** RSK-13, RSK-12, RSK-14, RSK-11
