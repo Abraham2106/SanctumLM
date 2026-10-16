@@ -17,3 +17,11 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 | ADR-0011 | Amenazas y egress | accepted | G1 2026-10-16; TASK-0014 |
 
 **Decisiones de producto:** ADR-0006–0011 `accepted` tras G1 humano (2026-10-16). OPEN-005..012 permanecen abiertas; no implican rechazo de los ADR.
+
+**Integración TASK-0021 (2026-10-16):** security APPROVE con residuales documentados — tratamiento `api_key`, validación nested forbidden keys, y R-PROD-105 al cablear IPC desktop; no bloquean merge de contratos/fakes.
+
+**Integración TASK-0024 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — staging restringe paths bajo root acordado; sidecar sin red en pruebas actuales; spawn/capabilities desktop y política egress (R-PROD-105) al integrar con Tauri; no bloquean merge del skeleton.
+
+**Integración TASK-0023 (2026-10-17):** reviewer + security APPROVE con residuales — `selected_source_ids` vacío interpreta todas las fuentes **ready** del notebook (contrato núcleo futuro); pruebas cubren no-fuga entre notebooks; R-PROD-105/007 al cablear chat e IPC; no bloquean merge del crate retrieval.
+
+**Integración TASK-0025 (2026-10-17):** planner — anexo OLA 4 en WBS, fichas TASK-0026..0028, reserva de archivos tramo 1; OPEN-014 resuelta; sin código Rust de producto; `validate_docs.py` OK.

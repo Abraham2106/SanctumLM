@@ -1,0 +1,12 @@
+[package]
+name = "retrieval"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+core-domain = { path = "../core-domain" }
+storage = { path = "../storage" }
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

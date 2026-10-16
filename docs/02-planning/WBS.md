@@ -41,3 +41,57 @@
 ## Diccionario y reglas de desglose
 
 Cada paquete se transforma en tareas `TASK-####` con *resultado observable*, límite de archivos, esfuerzo estimado por el agente responsable, dependencias, requisito `R-*`, pruebas `TC-*`, ADR relevante y criterio de Done. Ningún paquete significa una funcionalidad concreta hasta G0. Evitar asignar simultáneamente dos tareas sobre el mismo contrato o archivo de coordinación. El planner actualiza el porcentaje solo con evidencias, no con apreciaciones del modelo.
+
+## Anexo — OLA 3 (cimientos de datos e ingesta)
+
+**Alcance:** plan de implementación post-OLA 2 (TASK-0017..0021 integradas en `integration/mvp`); **no** es cambio de producto ni gate G2. Desglosa el paquete padre **WBS-3.4** hacia persistencia local, recuperación léxica/vectorial inicial y sidecar de ingesta, según ADR-0006 (layout §12), ADR-0007, ADR-0009 y requisitos MVP ya aprobados en G0/G1.
+
+**Prerrequisito:** OLA 2 cerrada (workspace §12, contratos B2 TASK-0021).
+
+| Sub-paquete | Entregable | Requisitos (diseño) | ADR | Verificación objetivo | Tarea |
+| --- | --- | --- | --- | --- | --- |
+| **WBS-3.4.1** Persistencia SQLite | Migraciones versionadas (`schema_migrations`), `PRAGMA` WAL + FK, esquema migración **0001** (notebooks, sources, versiones, chunks, FTS5 `chunks_fts`, jobs/audit mínimo según ADR-0007); API de conexión en `crates/storage` sin **SQLCipher** hasta cierre `OPEN-010` | R-PROD-001, R-PROD-103, R-PROD-106; soporte esquema R-PROD-105 | ADR-0007 | Tests unitarios migración idempotente; triggers FTS; datos de prueba solo `public` si aplica gate OPEN-010 | **TASK-0022** |
+| **WBS-3.4.2** Recuperación (FTS + vector) | Consultas FTS5 con filtros notebook/fuentes (`§11.3` ADR-0007); trait `VectorIndex` + stub Plan B; **sin** chat general accediendo a índices (R-PROD-007) | R-PROD-006 (parcial), R-PROD-105, R-PROD-007 | ADR-0007, ADR-0008 (embeddings posteriores) | TC-PROD-105 (preparación); escenario (e) léxico en tests de crate | **TASK-0023** |
+| **WBS-3.4.3** Sidecar ingesta (esqueleto) | Proceso/worker aislado en `workers/documents`: contrato IPC JSON hacia núcleo, límites sin red/keychain, stubs de adaptadores; **sin** parsers pesados ni Docling en esta tarea | R-PROD-002 (parcial), R-PROD-106, R-PROD-111 | ADR-0009 | Tests de contrato sidecar; job estados recuperables | **TASK-0024** |
+
+### Orden y dependencias (OLA 3)
+
+```text
+TASK-0021 (done)
+    ├── TASK-0022 (WBS-3.4.1) ──► TASK-0023 (WBS-3.4.2)
+    └── TASK-0024 (WBS-3.4.3)   [paralelo a 0022; integración funcional con storage vía contratos/núcleo en tareas posteriores]
+```
+
+- **0022 antes de 0023:** la recuperación consume esquema y conexión SQLite/FTS materializados en storage.
+- **0024 en paralelo con 0022:** no modifica migraciones ni `crates/retrieval`; cableado end-to-end importación → chunks → FTS queda para OLA 4 / vertical slice (TASK-0005), no inventado aquí.
+- **Cuestiones abiertas:** `OPEN-010` bloquea SQLCipher y persistencia `private`/`restricted` en builds de usuario; `OPEN-005`..`012` no bloquean estas tres tareas (hipótesis en fichas).
+
+**Fuera de OLA 3 (referencia WBS existente):** UI producto (`apps/desktop` salvo IPC tipado ya reservado), CI desktop, RAG/chat cableado, ModelAdapter real, conectores — WBS-4.1+ / tareas futuras.
+
+## Anexo — OLA 4 (cableado hacia vertical slice)
+
+**Alcance:** plan de implementación post-OLA 3 (TASK-0022..0024 integradas; TASK-0023 al cierre de merge); **no** declara gate **G2** ni sustituye la ficha paraguas **TASK-0005** (`WBS-4.1`). Desglosa el **primer tramo** del vertical slice acordado en G0/G1: cableado **importación → chunks → FTS → UI/búsqueda**, dejando chat/RAG+citas y demostración G2 para tramo posterior bajo la misma `WBS-4.1` (sin nuevos requisitos `R-PROD`).
+
+**Prerrequisito:** OLA 3 cerrada (0022, 0024 integrados; 0023 mergeado o en integración).
+
+| Sub-paquete | Entregable | Requisitos (diseño) | ADR | Verificación objetivo | Tarea |
+| --- | --- | --- | --- | --- | --- |
+| **WBS-4.1.1** Extractores sidecar ligeros | Adaptadores **TXT/MD** (y pegado vía mismo pipeline) en `workers/documents`; límites de tamaño; **sin** Docling/MarkItDown ni red | R-PROD-002 (parcial), R-PROD-111 | ADR-0009 | Tests contrato por MIME; lote mixto con archivo inválido no aborta el resto (preparación TC-PROD-002) | **TASK-0026** |
+| **WBS-4.1.2** Nucleo import → persistencia | Comandos Tauri + servicios: staging, spawn sidecar, persistir fuente/chunks/jobs vía API pública `storage`; SHA-256 y estados; **sin** UI React | R-PROD-002 (parcial), R-PROD-014 (parcial), R-PROD-106 (parcial), R-PROD-103 | ADR-0007, ADR-0009 | Tests integración Rust (DB temp); job cancel/retry idempotente a nivel núcleo (preparación TC-PROD-014) | **TASK-0027** |
+| **WBS-4.1.3** Contratos IPC + UI tramo import/búsqueda | Tipos en `packages/contracts`; panel fuentes + acción importar + búsqueda FTS en UI (español); invoca comandos de 0027; **sin** chat notebook ni ModelAdapter real | R-PROD-001 (parcial), R-PROD-002 (parcial), R-PROD-105 (parcial vía UI+API), R-PROD-108 (hipótesis OPEN-007) | ADR-0006, ADR-0007 | `tsc --noEmit`; smoke manual import+search; TC-PROD-001/002/105 **not-run** E2E hasta tramo chat | **TASK-0028** |
+
+### Orden y dependencias (OLA 4 — tramo 1)
+
+```text
+OLA 3 (0022, 0023, 0024)
+    ├── TASK-0026 (WBS-4.1.1)  [paralelo a 0023 si superficies distintas]
+    ├── TASK-0027 (WBS-4.1.2)  [depende 0022; sidecar 0024; opcional 0026 para TXT/MD real]
+    └── TASK-0028 (WBS-4.1.3)  [depende contratos acordados; cableado real tras 0027]
+```
+
+- **Paralelizable ya:** **0026** (worker) vs **0023** (retrieval) vs **0028** (solo contratos/types + UI mock) mientras **0027** no toque los mismos archivos.
+- **0027 antes de E2E UI:** la UI de 0028 asume comandos `import_*`, `job_*`, `notebook_*` mínimos implementados en núcleo.
+- **Chat / RAG / citas / TC-PROD-006–008:** fuera de este tramo; siguen bajo **TASK-0005** (`WBS-4.1`) — ver **OPEN-014** (planificación, no requisito nuevo).
+- **Cuestiones abiertas:** `OPEN-010` (sin SQLCipher); `OPEN-008`/`RSK-12` (Ollama not-run); `OPEN-005` (fakes en tests).
+
+**Fuera de OLA 4 tramo 1:** PDF/DOCX/HTML parsers pesados, conectores nube, artefactos, egress remoto, CI desktop habilitado, declaración G2 — `WBS-4.1` restante / `WBS-4.2+`.

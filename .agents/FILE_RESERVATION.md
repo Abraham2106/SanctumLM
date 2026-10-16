@@ -1,20 +1,59 @@
-# Reserva de archivos — OLA 1 (G1)
+# Reserva de archivos
 
-**Vigente desde:** 2026-10-16. **Dueño del mapa:** planner (TASK-0008).
-**Base:** `integration/mvp` @ `4ff44a7` (main = merge de TASK-0007).
+**Dueño del mapa:** planner. **Bitácora canónica:** rama `integration/mvp` (worktree `SanctumLM-wt-integration`).
 
-Los archivos de dueño único **no** los edita ningún agente de esta ola. Cada tarea escribe solo su superficie.
+## OLA 1 (G1) — cerrada
+
+Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia histórica: base `4ff44a7`.
+
+## OLA 2 — B1 cimientos + B2 contratos
+
+**Vigente desde:** 2026-10-16 post-merge TASK-0021. **Base integración:** `integration/mvp` (HEAD post-merge TASK-0021).
+
+| Tarea | Superficie exclusiva | Estado |
+| --- | --- | --- |
+| TASK-0008 planner | `.agents/*` (excepto briefs publicados), consolidación post-merge | activa (solo bitácora) |
+| TASK-0017 | `benchmarks/**` (corpus B3) | **liberada** — merged `1cc29e3` |
+| TASK-0018 | raíz `Cargo.toml`, `Cargo.lock`, `crates/**`, `workers/documents/**`, `packages/artifacts/**`, `scripts/verify.ps1`, `security/README.md`, entradas `.gitignore` de workspace | **liberada** — merged `77eb850`; cambios futuros vía nueva tarea |
+| TASK-0019 | `apps/desktop/**`, config Tauri (`src-tauri/**` bajo desktop), `package.json` / lockfile UI del desktop, miembros workspace del stub desktop | **liberada** — merged `2180b6a`; cambios futuros vía nueva tarea |
+| TASK-0020 | `.github/workflows/**` (CI mínimo docs + Rust; job desktop residual `if: false`) | **liberada** — merged `5546344`; cambios futuros vía nueva tarea |
+| TASK-0021 B2 | `crates/core-domain/**`, `crates/storage/**`, `crates/retrieval/**`, `crates/ai-router/**`, `crates/connectors/**`, `workers/documents/**`, `packages/contracts/**`, `apps/desktop/src/ipc-types.ts` | **liberada** — merged `d9a8b20`; prohibido futuro sin nueva ficha: `App.tsx`, `.github/**`, RAG/SQLite/Ollama real |
+
+**Compartidos (planner, secuencial al integrar):** `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `docs/03-architecture/adr/README.md` cuando aplique.
+
+**Prohibido cross-task:** ningún agente en vuelo edita la superficie activa de otra fila.
+
+**A7 (TASK-0015)** exclusiva histórica: `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`. Cerrada G1; cambios futuros vía nueva tarea.
+
+## OLA 3 — datos e ingesta (cimientos)
+
+**Vigente desde:** 2026-10-16 (cierre OPEN-013). **Base integración:** `integration/mvp` @ `1b3c875` (post TASK-0021).
 
 | Tarea | Superficie exclusiva | Prohibido |
 | --- | --- | --- |
-| TASK-0008 planner | `.agents/*` (excepto briefs ya publicados), `docs/03-architecture/adr/README.md`, `docs/01-requirements/TRACEABILITY.md`, `docs/02-planning/RISK_REGISTER.md` | código de producto |
-| TASK-0009 A1 | `docs/03-architecture/adr/ADR-0006-desktop-stack.md` | índice ADR, `.agents/*`, crear `apps/` |
-| TASK-0010 A2 | `docs/03-architecture/adr/ADR-0007-storage.md`, `docs/04-quality/evidence/spike-sqlite-vec-windows.md` | `Cargo.toml`, migraciones reales, índice ADR |
-| TASK-0011 A3 | `docs/03-architecture/adr/ADR-0008-model-router.md`, `docs/04-quality/evidence/spike-ollama-local-models.md` | APIs de pago, modelos >4 GB, índice ADR |
-| TASK-0012 A4 | `docs/03-architecture/adr/ADR-0009-ingestion.md` | workers reales, índice ADR |
-| TASK-0013 A5 | `docs/03-architecture/adr/ADR-0010-artifact-engine.md` | implementar PptxGenJS/SVG, §8.3, índice ADR |
-| TASK-0014 A6 | `docs/03-architecture/adr/ADR-0011-threat-model-egress.md`, `docs/03-architecture/THREAT_MODEL.md` (nuevo) | `docs/04-quality/SECURITY.md` (proceso), índice ADR, `.agents/*` |
+| TASK-0022 | `crates/storage/**` (migraciones SQL, `rusqlite`, pruebas de esquema/FTS en crate storage) | `crates/retrieval/**`, `workers/documents/**`, `apps/desktop/src/App.tsx`, `.github/**`, SQLCipher, `load_extension` usuario |
+| TASK-0023 | `crates/retrieval/**` (consultas FTS, trait `VectorIndex`, tests aislamiento léxico) | `crates/storage/migrations/**` (salvo usar API pública de storage), `workers/documents/**`, `App.tsx`, `.github/**` |
+| TASK-0024 | `workers/documents/**` (binario/proceso sidecar, contrato IPC, stubs adaptadores, tests contrato) | `crates/storage/migrations/**`, lógica FTS en retrieval, parsers Docling/MarkItDown pesados, `App.tsx`, `.github/**` |
 
-**Compartidos (planner, secuencial al integrar):** `adr/README.md`, `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`, `OPEN_QUESTIONS.md`.
+**Compartidos (planner al integrar):** `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md`, `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, este archivo.
 
-**A7 (TASK-0015)** exclusiva: `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`. No `.agents`, no índice ADR, no OPEN_QUESTIONS, no TRACEABILITY.
+**Cross-task:** ningún agente en vuelo edita la superficie exclusiva de otra fila OLA 3. Cambios en `packages/contracts` o `crates/core-domain` requieren tarea dedicada (no incluidos en 0022..0024).
+
+**OLA 3 — liberación post-merge:** TASK-0022..0024 **liberadas** en integración @ `119743a`; cambios futuros vía ficha OLA 4+.
+
+## OLA 4 — vertical slice tramo 1 (import → FTS → UI)
+
+**Vigente desde:** 2026-10-17 (cierre OPEN-014). **Base integración:** `integration/mvp` @ `119743a` (OLA 3 cerrada: TASK-0022..0024).
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0025 planner | `.agents/*`, `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md` (OPEN-014), consolidación | código producto |
+| TASK-0026 | `workers/documents/**` | `crates/storage/**`, `apps/desktop/**`, `.github/**`, parsers pesados |
+| TASK-0027 | `apps/desktop/src-tauri/src/**`, `crates/storage/src/**` excepto `migrations/**` | `apps/desktop/src/**` (UI), `packages/contracts/**`, `workers/documents/**` (salvo spawn bin), `.github/**`, chat/RAG |
+| TASK-0028 | `packages/contracts/**`, `apps/desktop/src/**` excepto `src-tauri/**` | `apps/desktop/src-tauri/**`, `crates/**`, `workers/**`, `.github/**` |
+
+**Compartidos (planner al integrar):** `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, `.agents/FILE_RESERVATION.md`, `docs/02-planning/WBS.md`.
+
+**Cross-task:** 0027 implementa comandos; 0028 define tipos y UI — acordar nombres de comandos vía contratos (0028) antes de merge final E2E.
+
+**Paralelo seguro:** 0026 ∥ 0023 ∥ 0028 (solo contratos/UI mock) mientras 0027 no esté en la misma superficie.

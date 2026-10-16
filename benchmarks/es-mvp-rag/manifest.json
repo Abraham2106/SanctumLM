@@ -1,0 +1,156 @@
+{
+  "corpus_id": "es-mvp-rag",
+  "language": "es",
+  "license": "synthetic-original-sanctumlm",
+  "sources": [
+    {
+      "id": "SRC-01-politica-vacaciones",
+      "path": "sources/01-politica-vacaciones.md",
+      "language": "es",
+      "tags": [
+        "table"
+      ],
+      "sha256": "8cc961390445701f5124e326bacaf32847a82a628d46b583454b1779ccd27c86",
+      "size_bytes": 606
+    },
+    {
+      "id": "SRC-02-inventario-almacen",
+      "path": "sources/02-inventario-almacen.txt",
+      "language": "es",
+      "tags": [
+        "table"
+      ],
+      "sha256": "03d8658c99f0eeecfa5eba58db10dd04d70f7187997dbb0c715d13845d00326b",
+      "size_bytes": 573
+    },
+    {
+      "id": "SRC-03-manual-procedimientos",
+      "path": "sources/03-manual-procedimientos.html",
+      "language": "es",
+      "tags": [
+        "html-static"
+      ],
+      "sha256": "667b1f27df28abe134b1fc46c84fa566be1292a0b49e0b710ea8ca6d25d496aa",
+      "size_bytes": 540
+    },
+    {
+      "id": "SRC-04-tabla-presupuesto-2024",
+      "path": "sources/04-tabla-presupuesto-2024.md",
+      "language": "es",
+      "tags": [
+        "table"
+      ],
+      "sha256": "cf5c6a28e0fb25abeed56fb4a0a0f8a8c16815a4df04ad9aede52f592e77924f",
+      "size_bytes": 425
+    },
+    {
+      "id": "SRC-05-injection-ignorar-usuario",
+      "path": "sources/05-injection-ignorar-usuario.txt",
+      "language": "es",
+      "tags": [
+        "injection"
+      ],
+      "sha256": "ba1682e50f95a1e3a5a7669e4a560397a59daa58454613f50ddf18d5f1d80fad",
+      "size_bytes": 645
+    },
+    {
+      "id": "SRC-06-hecho-fecha-lanzamiento-A",
+      "path": "sources/06-hecho-fecha-lanzamiento-A.md",
+      "language": "es",
+      "tags": [
+        "contradiction"
+      ],
+      "sha256": "a501ab3bf4b3a8eab1d59153c7287ef8638b4db8236a1fe5a284cb7cb3ddd38c",
+      "size_bytes": 343
+    },
+    {
+      "id": "SRC-07-hecho-fecha-lanzamiento-B",
+      "path": "sources/07-hecho-fecha-lanzamiento-B.md",
+      "language": "es",
+      "tags": [
+        "contradiction"
+      ],
+      "sha256": "0f689bb748e645a3e7243fe2271af42669b25456e83173cb8441f028f42a7b09",
+      "size_bytes": 354
+    },
+    {
+      "id": "SRC-08-informe-calidad-es",
+      "path": "sources/08-informe-calidad-es.txt",
+      "language": "es",
+      "tags": [],
+      "sha256": "ae458e49ff850ae30beac7c491c0b678beed39ad1f83ccbcc72b34ec9bf9b207",
+      "size_bytes": 300
+    },
+    {
+      "id": "SRC-09-notas-reunion-modificadas",
+      "path": "sources/09-notas-reunion-modificadas.md",
+      "language": "es",
+      "tags": [
+        "modified-notes"
+      ],
+      "sha256": "b9fc964b794d841433a638c2036911fb3e4b640df5bc7707fc5c6753502e99c9",
+      "size_bytes": 358
+    },
+    {
+      "id": "SRC-10a-concepto-alfa-capacidad",
+      "path": "sources/notebook-a/10-concepto-alfa-capacidad.md",
+      "language": "es",
+      "tags": [
+        "isolation"
+      ],
+      "sha256": "72008dd563e594568fa1d98ac208b943d98d487fa49c62bcff4a2d7125cc155d",
+      "size_bytes": 273
+    },
+    {
+      "id": "SRC-10b-concepto-alfa-capacidad",
+      "path": "sources/notebook-b/10-concepto-alfa-capacidad.md",
+      "language": "es",
+      "tags": [
+        "isolation"
+      ],
+      "sha256": "fefa236257eacfe7639e5700f5f818c484a9c85611a280932b96fe0701e15360",
+      "size_bytes": 288
+    },
+    {
+      "id": "SRC-11-glosario-publico-dominio",
+      "path": "sources/11-glosario-publico-dominio.txt",
+      "language": "es",
+      "tags": [
+        "public-domain-style"
+      ],
+      "sha256": "f6ea2cd5de511e5334fae1f1b662bc5d3c58783c536c7c851b0daa1c77f30e5f",
+      "size_bytes": 333
+    },
+    {
+      "id": "SRC-12-escaneado-presupuesto-ocr",
+      "path": "sources/escaneado-presupuesto-ocr.pdf",
+      "language": "es",
+      "tags": [
+        "scan",
+        "ocr-gap"
+      ],
+      "sha256": "893575bc45db35607be9539e2e4467cf2d91ca9085b57654840c69e3cf7202d2",
+      "size_bytes": 784
+    },
+    {
+      "id": "SRC-13-corrupt-informe",
+      "path": "sources/corrupt-informe.pdf",
+      "language": "es",
+      "tags": [
+        "corrupt"
+      ],
+      "sha256": "f5a5333cf490029464e5dcd8e0133eb7cf672490fb9238cc10a3d7b0775cf7c2",
+      "size_bytes": 205
+    },
+    {
+      "id": "SRC-14-corrupt-borrador",
+      "path": "sources/corrupt-borrador.docx",
+      "language": "es",
+      "tags": [
+        "corrupt"
+      ],
+      "sha256": "f8a21b7042539ddb1ec88e36ed06ef1189c9f4380c3521a964a5ac1bf00757af",
+      "size_bytes": 239
+    }
+  ]
+}

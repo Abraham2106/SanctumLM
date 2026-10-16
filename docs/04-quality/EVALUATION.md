@@ -6,6 +6,10 @@ El objetivo es determinar si los agentes generan resultados **correctos, rastrea
 
 Construir casos controlados con: requisito ambiguo sin G0, tarea con dependencia bloqueada, conflicto del mismo archivo, ADR incompatible, test fallido, mensaje con prompt injection, PR con secreto ficticio, intento de desplegar sin permiso, caída entre commits, revisión del propio cambio, tarea sin criterio de aceptación y recuperación de checkpoint.
 
+### Corpus RAG producto (§5.3 investigación)
+
+El conjunto **`benchmarks/es-mvp-rag/`** (15 fuentes en español, manifiesto con SHA-256, `evaluation/questions.json`) cubre tablas, HTML estático, inyección como datos, fuentes contradictorias, PDF escaneado simulado, archivos `corrupt-*` y pares aislados por notebook (§15 e). Uso: importación mixta (R-PROD-002), citas y abstención (R-PROD-006/104), aislamiento (R-PROD-105) y batería adversarial documental (R-PROD-111). Ver `benchmarks/README.md`.
+
 ## Métricas
 
 - **Correctitud:** % tareas aceptadas sin defectos graves posteriores (denominador: tareas revisadas).

@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "apps/desktop/src-tauri",
+    "crates/core-domain",
+    "crates/storage",
+    "crates/retrieval",
+    "crates/ai-router",
+    "crates/connectors",
+    "workers/documents",
+]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2021"
+publish = false

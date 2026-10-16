@@ -1,0 +1,14 @@
+INVENTARIO DE ALMACÉN — DATOS SINTÉTICOS
+=========================================
+Código almacén: ALM-CR-001
+Fecha corte: 2025-09-30
+
+SKU      | Descripción              | Unidades | Ubicación
+---------|--------------------------|----------|----------
+CR-1001  | Cable UTP Cat6 305m      | 42       | Estante A3
+CR-1002  | Switch 24 puertos        | 7        | Estante B1
+CR-1003  | Patch panel 48           | 12       | Estante B2
+
+Nota: el reabastecimiento de CR-1001 está pendiente hasta noviembre 2025.
+
+Identificador: SRC-02-inventario-almacen

@@ -18,6 +18,8 @@ Una cuestión `OPEN-###` es información necesaria que **nadie ha confirmado**. 
 | OPEN-010 | ¿Qué nivel de cifrado en reposo es obligatorio en el MVP (base de datos, originales, cachés, temporales) y cómo se gestionan las claves? | Investigación §4.1, §16 | Humano + security | G1 (ADR de almacenamiento) | abierta |
 | OPEN-011 | ¿Qué conector de nube es el piloto del MVP (Drive, OneDrive, Dropbox…)? | Investigación §6.3, §16 | Patrocinador humano | R-PROD-012 | abierta |
 | OPEN-012 | ¿Las infografías de v1 son solo SVG editable o incluyen también ilustraciones generativas? | Investigación §7.3, §16 | Patrocinador humano | R-PROD-010 | abierta |
+| OPEN-013 | ¿Cuál es el desglose operativo en `docs/02-planning/WBS.md` (OLA 3) tras B2 (TASK-0021): orden de tareas `TASK-0022+`, superficies de archivo y dependencias entre migración SQLite/FTS, sidecar de ingesta y recuperación? | `.agents/STATUS.md`, post-0021 | Planner + humano | TASK-0022+, TASK-0005 (planificación) | resuelta 2026-10-16 — anexo OLA 3 en [WBS](../02-planning/WBS.md); fichas TASK-0022..0024 y reserva OLA 3 en `.agents/` (rama `agent/TASK-0022-ola3-wbs`); no era ausencia de requisito de producto |
+| OPEN-014 | ¿Cuál es el desglose operativo en `docs/02-planning/WBS.md` (OLA 4) tras OLA 3: orden de tareas `TASK-0025+`, superficies de archivo y dependencias para cableado import→chunks→FTS→UI vs chat/RAG bajo TASK-0005? | `.agents/STATUS.md`, post-OLA 3 | Planner + humano | TASK-0026+, TASK-0005 (planificación) | resuelta 2026-10-17 — anexo OLA 4 tramo 1 en [WBS](../02-planning/WBS.md); fichas TASK-0026..0028 y reserva OLA 4 en `.agents/` (rama `agent/TASK-0025-ola4-wbs`); chat/RAG queda tramo 2 bajo misma WBS-4.1; no era ausencia de requisito de producto |
 
 ## Cómo abrir una cuestión
 
