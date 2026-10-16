@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T20:45Z. **Consolidador:** planner/implementer (post `main` @ `e238ade`; PR #16/#35).
+**Última actualización:** 2026-10-16T09:00Z. **Consolidador:** planner (post `main` @ `6a600ed`; fichas 0036–0038 tramo 4).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -39,5 +39,8 @@
 | TASK-0033 | Contratos + UI chat | WBS-4.1.7 | done | Implementer | PR #9 → `integration/mvp`; absorbido en squash PR #12 → `main` @ `f477628` (`872344a`, `e0334d5`); mock IPC; E2E tras TASK-0032 |
 | TASK-0034 | UI ↔ IPC Tauri real (E2E) | WBS-4.1.7 | done | Implementer | Squash PR #16 → `main` @ `c2a7dd9`; IPC real en Vite/Tauri; CI rust OK; desktop job skipped (#13) |
 | TASK-0035 | Persistencia tabla `jobs` | WBS-4.1.2 ext. | done | Implementer | Squash PR #20 → `main` @ `b75d7ff` ← `dd24902`; APPROVE reviewer r2 + security r2; migración 0003 + `SqliteJobStore`; CI OK |
+| TASK-0036 | UI cancelación import (`job_cancel`) | WBS-4.1.3 ext. | ready | Implementer | Dep 0034+0035; rama `cursor/task-0036-import-cancel-ui-65d0`; PR → `main` |
+| TASK-0037 | Evidencia E2E smoke import/búsqueda/chat | WBS-4.2, WBS-4.3 | ready | QA + implementer | Dep 0034; prioridad R-PROD visibles; Ollama not-run OK; rama `cursor/task-0037-e2e-evidence-65d0` |
+| TASK-0038 | CI TypeScript desktop (`tsc`) | WBS-2.5 | ready | Implementer | Sin build Tauri; rama `cursor/task-0038-ci-desktop-tsc-65d0`; ∥ 0036/0037 |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde **`main`** (squash merge).
