@@ -686,6 +686,7 @@ version = "0.0.0"
 dependencies = [
  "core-domain",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

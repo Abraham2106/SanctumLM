@@ -2,10 +2,12 @@
 
 use core_domain::ProductError;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExtractionInput {
-    pub staging_path: String,
+    /// Ruta ya validada y normalizada bajo `staging_root` (no usar JSON crudo).
+    pub staging_path: PathBuf,
     pub mime: String,
     pub max_bytes: u64,
 }
@@ -19,10 +21,19 @@ pub struct ExtractedChunk {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExtractionMetadata {
+    pub adapter_id: String,
+    pub adapter_version: String,
+    pub duration_ms: u64,
+    pub sidecar_exit_code: i32,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExtractionOutput {
     pub normalized_text: String,
     pub chunks: Vec<ExtractedChunk>,
     pub warnings: Vec<String>,
+    pub extraction_metadata: ExtractionMetadata,
 }
 
 pub trait DocumentExtractor: Send + Sync {
@@ -30,3 +41,5 @@ pub trait DocumentExtractor: Send + Sync {
 }
 
 pub mod fake;
+pub mod ipc;
+pub mod staging;
