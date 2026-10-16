@@ -36,10 +36,10 @@ Adoptar las fronteras de confianza de la investigación §3.1, documentadas en [
 
 Implementar un **egress broker** en el núcleo Rust que sea la única vía de salida de red del producto (salvo el flujo OAuth del sistema operativo para conectores, fuera del renderer). Reglas:
 
-1. **Ningún componente de UI ni sidecar de parsing realiza `fetch` a destinos externos**; solo el núcleo, tras `authorize_egress(...)`.
+1. **Toda red e inferencia (incluido loopback hacia motores locales) sale del núcleo vía IPC tipado:** el WebView/renderer no abre sockets ni `fetch` directo; solo invoca comandos; el broker ejecuta la conexión tras `authorize_egress(...)`. Sidecars de parsing tampoco realizan egress autónomo.
 2. La función de autorización es **código determinista**, testeable unitariamente, alineada al pseudocódigo de investigación §11.4. El LLM y otros modelos **solo emiten intenciones** (`task`, fragmentos candidatos, consultas públicas propuestas); el núcleo resuelve destino, clasificación, minimización y decisión `ALLOW` / `DENY` / `REQUIRE_APPROVAL`.
 3. **`cloud_fallback=false` por defecto y aplicado en backend:** si un modelo local falla (timeout, caída de Ollama, error HTTP en loopback), **no** se reintenta ni se sustituye automáticamente por un proveedor remoto. La UI puede informar el fallo; cualquier cambio a remoto exige nueva solicitud evaluada por política ([investigación §6.2](../../00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md)).
-4. **Secretos:** tokens OAuth, API keys y material criptográfico **solo** en keychain del SO (o equivalente por plataforma). SQLite, `connectors.scopes_json`, logs y `audit_events` **no** almacenan secretos en claro ([R-PROD-111](../../01-requirements/SRS.md)).
+4. **Secretos:** tokens OAuth, API keys y material criptográfico **solo** en keychain del SO (o equivalente por plataforma). SQLite, `connectors.scopes_json`, logs y `audit_events` **no** almacenan secretos en claro. **`artifacts.spec_json` y el contrato `ArtifactSpec` (investigación §12) no aceptan credenciales ni campos equivalentes** (`api_key`, tokens, etc.); la autorización de modelos remotos se resuelve en sesión/política del núcleo, no en la especificación del artefacto ([R-PROD-111](../../01-requirements/SRS.md)).
 
 ### 3. Cuatro modos de egress (MVP)
 
@@ -65,8 +65,9 @@ Matriz de ejemplo (investigación §9.2; valores finales sujetos a ratificación
 Antes de incluir una cita en una respuesta o artefacto:
 
 1. Validar `chunk_id` contra la base de datos con el notebook activo y la lista **autorizada** de `source_id` / `selected_source_ids` (equivalente a investigación §11.3).
-2. Comprobar `source_version_id` y que el texto/offset citado coincide con el segmento almacenado.
-3. **Ignorar** identificadores de chunk o fuente generados por el LLM que no superen la consulta de autorización ([R-PROD-104](../../01-requirements/SRS.md), [R-PROD-105](../../01-requirements/SRS.md)).
+2. La consulta de autorización debe unir `chunks` → `source_versions` → `sources` de modo que el **`source_id` quede implícitamente validado** (el chunk pertenece a una fuente del notebook y dentro de la selección), además de comprobar `source_version_id` explícitamente ([R-PROD-104](../../01-requirements/SRS.md)).
+3. Comprobar que el texto/offset citado coincide con el segmento almacenado.
+4. **Ignorar** identificadores de chunk o fuente generados por el LLM que no superen la consulta de autorización ([R-PROD-104](../../01-requirements/SRS.md), [R-PROD-105](../../01-requirements/SRS.md)).
 
 ### 5. Importador web y SSRF ([R-PROD-003](../../01-requirements/SRS.md))
 

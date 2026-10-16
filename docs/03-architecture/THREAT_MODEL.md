@@ -184,8 +184,8 @@ Diseño de aceptación: cada fila define escenario, control arquitectónico, evi
 | **(f)** | Fuente actualizada | `source_version_id` inmutable en citas | Cita histórica apunta revisión original | R-PROD-104, R-PROD-110 |
 | **(g)** | Buscador devuelve desinformación | UI síntesis con procedencia/fechas | Muestra fuentes web y discrepancias | R-PROD-110 (trazabilidad) |
 | **(h)** | OCR omite cifra | Marcado incertidumbre | Flag revisión humana / baja confianza | R-PROD-111 (parser) |
-| **(i)** | PPTX desbordes | Validación layout pre-export | Test detecta overflow antes de entregar | Artefactos (fase 2; trazado WBS) |
-| **(j)** | Infografía con error numérico | SVG/estructura editable + enlace evidencia | Edición corrige número sin perder `chunk_id` | R-PROD-104 |
+| **(i)** | PPTX desbordes | Validación layout pre-export | Test detecta overflow antes de entregar | R-PROD-011 |
+| **(j)** | Infografía con error numérico | SVG/estructura editable + enlace evidencia | Edición corrige número sin perder `chunk_id` | R-PROD-010, R-PROD-104 |
 
 **Gates binarios (CHARTER / §15):**
 
@@ -210,6 +210,7 @@ WHERE s.notebook_id = :notebook_id
 Reglas:
 
 - `selected_source_ids` lo fija el núcleo tras acción UI validada, no el LLM.
+- El join anterior valida **`chunk_id`, `source_version_id` y `source_id`** (vía `sources.id` en la cadena de joins): una cita no puede apuntar a un chunk de una fuente no autorizada o de otro notebook ([R-PROD-104](../01-requirements/SRS.md)).
 - Candidatos FTS/vectoriales pasan el mismo filtro antes de entrar al prompt.
 - Respuesta final solo incluye citas cuya verificación textual/offset coincide.
 
@@ -221,13 +222,13 @@ Reglas:
 | HTML | Sin motor JS; strip scripts/iframes peligrosos; CSP en renderer |
 | PDF | Parser en proceso separado; actualizaciones de dependencia vía SBOM (§9.4) |
 | Motores IA | URL base `http://127.0.0.1:<puerto>`; no escuchar en LAN |
-| Renderer | Sin `fetch` a remotos; sin acceso keychain |
+| Renderer | Sin sockets propios: toda red/inferencia (incl. loopback) vía IPC al núcleo/broker; sin `fetch` directo; sin acceso keychain |
 
 ## 8. Auditoría y privacidad de logs ([R-PROD-110](../01-requirements/SRS.md))
 
 Campos permitidos (ejemplo): `timestamp`, `action`, `destination_kind`, `policy_decision`, `task_id`, `model_id`, `chunk_count`, `classification_summary`, `source_version_id` (UUID), `error_code`.
 
-Campos prohibidos o redactados: tokens, API keys, cuerpo completo de mensajes `private`, texto íntegro de chunks, prompts completos.
+Campos prohibidos o redactados: tokens, API keys, cuerpo completo de mensajes `private`, texto íntegro de chunks, prompts completos. En **`artifacts.spec_json` / `ArtifactSpec`** (investigación §12) queda **prohibido** persistir credenciales de proveedor o equivalentes; solo metadatos de generación y referencias a fuentes/chunks ya autorizados.
 
 Tras escenarios §15: revisión manual o automatizada de que **(d)** y **(c)** no dejan fugas en audit.
 
