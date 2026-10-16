@@ -4,23 +4,22 @@ import type {
   ImportSourcesRequest,
   JobRecord,
   JobState,
-  NotebookSummary,
   SearchHit,
   SourceRecord,
   SourceStatus,
 } from "../ipc-types.ts";
+import { useNotebookContext } from "../context/NotebookContext.tsx";
 import {
-  ensureMockSeed,
   getIpcTransport,
   importSources,
   jobCancel,
   jobStatus,
   listSources,
-  notebookCreate,
-  notebookList,
   searchSources,
 } from "../lib/ipc-client.ts";
 import { formatProductError } from "../lib/product-errors.ts";
+import ProductMessage from "./ProductMessage.tsx";
+import SourcesEmptyState from "./SourcesEmptyState.tsx";
 
 const ACCEPTED_EXT = [".txt", ".md"];
 
@@ -84,13 +83,11 @@ async function readFileAsText(file: File): Promise<string> {
 }
 
 export default function FuentesPanel() {
-  const notebookSelectId = useId();
   const searchId = useId();
   const fileInputId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [notebooks, setNotebooks] = useState<NotebookSummary[]>([]);
-  const [activeNotebookId, setActiveNotebookId] = useState<string>("");
+  const { activeNotebookId, activeNotebook, createNotebook } = useNotebookContext();
   const [sources, setSources] = useState<SourceRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchHits, setSearchHits] = useState<SearchHit[]>([]);
@@ -118,34 +115,9 @@ export default function FuentesPanel() {
     setSources(result.data.sources);
   }, []);
 
-  const loadNotebooks = useCallback(async () => {
-    setErrorMessage("");
-    let result = await notebookList();
-    if (!result.ok) {
-      setErrorMessage(formatProductError(result.error));
-      return;
-    }
-    if (result.data.notebooks.length === 0 && getIpcTransport() === "mock") {
-      ensureMockSeed();
-      result = await notebookList();
-      if (!result.ok) {
-        setErrorMessage(formatProductError(result.error));
-        return;
-      }
-    }
-    setNotebooks(result.data.notebooks);
-    setActiveNotebookId((current) => {
-      if (current && result.ok && result.data.notebooks.some((n) => n.notebook_id === current)) {
-        return current;
-      }
-      return result.ok && result.data.notebooks[0] ? result.data.notebooks[0].notebook_id : "";
-    });
+  useEffect(() => {
     setTransportLabel(getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri");
   }, []);
-
-  useEffect(() => {
-    void loadNotebooks();
-  }, [loadNotebooks]);
 
   useEffect(() => {
     void refreshSources(activeNotebookId);
@@ -199,15 +171,13 @@ export default function FuentesPanel() {
       setBusy(false);
       return;
     }
-    const result = await notebookCreate(title);
+    const ok = await createNotebook(title);
     setBusy(false);
-    if (!result.ok) {
-      setErrorMessage(formatProductError(result.error));
-      return;
+    if (ok) {
+      setStatusMessage("Cuaderno creado.");
+    } else {
+      setErrorMessage("No se pudo crear el cuaderno. Revisa el mensaje en la barra de cuadernos.");
     }
-    setNotebooks((prev) => [...prev, result.data.notebook]);
-    setActiveNotebookId(result.data.notebook.notebook_id);
-    setStatusMessage("Cuaderno creado.");
   };
 
   const handleImportFiles = async (
@@ -319,8 +289,6 @@ export default function FuentesPanel() {
     );
   };
 
-  const activeNotebook = notebooks.find((n) => n.notebook_id === activeNotebookId);
-
   return (
     <div className="fuentes-panel">
       <p className="fuentes-lead">
@@ -329,25 +297,10 @@ export default function FuentesPanel() {
       </p>
 
       <div className="fuentes-toolbar">
-        <label className="field" htmlFor={notebookSelectId}>
-          Cuaderno activo
-          <select
-            id={notebookSelectId}
-            value={activeNotebookId}
-            onChange={(e) => setActiveNotebookId(e.target.value)}
-            disabled={panelBusy || notebooks.length === 0}
-          >
-            {notebooks.length === 0 ? (
-              <option value="">Sin cuadernos</option>
-            ) : (
-              notebooks.map((nb) => (
-                <option key={nb.notebook_id} value={nb.notebook_id}>
-                  {nb.title}
-                </option>
-              ))
-            )}
-          </select>
-        </label>
+        <p className="meta-line fuentes-active-notebook" aria-live="polite">
+          Cuaderno activo:{" "}
+          <strong>{activeNotebook?.title ?? "ninguno (elige uno arriba)"}</strong>
+        </p>
 
         <button
           type="button"
@@ -397,7 +350,7 @@ export default function FuentesPanel() {
       <section aria-labelledby="fuentes-list-heading">
         <h3 id="fuentes-list-heading">Fuentes del cuaderno</h3>
         {sources.length === 0 ? (
-          <p className="placeholder-note">Aún no hay fuentes. Importa un archivo de texto.</p>
+          <SourcesEmptyState hasActiveNotebook={Boolean(activeNotebookId)} />
         ) : (
           <ul className="source-list">
             {sources.map((source) => (
@@ -458,16 +411,8 @@ export default function FuentesPanel() {
         )}
       </section>
 
-      {statusMessage && (
-        <p className="status-ok" role="status">
-          {statusMessage}
-        </p>
-      )}
-      {errorMessage && (
-        <p className="status-error" role="alert">
-          {errorMessage}
-        </p>
-      )}
+      <ProductMessage variant="status" message={statusMessage} />
+      <ProductMessage variant="error" message={errorMessage} />
     </div>
   );
 }

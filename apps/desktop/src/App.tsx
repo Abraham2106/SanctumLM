@@ -1,6 +1,8 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import ChatPanel from "./components/ChatPanel.tsx";
 import FuentesPanel from "./components/FuentesPanel.tsx";
+import NotebookListBar from "./components/NotebookListBar.tsx";
+import { NotebookProvider } from "./context/NotebookContext.tsx";
 import { getIpcTransport, notebookList } from "./lib/ipc-client.ts";
 import { shouldUseMockIpc } from "./lib/ipc-runtime.ts";
 
@@ -55,6 +57,7 @@ export default function App() {
     : "";
 
   return (
+    <NotebookProvider>
     <div className="app-shell">
       <style>{`
         .skip-link {
@@ -103,6 +106,8 @@ export default function App() {
         </p>
       </header>
 
+      <NotebookListBar />
+
       <main className="panel-grid workspace-layout" id="main-content" style={workspaceStyle}>
         <section className="panel panel-visible" aria-labelledby="heading-fuentes">
           <h2 id="heading-fuentes">Fuentes</h2>
@@ -130,5 +135,6 @@ export default function App() {
         </span>
       </footer>
     </div>
+    </NotebookProvider>
   );
 }

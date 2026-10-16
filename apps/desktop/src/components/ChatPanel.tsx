@@ -5,18 +5,17 @@ import type {
   ChatMode,
   ChatSummary,
   ModelDescriptor,
-  NotebookSummary,
 } from "../ipc-types.ts";
+import { useNotebookContext } from "../context/NotebookContext.tsx";
 import {
   chatCreate,
   chatList,
   chatSend,
-  ensureMockSeed,
   getIpcTransport,
   listModels,
-  notebookList,
 } from "../lib/ipc-client.ts";
 import { formatProductError } from "../lib/product-errors.ts";
+import ProductMessage from "./ProductMessage.tsx";
 
 const VERIFICATION_ES: Record<ChatCitation["verification"], string> = {
   backed: "con respaldo",
@@ -37,13 +36,11 @@ export default function ChatPanel() {
   const modeGeneralId = useId();
   const modeNotebookId = useId();
   const modelSelectId = useId();
-  const notebookSelectId = useId();
   const composerId = useId();
   const threadRef = useRef<HTMLDivElement>(null);
 
+  const { activeNotebookId, activeNotebook } = useNotebookContext();
   const [chatMode, setChatMode] = useState<ChatMode>("notebook");
-  const [notebooks, setNotebooks] = useState<NotebookSummary[]>([]);
-  const [activeNotebookId, setActiveNotebookId] = useState("");
   const [models, setModels] = useState<ModelDescriptor[]>([]);
   const [modelId, setModelId] = useState("");
   const [modelsLoading, setModelsLoading] = useState(true);
@@ -88,33 +85,6 @@ export default function ChatPanel() {
     }
   }, [refreshTransportLabel]);
 
-  const loadNotebooks = useCallback(async () => {
-    let result = await notebookList();
-    refreshTransportLabel();
-    if (!result.ok) {
-      setErrorMessage(formatProductError(result.error));
-      return;
-    }
-    if (result.data.notebooks.length === 0 && getIpcTransport() === "mock") {
-      ensureMockSeed();
-      result = await notebookList();
-      if (!result.ok) {
-        setErrorMessage(formatProductError(result.error));
-        return;
-      }
-    }
-    setNotebooks(result.data.notebooks);
-    setActiveNotebookId((current) => {
-      if (current && result.ok && result.data.notebooks.some((n) => n.notebook_id === current)) {
-        return current;
-      }
-      return result.ok && result.data.notebooks[0] ? result.data.notebooks[0].notebook_id : "";
-    });
-    if (chatMode === "notebook" && result.ok && result.data.notebooks.length === 0) {
-      setErrorMessage("No hay cuadernos. Crea uno en el panel Fuentes o usa chat general.");
-    }
-  }, [chatMode, refreshTransportLabel]);
-
   const syncThread = useCallback(async (mode: ChatMode, notebookId: string) => {
     setThreadError("");
     setErrorMessage("");
@@ -158,8 +128,13 @@ export default function ChatPanel() {
   useEffect(() => {
     refreshTransportLabel();
     void loadModels();
-    void loadNotebooks();
-  }, [loadModels, loadNotebooks, refreshTransportLabel]);
+  }, [loadModels, refreshTransportLabel]);
+
+  useEffect(() => {
+    if (chatMode === "notebook" && !activeNotebookId) {
+      setErrorMessage("No hay cuaderno activo. Elige o crea uno en la barra superior, o usa chat general.");
+    }
+  }, [chatMode, activeNotebookId]);
 
   useEffect(() => {
     if (chatMode === "notebook" && !activeNotebookId) {
@@ -379,25 +354,10 @@ export default function ChatPanel() {
         </button>
 
         {showNotebookChrome && (
-          <label className="field" htmlFor={notebookSelectId}>
-            Cuaderno para contexto
-            <select
-              id={notebookSelectId}
-              value={activeNotebookId}
-              onChange={(e) => setActiveNotebookId(e.target.value)}
-              disabled={busy || threadSyncing || notebooks.length === 0}
-            >
-              {notebooks.length === 0 ? (
-                <option value="">Sin cuadernos</option>
-              ) : (
-                notebooks.map((nb) => (
-                  <option key={nb.notebook_id} value={nb.notebook_id}>
-                    {nb.title}
-                  </option>
-                ))
-              )}
-            </select>
-          </label>
+          <p className="meta-line chat-active-notebook" aria-live="polite">
+            Contexto:{" "}
+            <strong>{activeNotebook?.title ?? "sin cuaderno (elige uno arriba)"}</strong>
+          </p>
         )}
       </div>
 
@@ -540,21 +500,9 @@ export default function ChatPanel() {
         </div>
       </div>
 
-      {citationNotice && (
-        <p className="status-ok" role="status">
-          {citationNotice}
-        </p>
-      )}
-      {statusMessage && (
-        <p className="status-ok" role="status">
-          {statusMessage}
-        </p>
-      )}
-      {errorMessage && (
-        <p className="status-error" role="alert">
-          {errorMessage}
-        </p>
-      )}
+      <ProductMessage variant="status" message={citationNotice} />
+      <ProductMessage variant="status" message={statusMessage} />
+      <ProductMessage variant="error" message={errorMessage} />
     </div>
   );
 }
