@@ -1,3 +1,9 @@
+//! Cola de importación en hilo de fondo con cancelación **cooperativa**.
+//!
+//! `job_cancel` activa [`CancelFlag`]; el worker comprueba la señal **entre ítems**
+//! del lote (no interrumpe extracción/escritura SQLite a mitad de un ítem).
+//! Fuentes ya persistidas como `ready` en ítems anteriores no se revierten (R-PROD-014).
+
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -141,6 +147,11 @@ impl ImportRuntime {
         jobs.update(job.clone());
 
         for (item_index, item) in items.iter().enumerate() {
+            #[cfg(test)]
+            if item_index > 0 {
+                std::thread::sleep(std::time::Duration::from_millis(25));
+            }
+
             if cancel.is_cancelled() {
                 job.state = JobState::Cancelled;
                 job.error_code = Some(core_domain::JobErrorCode::Cancelled);

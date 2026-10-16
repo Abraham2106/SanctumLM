@@ -69,12 +69,12 @@ mod integration_tests {
     use core_domain::{DataClassification, IpcResult};
 
     use crate::commands::{
-        import_sources_inner, job_status_inner, list_sources_inner, notebook_create_inner,
-        search_sources_inner,
+        import_sources_inner, job_cancel_inner, job_status_inner, list_sources_inner,
+        notebook_create_inner, search_sources_inner,
     };
     use crate::ipc_types::{
-        ImportInlineMime, ImportSourceInlineItem, ImportSourcesRequest, JobStatusRequest,
-        ListSourcesRequest, NotebookCreateRequest, SearchSourcesRequest,
+        ImportInlineMime, ImportSourceInlineItem, ImportSourcesRequest, JobCancelRequest,
+        JobStatusRequest, ListSourcesRequest, NotebookCreateRequest, SearchSourcesRequest,
     };
     use crate::state::AppState;
 
@@ -209,6 +209,108 @@ mod integration_tests {
             .filter(|s| s.status == "ready")
             .count();
         assert_eq!(ready, 1);
+    }
+
+    fn batch_inline_items(count: usize) -> Vec<ImportSourceInlineItem> {
+        (0..count)
+            .map(|i| ImportSourceInlineItem {
+                kind: "inline_text".into(),
+                display_name: format!("lote-{i}.txt"),
+                mime: ImportInlineMime::TextPlain,
+                text: format!(
+                    "Item {i} del lote cancelacion.\n\nParrafo adicional {i} con lexico unico."
+                ),
+                classification: Some(DataClassification::Public),
+            })
+            .collect()
+    }
+
+    /// Encola lote, cancela en `running`; verifica terminal `cancelled` + `CANCELLED`.
+    /// Cancelación cooperativa: efectiva entre ítems (ver `import_service`).
+    #[test]
+    fn batch_cancel_while_running_reports_cancelled() {
+        let state = AppState::in_memory();
+        let nb = notebook_create_inner(
+            &state,
+            NotebookCreateRequest {
+                api_version: 1,
+                title: "Cancel".into(),
+                classification: Some(DataClassification::Public),
+            },
+        );
+        let nb_id = nb.data.unwrap().notebook.notebook_id;
+
+        let imported = import_sources_inner(
+            &state,
+            ImportSourcesRequest {
+                api_version: 1,
+                notebook_id: nb_id,
+                items: batch_inline_items(12),
+            },
+        );
+        assert!(imported.ok);
+        let job_id = imported.data.unwrap().job_id;
+
+        let mut saw_running = false;
+        for _ in 0..300 {
+            let status = job_status_inner(
+                &state,
+                JobStatusRequest {
+                    api_version: 1,
+                    job_id: job_id.clone(),
+                },
+            );
+            if let IpcResult {
+                ok: true,
+                data: Some(job),
+                ..
+            } = status
+            {
+                if job.state == "running" {
+                    saw_running = true;
+                    break;
+                }
+                if job.state == "completed" {
+                    break;
+                }
+            }
+            std::thread::sleep(std::time::Duration::from_millis(2));
+        }
+        assert!(saw_running, "el job debe alcanzar running antes de cancelar");
+
+        let cancelled = job_cancel_inner(
+            &state,
+            JobCancelRequest {
+                api_version: 1,
+                job_id: job_id.clone(),
+            },
+        );
+        assert!(cancelled.ok);
+        let record = cancelled.data.unwrap();
+        assert_eq!(record.state, "cancelled");
+        assert_eq!(record.error_code.as_deref(), Some("CANCELLED"));
+
+        for _ in 0..50 {
+            let status = job_status_inner(
+                &state,
+                JobStatusRequest {
+                    api_version: 1,
+                    job_id: job_id.clone(),
+                },
+            );
+            if let IpcResult {
+                ok: true,
+                data: Some(job),
+                ..
+            } = status
+            {
+                assert_eq!(job.state, "cancelled");
+                assert_eq!(job.error_code.as_deref(), Some("CANCELLED"));
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(5));
+        }
+        panic!("job_status no reflejó cancelación terminal");
     }
 
     #[test]
