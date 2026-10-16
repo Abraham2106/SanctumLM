@@ -15,18 +15,9 @@ import {
   listModels,
 } from "../lib/ipc-client.ts";
 import { formatProductError } from "../lib/product-errors.ts";
+import ChatCitations from "./ChatCitations.tsx";
+import ConversationEmptyState from "./ConversationEmptyState.tsx";
 import ProductMessage from "./ProductMessage.tsx";
-
-const VERIFICATION_ES: Record<ChatCitation["verification"], string> = {
-  backed: "con respaldo",
-  inference: "inferencia",
-  discrepancy: "discrepancia",
-  unverified: "sin verificar",
-};
-
-function citationLabel(citation: ChatCitation): string {
-  return `${citation.quote.slice(0, 72)}${citation.quote.length > 72 ? "…" : ""}`;
-}
 
 function transportDisplayLabel(): string {
   return getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri";
@@ -409,7 +400,10 @@ export default function ChatPanel() {
                 </button>
               </div>
             ) : messages.length === 0 ? (
-              <p className="placeholder-note">Escribe un mensaje para iniciar la conversación.</p>
+              <ConversationEmptyState
+                mode={chatMode}
+                hasActiveNotebook={Boolean(activeNotebookId)}
+              />
             ) : (
               messages.map((msg) => {
                 const citations =
@@ -426,29 +420,11 @@ export default function ChatPanel() {
                       ) : null}
                     </header>
                     <p>{msg.content}</p>
-                    {citations.length > 0 && (
-                      <section className="citation-block" aria-label="Citas de fuentes">
-                        <h4 className="citation-block-title">Citas</h4>
-                        <ul className="citation-list">
-                          {citations.map((citation) => (
-                            <li key={`${msg.message_id}-${citation.chunk_id}`}>
-                              <button
-                                type="button"
-                                className="citation-link"
-                                onClick={() => handleCitationClick(citation)}
-                              >
-                                <span
-                                  className={`citation-verification citation-verification-${citation.verification}`}
-                                >
-                                  {VERIFICATION_ES[citation.verification]}
-                                </span>
-                                <span className="citation-quote">{citationLabel(citation)}</span>
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
-                    )}
+                    <ChatCitations
+                      messageId={msg.message_id}
+                      citations={citations}
+                      onCitationActivate={handleCitationClick}
+                    />
                   </article>
                 );
               })
