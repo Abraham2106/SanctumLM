@@ -95,57 +95,79 @@ fn normalize_text(raw: &str) -> String {
     unified.trim_end().to_string()
 }
 
+/// Párrafos no vacíos con `char_start` en `text` (tras trim de bordes del segmento).
+fn paragraph_spans(text: &str) -> Vec<(u32, &str)> {
+    let parts: Vec<&str> = text.split("\n\n").collect();
+    let mut spans = Vec::new();
+    let mut char_offset = 0u32;
+
+    for (i, part) in parts.iter().enumerate() {
+        let trimmed = part.trim();
+        if !trimmed.is_empty() {
+            let lead_ws = part.chars().take_while(|c| c.is_whitespace()).count() as u32;
+            spans.push((char_offset + lead_ws, trimmed));
+        }
+        char_offset += part.chars().count() as u32;
+        if i + 1 < parts.len() {
+            char_offset += 2;
+        }
+    }
+    spans
+}
+
 fn chunk_by_paragraphs(text: &str, max_chars: usize) -> Vec<ExtractedChunk> {
     let max_chars = max_chars.max(1);
-    let paragraphs: Vec<&str> = text
-        .split("\n\n")
-        .map(str::trim)
-        .filter(|p| !p.is_empty())
-        .collect();
+    let spans = paragraph_spans(text);
 
     let mut chunks = Vec::new();
-    let mut buf = String::new();
-    let mut buf_start_char: u32 = 0;
-
-    let flush = |chunks: &mut Vec<ExtractedChunk>, buf: &mut String, start: &mut u32| {
-        if buf.is_empty() {
-            return;
-        }
-        let char_end = *start + buf.chars().count() as u32;
-        chunks.push(ExtractedChunk {
-            text: buf.clone(),
-            page: None,
-            char_start: *start,
-            char_end,
-        });
-        buf.clear();
-        *start = char_end;
-    };
-
-    if paragraphs.is_empty() {
+    if spans.is_empty() {
         push_sized_chunks(text, 0, max_chars, &mut chunks);
         return chunks;
     }
 
-    for para in paragraphs {
-        let para_chars = para.chars().count();
+    let mut buf = String::new();
+    let mut buf_start: Option<u32> = None;
+
+    let flush_buf = |chunks: &mut Vec<ExtractedChunk>, buf: &mut String, start: &mut Option<u32>| {
+        if buf.is_empty() {
+            return;
+        }
+        let char_start = start.expect("buf no vacío implica char_start");
+        let len = buf.chars().count() as u32;
+        chunks.push(ExtractedChunk {
+            text: std::mem::take(buf),
+            page: None,
+            char_start,
+            char_end: char_start + len,
+        });
+        *start = None;
+    };
+
+    for (para_start, para_text) in spans {
+        let para_chars = para_text.chars().count();
         if para_chars > max_chars {
-            flush(&mut chunks, &mut buf, &mut buf_start_char);
-            let para_start = find_char_offset(text, para);
-            push_sized_chunks(para, para_start, max_chars, &mut chunks);
-            buf_start_char = para_start + para_chars as u32;
+            flush_buf(&mut chunks, &mut buf, &mut buf_start);
+            push_sized_chunks(para_text, para_start, max_chars, &mut chunks);
             continue;
         }
+
         let sep = if buf.is_empty() { 0 } else { 2 };
         if !buf.is_empty() && buf.chars().count() + sep + para_chars > max_chars {
-            flush(&mut chunks, &mut buf, &mut buf_start_char);
+            flush_buf(&mut chunks, &mut buf, &mut buf_start);
+            buf_start = Some(para_start);
+            buf.push_str(para_text);
+            continue;
         }
-        if !buf.is_empty() {
+
+        if buf.is_empty() {
+            buf_start = Some(para_start);
+            buf.push_str(para_text);
+        } else {
             buf.push_str("\n\n");
+            buf.push_str(para_text);
         }
-        buf.push_str(para);
     }
-    flush(&mut chunks, &mut buf, &mut buf_start_char);
+    flush_buf(&mut chunks, &mut buf, &mut buf_start);
     chunks
 }
 
@@ -180,13 +202,6 @@ fn push_sized_chunks(
             char_end: char_start + len,
         });
     }
-}
-
-fn find_char_offset(haystack: &str, needle: &str) -> u32 {
-    haystack
-        .find(needle)
-        .map(|byte_idx| haystack[..byte_idx].chars().count() as u32)
-        .unwrap_or(0)
 }
 
 #[cfg(test)]
@@ -269,5 +284,29 @@ mod tests {
         let chunks = chunk_by_paragraphs(&long, 1000);
         assert!(chunks.len() >= 5);
         assert_eq!(chunks.first().unwrap().char_start, 0);
+    }
+
+    #[test]
+    fn chunk_offsets_include_paragraph_separators_in_normalized_text() {
+        let text = "12345\n\n67890";
+        let chunks = chunk_by_paragraphs(text, 10);
+        assert_eq!(chunks.len(), 2);
+        assert_eq!(chunks[0].char_start, 0);
+        assert_eq!(chunks[0].char_end, 5);
+        assert_eq!(chunks[1].char_start, 7);
+        assert_eq!(chunks[1].char_end, 12);
+        assert_eq!(chunks[0].text, "12345");
+        assert_eq!(chunks[1].text, "67890");
+        assert_eq!(
+            chars_in_range(text, chunks[1].char_start, chunks[1].char_end),
+            chunks[1].text
+        );
+    }
+
+    fn chars_in_range(text: &str, start: u32, end: u32) -> String {
+        text.chars()
+            .skip(start as usize)
+            .take((end - start) as usize)
+            .collect()
     }
 }
