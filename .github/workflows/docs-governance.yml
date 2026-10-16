@@ -1,0 +1,27 @@
+name: Docs governance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate documentation
+        run: python3 scripts/validate_docs.py
+      - name: Check patch whitespace (PR)
+        if: github.event_name == 'pull_request'
+        run: git diff --check "origin/$GITHUB_BASE_REF"...HEAD
+      - name: Check patch whitespace (push)
+        if: github.event_name == 'push'
+        run: git diff --check HEAD^ HEAD

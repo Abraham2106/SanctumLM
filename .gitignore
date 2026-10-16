@@ -1,0 +1,15 @@
+# Artefactos locales; no añadir runtime compartido al repositorio
+.sanctumlm-runtime/
+.agent-runtime/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+node_modules/
+dist/
+build/
+coverage/
+.DS_Store
