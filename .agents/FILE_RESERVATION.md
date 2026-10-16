@@ -57,3 +57,23 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 **Cross-task:** 0027 implementa comandos; 0028 define tipos y UI — acordar nombres de comandos vía contratos (0028) antes de merge final E2E.
 
 **Paralelo seguro:** 0026 ∥ 0023 ∥ 0028 (solo contratos/UI mock) mientras 0027 no esté en la misma superficie.
+
+**OLA 4 tramo 1 — liberación post-merge:** TASK-0026..0028 **liberadas** en integración @ `15eba56`; cambios futuros vía ficha tramo 2+.
+
+## OLA 4 — vertical slice tramo 2 (chat / RAG / Ollama)
+
+**Vigente desde:** 2026-10-17 (cierre OPEN-015). **Base integración:** `integration/mvp` @ `15eba56` (OLA 4 tramo 1 cerrado: TASK-0026..0028).
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0029 planner | `.agents/*`, `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md` (OPEN-015), consolidación | código producto |
+| TASK-0030 | `crates/ai-router/**` | `apps/desktop/**`, `crates/retrieval/**`, `crates/storage/**`, `packages/contracts/**`, `.github/**`, remoto real |
+| TASK-0031 | `crates/retrieval/**` | `crates/ai-router/**`, `apps/desktop/**`, `packages/contracts/**`, `storage/migrations/**`, `.github/**` |
+| TASK-0032 | `apps/desktop/src-tauri/src/**`, `crates/storage/src/**` excepto `migrations/**` | `apps/desktop/src/**` (UI), `packages/contracts/**`, `crates/ai-router/**`, `crates/retrieval/**` (solo deps), `.github/**` |
+| TASK-0033 | `packages/contracts/**`, `apps/desktop/src/**` excepto `src-tauri/**` | `apps/desktop/src-tauri/**`, `crates/**`, `workers/**`, `.github/**` |
+
+**Compartidos (planner al integrar):** `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, `.agents/FILE_RESERVATION.md`, `docs/02-planning/WBS.md`.
+
+**Cross-task:** 0032 implementa comandos; 0033 define tipos y UI — acordar nombres/payloads `chat_*` y `list_models` vía contratos (0033) antes de merge E2E final.
+
+**Paralelo seguro:** 0030 ∥ 0031 ∥ 0033 (contratos/UI mock) mientras 0032 no esté en la misma superficie. **0032** tras 0030+0031 listos para integración.

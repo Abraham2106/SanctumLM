@@ -94,4 +94,35 @@ OLA 3 (0022, 0023, 0024)
 - **Chat / RAG / citas / TC-PROD-006–008:** fuera de este tramo; siguen bajo **TASK-0005** (`WBS-4.1`) — ver **OPEN-014** (planificación, no requisito nuevo).
 - **Cuestiones abiertas:** `OPEN-010` (sin SQLCipher); `OPEN-008`/`RSK-12` (Ollama not-run); `OPEN-005` (fakes en tests).
 
-**Fuera de OLA 4 tramo 1:** PDF/DOCX/HTML parsers pesados, conectores nube, artefactos, egress remoto, CI desktop habilitado, declaración G2 — `WBS-4.1` restante / `WBS-4.2+`.
+**Fuera de OLA 4 tramo 1:** PDF/DOCX/HTML parsers pesados, conectores nube, artefactos, egress remoto, CI desktop habilitado, declaración G2 — cubierto en tramo 2 o `WBS-4.2+`.
+
+### OLA 4 — tramo 2 (chat / RAG léxico / Ollama loopback)
+
+**Alcance:** plan post-tramo 1 (`integration/mvp` @ cierre TASK-0026..0028); **no** declara gate **G2** ni sustituye **TASK-0005**. Desglosa el **segundo tramo** de `WBS-4.1`: cableado **recuperación FTS → prompt → inferencia local → citas validadas → UI chat** (notebook y general), sin nuevos requisitos `R-PROD`. Embeddings vectoriales reales y reranking quedan fuera (stub `VectorIndex` de OLA 3); RAG del tramo usa **FTS** según ADR-0007/0008.
+
+**Prerrequisito:** OLA 4 tramo 1 cerrado (TASK-0026..0028 integrados en `integration/mvp`).
+
+| Sub-paquete | Entregable | Requisitos (diseño) | ADR | Verificación objetivo | Tarea |
+| --- | --- | --- | --- | --- | --- |
+| **WBS-4.1.4** ModelRouter + adaptador Ollama | `ModelAdapter` + `ModelRouter` en `crates/ai-router`: loopback `127.0.0.1:11434`, `cloud_fallback=false`, errores tipados; fake HTTP en tests; **sin** remoto ni UI | R-PROD-008 (parcial), R-PROD-101, R-PROD-102 (parcial) | ADR-0008, ADR-0011 | Tests unitarios: local caído → `LocalUnavailable`, cero egress remoto; contrato chat/embed contra fake | **TASK-0030** |
+| **WBS-4.1.5** RAG léxico + validación citas | Orquestación en `crates/retrieval`: consulta FTS acotada (`R-PROD-105`), ensamblado de contexto, parser de propuestas de cita, validación BD (`R-PROD-104`), estados backed/inference/abstención; **sin** llamadas LLM ni Tauri | R-PROD-006 (parcial), R-PROD-104, R-PROD-105, R-PROD-007 (aislamiento en API) | ADR-0007, ADR-0009 | Tests crate: escenario (e) aislamiento; cita con `chunk_id` inválido descartada; imposibles → abstención sin contexto | **TASK-0031** |
+| **WBS-4.1.6** Núcleo Tauri chat + persistencia | Comandos `chat_send`, `list_models`, `chat_list`/`chat_create` mínimos; persistir mensajes/citas en SQLite vía `storage`; notebook vs general (`notebook_id` nulo); integra retrieval + ai-router; **sin** React | R-PROD-006 (parcial), R-PROD-007, R-PROD-008 (parcial), R-PROD-104 (parcial) | ADR-0006, ADR-0007, ADR-0008 | Tests integración Rust (DB temp + fake adapter); chat general no invoca FTS; TC-PROD-006–008 preparación (Ollama real **not-run** en CI) | **TASK-0032** |
+| **WBS-4.1.7** Contratos IPC + UI chat | Tipos chat/citas/modelos en `packages/contracts`; panel chat notebook + entrada chat general; selector modelo vía IPC; español; **sin** HTTP a Ollama desde renderer | R-PROD-006 (parcial), R-PROD-007 (parcial), R-PROD-108 (hipótesis OPEN-007) | ADR-0006, ADR-0008 | `tsc --noEmit`; smoke manual con Ollama local opcional; TC-PROD-006–008 **not-run** E2E formal hasta gate G2 humano | **TASK-0033** |
+
+### Orden y dependencias (OLA 4 — tramo 2)
+
+```text
+OLA 4 tramo 1 (0026..0028)
+    ├── TASK-0030 (WBS-4.1.4)  [paralelo a 0031, 0033 contratos]
+    ├── TASK-0031 (WBS-4.1.5)  [paralelo a 0030; depende API FTS 0023]
+    ├── TASK-0033 (WBS-4.1.7)  [contratos/UI mock ∥ 0030/0031]
+    └── TASK-0032 (WBS-4.1.6)  [depende 0030 + 0031; E2E UI tras merge 0032+0033]
+```
+
+- **Paralelizable:** **0030** (`ai-router`) vs **0031** (`retrieval`) vs **0033** (tipos + UI con mock) mientras **0032** no edite las mismas rutas.
+- **0032 antes de demo E2E chat:** la UI de 0033 asume comandos `chat_*` y `list_models` implementados en núcleo.
+- **0033 define nombres IPC** acordados con 0032 antes del merge E2E final (mismo patrón 0027/0028).
+- **Demostración G2 / TC-PROD-006–008 ejecutados:** fuera de este desglose documental; requieren criterio humano y evidencia (Ollama local `RSK-12` puede permanecer **not-run** en CI).
+- **Cuestiones abiertas:** `OPEN-010`; `OPEN-008`/`RSK-12`; `OPEN-005`; `OPEN-007` (layout chat).
+
+**Fuera de OLA 4 tramo 2:** adaptador remoto real, `import_url`/`web_search`, artefactos (`R-PROD-009+`), embeddings sqlite-vec productivos, CI desktop habilitado, PDF/DOCX pesados — `WBS-4.2+` o fases v1.
