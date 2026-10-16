@@ -77,3 +77,5 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 **Cross-task:** 0032 implementa comandos; 0033 define tipos y UI — acordar nombres/payloads `chat_*` y `list_models` vía contratos (0033) antes de merge E2E final.
 
 **Paralelo seguro:** 0030 ∥ 0031 ∥ 0033 (contratos/UI mock) mientras 0032 no esté en la misma superficie. **0032** tras 0030+0031 listos para integración.
+
+**OLA 4 tramo 2 — liberación post-merge:** TASK-0032 **liberada** en `main` @ `78bd8ba` (squash PR #14); cambios futuros en `src-tauri`/storage chat vía nueva ficha.

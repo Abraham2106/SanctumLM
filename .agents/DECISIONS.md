@@ -36,4 +36,6 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 
 **Integración TASK-0031 (2026-10-16):** reviewer + security APPROVE con residuales — orquestación RAG notebook vs chat general y abstención sin hits FTS en crate `retrieval`; revalidación SQL `chunk_id`/`quote` prepara TASK-0032 (R-PROD-104/105); egress/capabilities al cablear invoke Tauri; no bloquean merge PR #10 @ `2222bf4` → `integration/mvp` @ `7826254`.
 
+**Integración TASK-0032 (2026-10-16):** reviewer + security APPROVE con residuales — egress/capabilities y límites IPC chat al ampliar UI real; E2E mock→invoke pendiente (0033); avance parcial R-PROD; **no** declarar G2 ni cierre 26/26; no bloquean squash PR #14 @ `b528a2b` → `main` @ `78bd8ba`.
+
 **Política git (2026-10-16, humano):** destino único **`main`**; PRs con **squash merge**; fin de `integration/mvp` como rama de integración. Consolidación: push `integration/mvp` @ `c56e7a5` (TASK-0033) + squash PR #12 → `main` @ `f477628` desde base `520234b` (sin reescritura de main). Stash `wip gen schemas` en worktree integration **no** incluido en commits.

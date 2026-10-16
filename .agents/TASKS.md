@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T08:05Z. **Consolidador:** implementer git (squash PR #12 → `main`).
+**Última actualización:** 2026-10-16T08:20Z. **Consolidador:** implementer git (squash PR #14 → `main` TASK-0032).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -35,7 +35,7 @@
 | TASK-0029 | Planner: anexo OLA 4 tramo 2 + reserva | WBS-2.1, WBS-4.1 | done | Planner | Merge `integration/mvp` ← `7990da7` @ `919b2fc`; OPEN-015; solo documentación |
 | TASK-0030 | ModelRouter + Ollama loopback | WBS-4.1.4 | done | Implementer | Merge `integration/mvp` ← `611dff0` @ `4c9a775`; ∥ 0031/0033 |
 | TASK-0031 | RAG FTS + validación citas | WBS-4.1.5 | done | Implementer | PR #10 merge `integration/mvp` @ `7826254` ← `2222bf4`; APPROVE reviewer + security; `cargo test -p retrieval --locked` **15** OK |
-| TASK-0032 | Tauri chat + persistencia | WBS-4.1.6 | ready | Por asignar | Tras 0030+0031; ficha TASK-0032 |
+| TASK-0032 | Tauri chat + persistencia | WBS-4.1.6 | done | Implementer | Squash PR #14 → `main` @ `78bd8ba` ← `b528a2b`; APPROVE reviewer + security; merge limpio sobre `e99cd64`; CI rust OK |
 | TASK-0033 | Contratos + UI chat | WBS-4.1.7 | done | Implementer | PR #9 → `integration/mvp`; absorbido en squash PR #12 → `main` @ `f477628` (`872344a`, `e0334d5`); mock IPC; E2E tras TASK-0032 |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde **`main`** (squash merge).
