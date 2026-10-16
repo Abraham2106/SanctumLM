@@ -27,3 +27,5 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 **Integración TASK-0025 (2026-10-17):** planner — anexo OLA 4 en WBS, fichas TASK-0026..0028, reserva de archivos tramo 1; OPEN-014 resuelta; sin código Rust de producto; `validate_docs.py` OK.
 
 **Integración TASK-0026 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — `secure_io` canonicaliza bajo `staging_root` materializado (r2 `52d1b37`); offsets de chunks incluyen separadores de párrafo (`0e55eb0`); lote IPC no aborta por ítem fallido (R-PROD-002); R-PROD-105 al cablear spawn desktop; no bloquean merge del adaptador `native-text`.
+
+**Integración TASK-0028 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — `ipc-client` degrada a mock local sin `fetch` externo hasta comandos Tauri (TASK-0027); lectura de archivos import vía File API del usuario; validar límites de tamaño y sanitización al cablear invoke real (R-PROD-105); no bloquean merge PR #7 @ `e9c1d0a` (HEAD rama `11dea11`).

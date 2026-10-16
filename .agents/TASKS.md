@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-17T07:25Z. **Consolidador:** planner (integración TASK-0026 en `integration/mvp`).
+**Última actualización:** 2026-10-17T07:30Z. **Consolidador:** planner (integración TASK-0028 PR #7 en `integration/mvp`).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -31,6 +31,6 @@
 | TASK-0025 | Planner: anexo OLA 4 + reserva tramo 1 | WBS-2.1, WBS-4.1 | done | Planner | Merge `integration/mvp` ← `bb71a41` @ `2cea918`; OPEN-014; solo documentación |
 | TASK-0026 | Sidecar extractores TXT/MD | WBS-4.1.1 | done | Implementer | PR #6 + merge `integration/mvp` ← `0e55eb0` @ `0e92dd6`; APPROVE reviewer r2 + security r2; `cargo test -p documents-worker --locked` **24** OK |
 | TASK-0027 | Tauri núcleo import → storage | WBS-4.1.2 | ready | Por asignar | TASK-0022..0024 done; ficha TASK-0027 |
-| TASK-0028 | Contratos + UI import/búsqueda | WBS-4.1.3 | ready | Por asignar | E2E tras 0027; ficha TASK-0028 |
+| TASK-0028 | Contratos + UI import/búsqueda | WBS-4.1.3 | done | Implementer | PR #7 merge `integration/mvp` @ `e9c1d0a` ← `11dea11`; APPROVE reviewer r2 + security r2; mock IPC sin fetch externo |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
