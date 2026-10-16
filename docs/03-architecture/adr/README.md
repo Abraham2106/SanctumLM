@@ -13,6 +13,7 @@ Formato: `ADR-####-slug.md` con título, estado (`proposed` / `accepted` / `reje
 | [0005](ADR-0005-approval-gates.md) | Puertas de aprobación y controles | proposed |
 | [0006](ADR-0006-desktop-stack.md) | Stack Tauri 2 + React/TS + layout §12 | proposed |
 | [0008](ADR-0008-model-router.md) | Router ModelAdapter y Ollama loopback | proposed |
+| [0009](ADR-0009-ingestion.md) | Ingesta aislada y citas localizables | proposed |
 | [0010](ADR-0010-artifact-engine.md) | Motor ArtifactSpec SVG/PPTX | proposed |
 
 Las decisiones `accepted` de 0001-0003 derivan de las instrucciones explícitas de organización del desarrollo. No implican aceptación de arquitectura funcional de SanctumLM. Las propuestas de producto (p. ej. ADR-0008) solo son candidatas hasta G1 humano.
