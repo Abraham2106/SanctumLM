@@ -11,7 +11,13 @@ Formato: `ADR-####-slug.md` con título, estado (`proposed` / `accepted` / `reje
 | [0003](ADR-0003-planner-source-of-truth.md) | Gobierno central del planner | accepted |
 | [0004](ADR-0004-agent-runtime-boundaries.md) | Estado efímero vs. durable | proposed |
 | [0005](ADR-0005-approval-gates.md) | Puertas de aprobación y controles | proposed |
+| [0006](ADR-0006-desktop-stack.md) | Stack Tauri 2 + React/TS + layout §12 | accepted |
+| [0007](ADR-0007-storage.md) | SQLite FTS5 sqlite-vec y cifrado | accepted |
+| [0008](ADR-0008-model-router.md) | Router ModelAdapter y Ollama loopback | accepted |
+| [0009](ADR-0009-ingestion.md) | Ingesta aislada y citas localizables | accepted |
+| [0010](ADR-0010-artifact-engine.md) | Motor ArtifactSpec SVG/PPTX | accepted |
+| [0011](ADR-0011-threat-model-egress.md) | Amenazas, egress y batería §15 | accepted |
 
-Las decisiones `accepted` de 0001-0003 derivan de las instrucciones explícitas de organización del desarrollo. No implican aceptación de arquitectura funcional de SanctumLM. Las propuestas solo son candidatas hasta revisión.
+Las decisiones `accepted` de 0001-0003 derivan de las instrucciones explícitas de organización del desarrollo. ADR-0006–0011 fueron aceptados en G1 (2026-10-16) con evidencia en cada archivo; OPEN-005..012 siguen abiertas como hipótesis.
 
 **Proceso:** abrir propuesta vinculada a tarea/RFC → enumerar alternativas → revisar riesgos/impacto → obtener aprobación adecuada → marcar estado en PR → implementar → actualizar trazabilidad. No borrar ADR antiguos; si cambia la decisión crear otro y enlazar `superseded by`.

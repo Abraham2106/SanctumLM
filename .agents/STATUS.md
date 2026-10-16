@@ -1,16 +1,20 @@
 # STATUS — Checkpoint canónico
 
-- **Timestamp de referencia:** 2026-10-16T04:40Z (conciliado con Git/GitHub; no es heartbeat)
-- **Fase:** G0 aprobado; preparación de G1
-- **Implementación de producto:** ninguna
-- **Gate actual:** G1 — pendiente
-- **G0:** aprobado 2026-10-16 por @Abraham2106 por instrucción en chat; contenido extraído de su [investigación](../docs/00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md) ([CHARTER](../docs/00-project/CHARTER.md)).
-- **Integrado en `main`:** [PR #1](https://github.com/Abraham2106/SanctumLM/pull/1), fusionado 2026-10-16T04:11Z por su autor, sin revisión independiente registrada.
-- **Ramas locales sin publicar:** `agent/TASK-0006-mejora-documental` → `agent/TASK-0007-g0-producto` (apilada sobre la anterior).
-- **ADRs accepted del flujo:** ADR-0001, ADR-0002, ADR-0003
-- **ADRs proposed:** ADR-0004, ADR-0005
-- **Riesgos principales:** RSK-13 (alcance excesivo), RSK-12 (calidad/latencia de modelos locales), RSK-14 (parser y citas), RSK-11 (sin validación con usuarios)
-- **Bloqueo:** OPEN-005..010 para G1; OPEN-011 para el conector piloto; OPEN-012 para infografías (v1)
-- **Siguiente acción:** el planner lanza la ola de arquitectura (ratificar el stack de la investigación por ADR, datos y cifrado, router de modelos y egress, modelo de amenazas) y la presenta al humano para aprobar G1.
+- **Timestamp de referencia:** 2026-10-16T12:00Z
+- **Fase:** **G1 aprobado** — arquitectura de producto ratificada (ADR-0006–0011)
+- **Implementación de producto:** ninguna (sin Cargo.toml / package.json)
+- **Gate actual:** G1 cerrado 2026-10-16; siguiente preparación OLA 2 (WBS-3.4) bajo tareas asignadas
+- **G0:** aprobado 2026-10-16; `main` actualizado tras merge `integration/mvp`
+- **Integración:** `integration/mvp` alineada con G1; publicada en `origin/main` si push OK
+- **OLA 1:** TASK-0008..0016 cerradas para G1 (reviewer + security donde aplicaba)
+- **ADRs accepted (proceso):** 0001–0003
+- **ADRs proposed (proceso):** 0004, 0005
+- **ADRs producto G1 accepted:** 0006 stack, 0007 storage, 0008 router, 0009 ingesta, 0010 artefactos, 0011 amenazas
+- **Avance R-PROD (código+pruebas+revisión):** **0/26**. Diseño G1: 26/26 R-PROD tienen TC-PROD y ADR
+- **Validador:** `python scripts/validate_docs.py` — ejecutar tras cada consolidación documental
+- **Spikes:** sqlite-vec 0.1.9 Windows **pass**; Ollama modelos **not-run** (RSK-12, no en PATH)
+- **Riesgos:** RSK-13, RSK-12 (benchmark no medido), RSK-14, RSK-11
+- **Bloqueo:** OPEN-005..012 abiertas (hipótesis); no bloquean OLA 2 de cimientos documentados
+- **Siguiente:** planner asigna OLA 2 (esqueleto §12, CI TASK-0004); TASK-0005 vertical slice cuando corresponda
 
-En sesiones posteriores el planner debe conciliar este snapshot con el estado real de GitHub antes de declarar progreso. No tratar fechas históricas como señal de agente vivo.
+Reserva: `.agents/FILE_RESERVATION.md`.
