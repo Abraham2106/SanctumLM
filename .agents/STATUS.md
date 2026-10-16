@@ -6,7 +6,7 @@
 - **Gate actual:** G1 cerrado 2026-10-16; **no** declarar G2/G3/G4
 - **G0:** aprobado 2026-10-16
 - **`origin/main`:** `828415a` — G1 ADRs; **no modificar** en olas de producto
-- **Integración:** `integration/mvp` @ **`c8ceca9`** (merge TASK-0027 follow-up ← `8cc33d3`); PR #8 @ **`16acd90`** ← **`a5a8f82`**; PR #7 @ **`e9c1d0a`** ← **`11dea11`**
+- **Integración:** `integration/mvp` @ **`4ef6dba`** (bitácora TASK-0027); merge follow-up `c8ceca9` ← `8cc33d3`; PR #8 @ **`16acd90`** ← **`a5a8f82`**; PR #7 @ **`e9c1d0a`** ← **`11dea11`**
 - **OLA 1:** TASK-0008..0016 cerradas (G1)
 - **OLA 2:** TASK-0017..0021 **done**
 - **OLA 3:** TASK-0022..0024 **done**; OPEN-013 resuelta; OPEN-010 abierta
