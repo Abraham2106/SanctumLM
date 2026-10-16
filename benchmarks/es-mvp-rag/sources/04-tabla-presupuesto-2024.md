@@ -6,6 +6,6 @@
 | Infraestructura | 18000 | 22000 | 15000 | 30000 |
 | Formación | 4000 | 3500 | 5000 | 4500 |
 
-Total anual declarado en acta: **€ 497 000**.
+Total anual declarado en acta (no coincide con la suma de partidas): **€ 497 000**.
 
 Identificador: SRC-04-tabla-presupuesto-2024

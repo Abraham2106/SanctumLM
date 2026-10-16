@@ -22,11 +22,11 @@
     },
     {
       "id": "Q-003",
-      "type": "evidence",
-      "question": "¿Cuál es el total anual del presupuesto 2024 en la tabla?",
-      "expected_answer": "497 000 € (según acta).",
+      "type": "contradiction",
+      "question": "¿Cuál es el total anual del presupuesto 2024 si sumas las partidas trimestrales de la grilla?",
+      "expected_behavior": "La suma de partidas (Personal + Infraestructura + Formación en Q1–Q4) arroja 597 000 €; el acta en el mismo documento declara 497 000 €. Debe reportarse discrepancia interna, no un único total sin matiz.",
       "evidence_sources": ["SRC-04-tabla-presupuesto-2024"],
-      "expected_claim_type": "respaldado"
+      "expected_claim_type": "discrepancia"
     },
     {
       "id": "Q-004",
@@ -105,6 +105,14 @@
       "expected_answer": "24 de agosto de 2025.",
       "evidence_sources": ["SRC-09-notas-reunion-modificadas"],
       "expected_claim_type": "respaldado"
+    },
+    {
+      "id": "Q-013",
+      "type": "import_corrupt",
+      "question": "Al importar el lote completo de `sources/`, ¿qué ocurre con `corrupt-informe.pdf` y `corrupt-borrador.docx`?",
+      "expected_behavior": "Importación parcial exitosa del resto; error específico por archivo corrupto; hash y estado de extracción registrados para fuentes válidas (R-PROD-002).",
+      "evidence_sources": ["SRC-13-corrupt-informe", "SRC-14-corrupt-borrador"],
+      "expected_claim_type": "procedimiento"
     }
   ]
 }

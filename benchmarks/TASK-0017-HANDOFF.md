@@ -2,14 +2,15 @@
 
 - **Agente/rol:** implementer (corpus evaluación OLA 2 B3)
 - **Worktree y rama:** `C:\Users\solan\Documents\Personal\Startup\SanctumLM-wt-TASK-0017` / `agent/TASK-0017-eval-corpus`
-- **PR y commits:** commit local únicamente; sin push ni PR
+- **PR y commits:** local (`30732cb` + corrección ronda 1/2); `git log -1 --oneline`; sin push ni PR
 - **Estado:** ready_for_review
 - **Fecha UTC:** 2026-10-16
 
 ## Alcance ejecutado
 
 - Creado `benchmarks/README.md` con instrucciones de uso.
-- Corpus `benchmarks/es-mvp-rag/`: 15 fuentes (MD, TXT, HTML, PDF, DOCX), manifiestos `manifest.json` + `MANIFEST.md`, evaluación `evaluation/questions.json` (12 preguntas).
+- Corpus `benchmarks/es-mvp-rag/`: 15 fuentes (MD, TXT, HTML, PDF, DOCX), manifiestos `manifest.json` + `MANIFEST.md`, evaluación `evaluation/questions.json` (13 preguntas; Q-003 discrepancia interna presupuesto; Q-013 import corruptos).
+- Ronda 1/2: trailing whitespace eliminado en fuentes citadas; `benchmarks/.gitattributes` marca PDF/DOCX como binarios para `git diff --check`.
 - Casos: tablas, `corrupt-informe.pdf` y `corrupt-borrador.docx`, inyección «ignora al usuario», contradicción fechas Nébula Docs, PDF escaneado simulado con laguna OCR, notebooks A/B para Capacidad Alfa.
 - Añadido párrafo §5.3 en `docs/04-quality/EVALUATION.md` (sin reescribir el resto).
 
@@ -20,14 +21,14 @@ Superficie respetada: solo `benchmarks/` y `docs/04-quality/EVALUATION.md`.
 | Comando o TC | Entorno | Resultado | Evidencia |
 | --- | --- | --- | --- |
 | `python scripts/validate_docs.py` | worktree TASK-0017 | pass | salida exit code 0 |
-| `git diff --check` | worktree TASK-0017 | pass | sin conflict markers |
+| `git diff --check` | worktree TASK-0017 | pass | exit 0 tras whitespace + binarios |
 | Suite producto | — | not-run | fuera de alcance TASK-0017 |
 
 ## Trazabilidad
 
 | Requisito | Cobertura en corpus |
 | --- | --- |
-| R-PROD-002 | Lote mixto + corruptos con nombre claro |
+| R-PROD-002 | Lote mixto + corruptos; Q-013 comportamiento de importación |
 | R-PROD-006 | Preguntas con evidencia + imposibles Q-007/Q-008 |
 | R-PROD-104 | Preguntas referencian `SRC-*` para validar citas |
 | R-PROD-105 | Q-009/Q-010 aislamiento notebook A/B |

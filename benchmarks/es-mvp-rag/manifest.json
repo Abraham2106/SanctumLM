@@ -40,8 +40,8 @@
       "tags": [
         "table"
       ],
-      "sha256": "9bcd68e3b92b541d88fa61c2726ae0b3da803816ff2896be0777b6b6af9e0686",
-      "size_bytes": 387
+      "sha256": "cf5c6a28e0fb25abeed56fb4a0a0f8a8c16815a4df04ad9aede52f592e77924f",
+      "size_bytes": 425
     },
     {
       "id": "SRC-05-injection-ignorar-usuario",
@@ -60,8 +60,8 @@
       "tags": [
         "contradiction"
       ],
-      "sha256": "421bddb6e7bca7afa37bbae9f70848b1d1f4d7ec5cca6742721b1f459aa52bab",
-      "size_bytes": 347
+      "sha256": "a501ab3bf4b3a8eab1d59153c7287ef8638b4db8236a1fe5a284cb7cb3ddd38c",
+      "size_bytes": 343
     },
     {
       "id": "SRC-07-hecho-fecha-lanzamiento-B",
@@ -70,8 +70,8 @@
       "tags": [
         "contradiction"
       ],
-      "sha256": "6bba31760ecd8ececa1be6a45e9746934258164818b4f0eb97b78de77c793d6e",
-      "size_bytes": 358
+      "sha256": "0f689bb748e645a3e7243fe2271af42669b25456e83173cb8441f028f42a7b09",
+      "size_bytes": 354
     },
     {
       "id": "SRC-08-informe-calidad-es",
@@ -88,8 +88,8 @@
       "tags": [
         "modified-notes"
       ],
-      "sha256": "cf5d29b382780f82d46bae7824a170c081125d30d5bdc440a2e11e55230c4a36",
-      "size_bytes": 360
+      "sha256": "b9fc964b794d841433a638c2036911fb3e4b640df5bc7707fc5c6753502e99c9",
+      "size_bytes": 358
     },
     {
       "id": "SRC-10a-concepto-alfa-capacidad",
@@ -98,8 +98,8 @@
       "tags": [
         "isolation"
       ],
-      "sha256": "c14a70f2978a3bba1263e73e36b8af6efbbf119a9284641e61b3b02719543a31",
-      "size_bytes": 275
+      "sha256": "72008dd563e594568fa1d98ac208b943d98d487fa49c62bcff4a2d7125cc155d",
+      "size_bytes": 273
     },
     {
       "id": "SRC-10b-concepto-alfa-capacidad",
@@ -108,8 +108,8 @@
       "tags": [
         "isolation"
       ],
-      "sha256": "80ae93ed9d7577df153eada17b61b78d80e65a4c1fe5b06b5a7539822a8e69b1",
-      "size_bytes": 290
+      "sha256": "fefa236257eacfe7639e5700f5f818c484a9c85611a280932b96fe0701e15360",
+      "size_bytes": 288
     },
     {
       "id": "SRC-11-glosario-publico-dominio",

@@ -6,5 +6,5 @@
 
 Participantes ficticios: Ana R., Luis M.
 
-Identificador: SRC-09-notas-reunion-modificadas  
+Identificador: SRC-09-notas-reunion-modificadas
 Etiqueta: modified-notes
