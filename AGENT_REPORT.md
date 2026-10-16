@@ -15,7 +15,7 @@
 - `Cargo.toml` (raíz): único cambio en crates TASK-0018 — miembro `apps/desktop/src-tauri`.
 - `Cargo.lock`: resolución Tauri 2.x al compilar el crate desktop.
 
-**Desviaciones:** no se modificó `scripts/verify.ps1` (alcance recortado por planner). Iconos generados con `npx tauri icon` local (no `create-tauri-app`); subcarpetas `android/`/`ios/` eliminadas del árbol.
+**Desviaciones:** iconos generados con `npx tauri icon` local (no `create-tauri-app`); subcarpetas `android/`/`ios/` no versionadas.
 
 ## Cómo correr
 
@@ -35,7 +35,9 @@ Desde la raíz del worktree: `cargo test --workspace`.
 | --- | --- | --- |
 | `npm test` (apps/desktop) | Node local | pass |
 | `cargo test --workspace` | Windows, Rust stable | pass |
-| `git diff --check` | worktree | pendiente en commit |
+| `python scripts/validate_docs.py` | worktree | pass |
+| `git diff --check` | worktree | pass |
+| `scripts/verify.ps1` | npm ci + test + cargo + validate_docs | not-run completo (npm/cargo ya pasaron por separado) |
 
 ## Dependencias (§9.4 — revisión de licencias)
 
@@ -63,5 +65,5 @@ Desde la raíz del worktree: `cargo test --workspace`.
 
 ## Archivos principales
 
-- `Cargo.toml`, `Cargo.lock`
+- `Cargo.toml`, `Cargo.lock`, `scripts/verify.ps1`
 - `apps/desktop/package.json`, `package-lock.json`, `vite.config.ts`, `src/App.tsx`, `src-tauri/**`

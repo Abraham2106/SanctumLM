@@ -1,9 +1,32 @@
-# TASK-0018 — verificación local Rust + gobernanza documental
+# TASK-0019 — verificación local Rust, TypeScript y gobernanza documental
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
-Write-Host "== sanctumlm verify (TASK-0018) =="
+Write-Host "== sanctumlm verify (TASK-0019) =="
+
+$tsResult = "not-run"
+$desktopDir = Join-Path $root "apps\desktop"
+if ((Test-Path (Join-Path $desktopDir "package.json")) -and (Get-Command npm -ErrorAction SilentlyContinue)) {
+    Push-Location $desktopDir
+    if (Test-Path "package-lock.json") {
+        Write-Host ">> npm ci (apps/desktop)"
+        npm ci
+    } else {
+        Write-Host ">> npm install (apps/desktop)"
+        npm install
+    }
+    if ($LASTEXITCODE -ne 0) { Pop-Location; exit $LASTEXITCODE }
+    Write-Host ">> npm test (apps/desktop)"
+    npm test
+    if ($LASTEXITCODE -ne 0) { Pop-Location; exit $LASTEXITCODE }
+    $tsResult = "pass"
+    Pop-Location
+} elseif (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+    Write-Host ">> npm test: not-run (npm not found)"
+} else {
+    Write-Host ">> npm test: not-run (apps/desktop/package.json missing)"
+}
 
 # rustfmt: solo con toolchain nightly explícita; no fallar si falta
 $fmtResult = "not-run"
@@ -32,4 +55,5 @@ python scripts/validate_docs.py
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host ">> fmt summary: $fmtResult"
+Write-Host ">> ts summary: $tsResult"
 Write-Host "== verify OK =="
