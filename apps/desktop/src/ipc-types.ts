@@ -6,6 +6,10 @@ export { IPC_API_VERSION } from "../../../packages/contracts/src/ipc.ts";
 
 export type {
   ApiVersioned,
+  ChatCreateRequest,
+  ChatCreateResponse,
+  ChatListRequest,
+  ChatListResponse,
   ChatSendRequest,
   ChatSendResponse,
   GenerateArtifactRequest,
@@ -20,6 +24,7 @@ export type {
   JobCancelResponse,
   JobStatusRequest,
   JobStatusResponse,
+  ListModelsRequest,
   ListModelsResponse,
   ListSourcesRequest,
   ListSourcesResponse,
@@ -34,10 +39,17 @@ export type {
 
 export type {
   ArtifactSpec,
+  ChatCitation,
+  ChatMessageRecord,
+  ChatMessageRole,
+  ChatMode,
+  ChatSummary,
+  CitationVerification,
   DataClassification,
   ImportSourceItemResult,
   JobRecord,
   JobState,
+  ModelDescriptor,
   NotebookSummary,
   ProductError,
   ProductErrorCode,

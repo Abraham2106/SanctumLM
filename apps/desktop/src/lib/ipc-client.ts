@@ -1,6 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
   ApiVersioned,
+  ChatCreateRequest,
+  ChatCreateResponse,
+  ChatListRequest,
+  ChatListResponse,
+  ChatSendRequest,
+  ChatSendResponse,
   IpcCommandName,
   IpcResult,
   ImportSourcesRequest,
@@ -9,6 +15,8 @@ import type {
   JobCancelResponse,
   JobStatusRequest,
   JobStatusResponse,
+  ListModelsRequest,
+  ListModelsResponse,
   ListSourcesRequest,
   ListSourcesResponse,
   NotebookCreateRequest,
@@ -94,6 +102,55 @@ function mockDispatch<TData>(
         ) as TData,
       };
     }
+    case "list_models": {
+      return { ok: true, data: mockWorkspace.listModels() as TData };
+    }
+    case "chat_create": {
+      const req = request as ChatCreateRequest;
+      if (req.mode === "notebook" && !req.notebook_id) {
+        return {
+          ok: false,
+          error: {
+            code: "VALIDATION_FAILED",
+            message: "Selecciona un cuaderno para el chat contextual.",
+          },
+        };
+      }
+      return {
+        ok: true,
+        data: mockWorkspace.chatCreate(req.mode, req.notebook_id, req.title) as TData,
+      };
+    }
+    case "chat_list": {
+      const req = request as ChatListRequest;
+      return {
+        ok: true,
+        data: mockWorkspace.chatList(req.mode, req.notebook_id) as TData,
+      };
+    }
+    case "chat_send": {
+      const req = request as ChatSendRequest;
+      if (req.mode === "notebook" && !req.notebook_id) {
+        return {
+          ok: false,
+          error: {
+            code: "VALIDATION_FAILED",
+            message: "Falta el cuaderno activo para enviar el mensaje.",
+          },
+        };
+      }
+      try {
+        return { ok: true, data: mockWorkspace.chatSend(req) as TData };
+      } catch (err) {
+        return {
+          ok: false,
+          error: {
+            code: "VALIDATION_FAILED",
+            message: err instanceof Error ? err.message : "No se pudo enviar el mensaje.",
+          },
+        };
+      }
+    }
     default:
       return {
         ok: false,
@@ -177,4 +234,39 @@ export async function searchSources(
 
 export function ensureMockSeed(): void {
   mockWorkspace.seedDemoNotebook();
+}
+
+export async function listModels(): Promise<IpcResult<ListModelsResponse>> {
+  return callIpc("list_models", withVersion<ListModelsRequest>({}));
+}
+
+export async function chatCreate(
+  mode: ChatCreateRequest["mode"],
+  notebookId?: string,
+  title?: string,
+): Promise<IpcResult<ChatCreateResponse>> {
+  return callIpc(
+    "chat_create",
+    withVersion<ChatCreateRequest>({
+      mode,
+      notebook_id: notebookId,
+      title,
+    }),
+  );
+}
+
+export async function chatList(
+  mode?: ChatListRequest["mode"],
+  notebookId?: string,
+): Promise<IpcResult<ChatListResponse>> {
+  return callIpc(
+    "chat_list",
+    withVersion<ChatListRequest>({ mode, notebook_id: notebookId }),
+  );
+}
+
+export async function chatSend(
+  payload: Omit<ChatSendRequest, "api_version">,
+): Promise<IpcResult<ChatSendResponse>> {
+  return callIpc("chat_send", withVersion<ChatSendRequest>(payload));
 }

@@ -1,8 +1,14 @@
 import type {
   ArtifactSpec,
+  ChatCitation,
+  ChatMessageRecord,
+  ChatMessageRole,
+  ChatMode,
+  ChatSummary,
   DataClassification,
   ImportSourceItemResult,
   JobRecord,
+  ModelDescriptor,
   NotebookSummary,
   ProductError,
   SearchHit,
@@ -24,35 +30,46 @@ export interface PingResponse {
   message: "pong";
 }
 
+export interface ListModelsRequest extends ApiVersioned {}
+
 export interface ListModelsResponse {
-  models: Array<{
-    model_id: string;
-    adapter_id: string;
-    capabilities: {
-      chat: boolean;
-      embedding: boolean;
-      offline_available: boolean;
-      context_window: number | null;
-    };
-  }>;
+  models: ModelDescriptor[];
 }
 
 export interface ChatSendRequest extends ApiVersioned {
-  mode: "general" | "notebook";
+  chat_id?: string;
+  mode: ChatMode;
   notebook_id?: string;
   model_id: string;
-  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+  messages: Array<{ role: ChatMessageRole; content: string }>;
   selected_source_ids?: string[];
 }
 
 export interface ChatSendResponse {
+  chat_id: string;
+  message_id: string;
   content: string;
-  citations: Array<{
-    chunk_id: string;
-    source_version_id: string;
-    quote: string;
-    verification: "backed" | "inference" | "discrepancy" | "unverified";
-  }>;
+  citations: ChatCitation[];
+}
+
+export interface ChatCreateRequest extends ApiVersioned {
+  mode: ChatMode;
+  notebook_id?: string;
+  title?: string;
+}
+
+export interface ChatCreateResponse {
+  chat: ChatSummary;
+}
+
+export interface ChatListRequest extends ApiVersioned {
+  mode?: ChatMode;
+  notebook_id?: string;
+}
+
+export interface ChatListResponse {
+  chats: ChatSummary[];
+  messages_by_chat: Record<string, ChatMessageRecord[]>;
 }
 
 export interface GenerateArtifactRequest extends ApiVersioned {
@@ -71,7 +88,10 @@ export interface JobStatusRequest extends ApiVersioned {
 
 export type JobStatusResponse = JobRecord;
 
-/** Comandos acordados con TASK-0027 (núcleo Tauri). */
+/**
+ * Comandos IPC acordados (0027 import/búsqueda; 0032 chat — implementación Rust pendiente).
+ * El renderer usa mock si `invoke` falla (TASK-0033).
+ */
 export type IpcCommandName =
   | "ping"
   | "notebook_create"
@@ -80,7 +100,11 @@ export type IpcCommandName =
   | "import_sources"
   | "job_status"
   | "job_cancel"
-  | "search_sources";
+  | "search_sources"
+  | "list_models"
+  | "chat_create"
+  | "chat_list"
+  | "chat_send";
 
 export interface NotebookCreateRequest extends ApiVersioned {
   title: string;

@@ -1,8 +1,17 @@
 import type {
+  ChatCitation,
+  ChatCreateResponse,
+  ChatListResponse,
+  ChatMessageRecord,
+  ChatMode,
+  ChatSendRequest,
+  ChatSendResponse,
+  ChatSummary,
   ImportSourceInlineItem,
   ImportSourcesResponse,
   JobRecord,
   JobStatusResponse,
+  ListModelsResponse,
   ListSourcesResponse,
   NotebookCreateResponse,
   NotebookListResponse,
@@ -28,6 +37,31 @@ const notebooks: NotebookSummary[] = [];
 const sources: SourceRecord[] = [];
 const chunks: MockChunk[] = [];
 const jobs = new Map<string, MockJob>();
+const chats = new Map<string, ChatSummary>();
+const messagesByChat = new Map<string, ChatMessageRecord[]>();
+
+const MOCK_MODELS: ListModelsResponse["models"] = [
+  {
+    model_id: "llama3.2:3b-instruct",
+    adapter_id: "ollama-loopback",
+    capabilities: {
+      chat: true,
+      embedding: false,
+      offline_available: true,
+      context_window: 8192,
+    },
+  },
+  {
+    model_id: "nomic-embed-text",
+    adapter_id: "ollama-loopback",
+    capabilities: {
+      chat: false,
+      embedding: true,
+      offline_available: true,
+      context_window: null,
+    },
+  },
+];
 
 let idCounter = 0;
 
@@ -250,6 +284,137 @@ export const mockWorkspace = {
     }
 
     return { query, hits };
+  },
+
+  listModels(): ListModelsResponse {
+    return {
+      models: MOCK_MODELS.filter((m) => m.capabilities.chat),
+    };
+  },
+
+  chatCreate(mode: ChatMode, notebookId?: string, title?: string): ChatCreateResponse {
+    if (mode === "notebook" && !notebookId) {
+      throw new Error("notebook_id requerido en modo cuaderno");
+    }
+    const chatId = nextId("chat");
+    const now = isoNow();
+    const chat: ChatSummary = {
+      chat_id: chatId,
+      mode,
+      notebook_id: mode === "notebook" ? (notebookId ?? null) : null,
+      title:
+        title?.trim() ||
+        (mode === "general" ? "Chat general" : "Conversación del cuaderno"),
+      created_at: now,
+      updated_at: now,
+    };
+    chats.set(chatId, chat);
+    messagesByChat.set(chatId, []);
+    return { chat };
+  },
+
+  chatList(mode?: ChatMode, notebookId?: string): ChatListResponse {
+    const filtered = [...chats.values()].filter((c) => {
+      if (mode && c.mode !== mode) {
+        return false;
+      }
+      if (notebookId && c.notebook_id !== notebookId) {
+        return false;
+      }
+      return true;
+    });
+    const messages_by_chat: ChatListResponse["messages_by_chat"] = {};
+    for (const chat of filtered) {
+      messages_by_chat[chat.chat_id] = [...(messagesByChat.get(chat.chat_id) ?? [])];
+    }
+    return { chats: filtered, messages_by_chat };
+  },
+
+  chatSend(req: ChatSendRequest): ChatSendResponse {
+    let chat = req.chat_id ? chats.get(req.chat_id) : undefined;
+    if (chat && chat.mode !== req.mode) {
+      throw new Error("El chat indicado no coincide con el modo solicitado.");
+    }
+    if (!chat) {
+      const created = mockWorkspace.chatCreate(req.mode, req.notebook_id);
+      chat = created.chat;
+    }
+
+    if (req.mode === "notebook" && !req.notebook_id) {
+      throw new Error("notebook_id requerido");
+    }
+
+    const lastUser = [...req.messages].reverse().find((m) => m.role === "user");
+    const userText = lastUser?.content.trim() ?? "";
+    const now = isoNow();
+
+    const userMessage: ChatMessageRecord = {
+      message_id: nextId("msg"),
+      chat_id: chat.chat_id,
+      role: "user",
+      content: userText,
+      model_id: req.model_id,
+      citations: [],
+      created_at: now,
+    };
+
+    const thread = messagesByChat.get(chat.chat_id) ?? [];
+    thread.push(userMessage);
+
+    let citations: ChatCitation[] = [];
+    let assistantBody: string;
+
+    if (req.mode === "general") {
+      assistantBody =
+        `[Simulado · ${req.model_id}] Respuesta sin contexto de cuaderno. ` +
+        `Ninguna fuente local se incluyó (R-PROD-007).`;
+    } else {
+      const queryTokens = userText.split(/\s+/).filter((t) => t.length > 3);
+      const query = queryTokens[0] ?? userText.slice(0, 40);
+      const search = mockWorkspace.searchSources(
+        req.notebook_id!,
+        query,
+        3,
+        req.selected_source_ids,
+      );
+      citations = search.hits.map((hit) => ({
+        chunk_id: hit.chunk_id,
+        source_version_id: hit.source_id,
+        quote: hit.snippet,
+        verification: "backed" as const,
+      }));
+      if (citations.length === 0) {
+        assistantBody =
+          `[Simulado · ${req.model_id}] No encontré fragmentos en las fuentes del cuaderno ` +
+          `para «${userText.slice(0, 80)}». Reformula o importa más texto.`;
+      } else {
+        assistantBody =
+          `[Simulado · ${req.model_id}] Según las fuentes indexadas: ` +
+          citations.map((c) => c.quote).join(" … ");
+      }
+    }
+
+    const assistantMessage: ChatMessageRecord = {
+      message_id: nextId("msg"),
+      chat_id: chat.chat_id,
+      role: "assistant",
+      content: assistantBody,
+      model_id: req.model_id,
+      citations,
+      created_at: isoNow(),
+    };
+    thread.push(assistantMessage);
+    messagesByChat.set(chat.chat_id, thread);
+
+    chat.updated_at = assistantMessage.created_at;
+    chats.set(chat.chat_id, chat);
+
+    return {
+      chat_id: chat.chat_id,
+      message_id: assistantMessage.message_id,
+      content: assistantBody,
+      citations,
+    };
   },
 
   seedDemoNotebook(): NotebookSummary {
