@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-17T07:45Z. **Consolidador:** planner (integración TASK-0027 PR #8 en `integration/mvp`).
+**Última actualización:** 2026-10-17T14:00Z. **Consolidador:** planner (OLA 4 tramo 2 — TASK-0029).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -8,7 +8,7 @@
 | TASK-0002 | Completar SRS funcional | WBS-1.2 | done | Planner | Línea base R-PROD en SRS §5; TC-PROD en G1 (A7) |
 | TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | done | Architect + humano | G1 aprobado 2026-10-16; ADR-0006–0011 accepted |
 | TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras TASK-0019; ver TASK-0020 |
-| TASK-0005 | Primer vertical slice (paraguas G2) | WBS-4.1 | ready | Por asignar | Desglosado tramo 1 → TASK-0026..0028; **no** declarar G2 hasta criterio humano |
+| TASK-0005 | Primer vertical slice (paraguas G2) | WBS-4.1 | ready | Por asignar | Tramo 1 done (0026..0028); tramo 2 → TASK-0030..0033; **no** declarar G2 hasta criterio humano |
 | TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
 | TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | done | Implementer | PR #3 merge a main |
 | TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | done | Planner | PARADA 1 + G1 humano |
@@ -32,5 +32,10 @@
 | TASK-0026 | Sidecar extractores TXT/MD | WBS-4.1.1 | done | Implementer | PR #6 + merge `integration/mvp` ← `0e55eb0` @ `0e92dd6`; APPROVE reviewer r2 + security r2; `cargo test -p documents-worker --locked` **24** OK |
 | TASK-0027 | Tauri núcleo import → storage | WBS-4.1.2 | done | Implementer | PR #8 merge `integration/mvp` @ `16acd90` ← `a5a8f82` + follow-up `c8ceca9` ← `8cc33d3`; APPROVE reviewer r2 + security r2; jobs in-memory MVP hasta tabla `jobs`; `cargo test -p storage -p sanctumlm-desktop` OK |
 | TASK-0028 | Contratos + UI import/búsqueda | WBS-4.1.3 | done | Implementer | PR #7 merge `integration/mvp` @ `e9c1d0a` ← `11dea11`; APPROVE reviewer r2 + security r2; mock IPC sin fetch externo |
+| TASK-0029 | Planner: anexo OLA 4 tramo 2 + reserva | WBS-2.1, WBS-4.1 | in_progress | Planner | Rama `agent/TASK-0029-ola4-t2-wbs`; OPEN-015; solo documentación |
+| TASK-0030 | ModelRouter + Ollama loopback | WBS-4.1.4 | ready | Por asignar | TASK-0021 done; ficha TASK-0030; ∥ 0031/0033 |
+| TASK-0031 | RAG FTS + validación citas | WBS-4.1.5 | ready | Por asignar | TASK-0023, 0027 done; ficha TASK-0031 |
+| TASK-0032 | Tauri chat + persistencia | WBS-4.1.6 | ready | Por asignar | Tras 0030+0031; ficha TASK-0032 |
+| TASK-0033 | Contratos + UI chat | WBS-4.1.7 | ready | Por asignar | ∥ 0030/0031; E2E tras 0032; ficha TASK-0033 |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
