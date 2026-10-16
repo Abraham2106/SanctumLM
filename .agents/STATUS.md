@@ -17,6 +17,7 @@
 - **Spikes:** sqlite-vec Windows **pass**; Ollama **not-run** (RSK-12)
 - **Riesgos:** RSK-13, RSK-12, RSK-14, RSK-11
 - **Bloqueo producto (humanos):** OPEN-009..012 (empaquetado, conectores piloto, artefactos visuales, etc.); OPEN-005..008, OPEN-010 abiertas — **no** bloquean TASK-0036..0038
+- **Handoff TASK-0034:** ver `.agents/messages/TASK-0034.md` (PR #16 histórico)
 - **Siguiente:** implementers en `cursor/task-0036-import-cancel-ui-65d0`, `cursor/task-0037-e2e-evidence-65d0`, `cursor/task-0038-ci-desktop-tsc-65d0`; smoke manual `tauri dev` (RSK-12); **no** declarar G2
 
 Reserva: `.agents/FILE_RESERVATION.md`.
