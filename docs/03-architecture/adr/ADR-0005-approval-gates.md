@@ -4,6 +4,7 @@
 - **Fecha:** 2026-10-15
 - **Alcance:** gobierno del desarrollo
 - **Vínculos:** R-ENG-008, R-NFR-005, R-NFR-007; WBS-1.4, WBS-4.5
+- **Aprobación:** pendiente
 
 ## Contexto
 

@@ -1,4 +1,7 @@
-# TC-#### — [Escenario verificable]
+# TC-<ÁREA>-<NN> — [Escenario verificable]
+
+<!-- ÁREA: ENG, SEC o PROD. Formato completo en docs/03-architecture/DATA_AND_INTERFACES.md -->
+
 
 - **Requisitos:** R-...
 - **Tarea/PR/commit:** ...

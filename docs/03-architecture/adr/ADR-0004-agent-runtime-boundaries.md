@@ -4,6 +4,7 @@
 - **Fecha:** 2026-10-15
 - **Alcance:** coordinación técnica del desarrollo
 - **Vínculos:** R-ENG-006, R-ENG-012; WBS-2.4
+- **Aprobación:** pendiente
 
 ## Contexto
 
