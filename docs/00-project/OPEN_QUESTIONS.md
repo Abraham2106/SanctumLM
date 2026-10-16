@@ -18,6 +18,7 @@ Una cuestión `OPEN-###` es información necesaria que **nadie ha confirmado**. 
 | OPEN-010 | ¿Qué nivel de cifrado en reposo es obligatorio en el MVP (base de datos, originales, cachés, temporales) y cómo se gestionan las claves? | Investigación §4.1, §16 | Humano + security | G1 (ADR de almacenamiento) | abierta |
 | OPEN-011 | ¿Qué conector de nube es el piloto del MVP (Drive, OneDrive, Dropbox…)? | Investigación §6.3, §16 | Patrocinador humano | R-PROD-012 | abierta |
 | OPEN-012 | ¿Las infografías de v1 son solo SVG editable o incluyen también ilustraciones generativas? | Investigación §7.3, §16 | Patrocinador humano | R-PROD-010 | abierta |
+| OPEN-013 | ¿Cuál es el desglose operativo en `docs/02-planning/WBS.md` (OLA 3 / fase C) tras B2 (TASK-0021): orden de tareas `TASK-0022+`, dueños, superficies de archivo y dependencias entre migración SQLite/FTS ([ADR-0007](../03-architecture/adr/ADR-0007-storage.md)), sidecar de ingesta ([ADR-0009](../03-architecture/adr/ADR-0009-ingestion.md)) y cableado de persistencia? | `.agents/STATUS.md` (siguiente OLA 3), comentario `C1` en `crates/storage` post-0021 | Planner + humano | TASK-0022+, TASK-0005 (vertical slice), fichas OLA 3 | abierta 2026-10-16 |
 
 ## Cómo abrir una cuestión
 
