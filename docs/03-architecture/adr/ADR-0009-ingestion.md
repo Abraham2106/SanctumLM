@@ -4,7 +4,7 @@
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — módulo de ingesta de fuentes (extracción y segmentación; no recuperación ni chat)
 - **Tarea:** TASK-0012
-- **Vínculos:** R-PROD-002, R-PROD-103, R-PROD-104, R-PROD-106, R-PROD-111; RSK-14; WBS-3.1, WBS-4.1
+- **Vínculos:** R-PROD-002, R-PROD-103, R-PROD-104, R-PROD-106, R-PROD-111; RSK-14; WBS-3.2, WBS-3.3
 - **Aprobación:** pendiente
 
 ## Contexto
