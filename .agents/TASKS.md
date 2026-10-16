@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T18:10Z. **Consolidador:** planner (post-merge TASK-0018).
+**Última actualización:** 2026-10-16T19:30Z. **Consolidador:** planner (post-merge TASK-0020).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -23,7 +23,7 @@
 | TASK-0017 | Corpus de evaluación B3 | WBS-3.4 | done | Implementer | Merge `integration/mvp` @ `1cc29e3` ← `047e3c4` |
 | TASK-0018 | Esqueleto Cargo workspace y crates §12 | WBS-3.4 | done | Implementer | Merge `77eb850` ← `dee152d` APPROVED; 6 tests workspace |
 | TASK-0019 | Stub desktop Tauri 2 + React/TS (B1) | WBS-3.4 | in_progress | Implementer | Depende 0018; worktree `agent/TASK-0019-b1-desktop` |
-| TASK-0020 | CI workspace Rust + reglas revisión (B1) | WBS-2.5, WBS-3.4 | draft | Planner | **No lanzar** hasta TASK-0019 merged |
+| TASK-0020 | CI workspace Rust + reglas revisión (B1) | WBS-2.5, WBS-3.4 | done | Implementer | Merge `5546344` ← `4ce8c9d` APPROVED; `.github/workflows/ci.yml` |
 | TASK-0021 | Contratos B2 en docs | WBS-3.4 | draft | Architect | **No lanzar** hasta TASK-0019 merged |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.

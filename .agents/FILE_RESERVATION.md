@@ -8,7 +8,7 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 
 ## OLA 2 — B1 cimientos
 
-**Vigente desde:** 2026-10-16 post-merge TASK-0018. **Base integración:** `integration/mvp` @ **`77eb850`**.
+**Vigente desde:** 2026-10-16 post-merge TASK-0020. **Base integración:** `integration/mvp` @ **`5546344`** (+ bitácora planner).
 
 | Tarea | Superficie exclusiva | Estado |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 | TASK-0017 | `benchmarks/**` (corpus B3) | **liberada** — merged `1cc29e3` |
 | TASK-0018 | raíz `Cargo.toml`, `Cargo.lock`, `crates/**`, `workers/documents/**`, `packages/artifacts/**`, `scripts/verify.ps1`, `security/README.md`, entradas `.gitignore` de workspace | **liberada** — merged `77eb850`; cambios futuros vía nueva tarea |
 | TASK-0019 | `apps/desktop/**`, config Tauri (`src-tauri/**` bajo desktop), `package.json` / lockfile UI del desktop, miembros workspace que añada solo el stub desktop | **activa** — en curso |
-| TASK-0020 | `.github/workflows/**` (CI mínimo docs + Rust; sin desktop) | **activa** — job desktop `if: false` hasta merge TASK-0019 |
+| TASK-0020 | `.github/workflows/**` (CI mínimo docs + Rust; sin desktop) | **liberada** — merged `5546344`; cambios futuros vía nueva tarea |
 | TASK-0021 | contratos B2 en `docs/03-architecture/DATA_AND_INTERFACES.md` y anexos acordados en ficha | **bloqueada** — espera TASK-0019 |
 
 **Compartidos (planner, secuencial al integrar):** `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `docs/03-architecture/adr/README.md` cuando aplique.
