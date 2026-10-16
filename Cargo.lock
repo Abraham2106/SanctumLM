@@ -2575,7 +2575,10 @@ name = "retrieval"
 version = "0.0.0"
 dependencies = [
  "core-domain",
+ "rusqlite",
  "serde",
+ "serde_json",
+ "storage",
 ]
 
 [[package]]
