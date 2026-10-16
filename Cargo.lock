@@ -2630,10 +2630,15 @@ dependencies = [
 name = "sanctumlm-desktop"
 version = "0.0.0"
 dependencies = [
+ "core-domain",
+ "documents-worker",
+ "rusqlite",
  "serde",
  "serde_json",
+ "storage",
  "tauri",
  "tauri-build",
+ "uuid",
 ]
 
 [[package]]
@@ -3000,6 +3005,7 @@ dependencies = [
  "rusqlite",
  "serde",
  "serde_json",
+ "sha2",
  "time",
  "uuid",
 ]
