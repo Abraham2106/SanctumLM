@@ -73,7 +73,7 @@ export default function ChatPanel() {
       setErrorMessage(formatProductError(result.error));
       return;
     }
-    if (result.data.notebooks.length === 0) {
+    if (result.data.notebooks.length === 0 && getIpcTransport() === "mock") {
       ensureMockSeed();
       result = await notebookList();
       if (!result.ok) {
@@ -166,7 +166,7 @@ export default function ChatPanel() {
     setStatusMessage(
       mode === "general"
         ? "Modo general: sin recuperación de fuentes del cuaderno."
-        : "Modo cuaderno: respuestas simuladas con citas FTS del cuaderno activo.",
+        : "Modo cuaderno: el núcleo recupera fragmentos FTS del cuaderno activo.",
     );
   };
 
@@ -251,7 +251,7 @@ export default function ChatPanel() {
       );
     }
 
-    setStatusMessage("Respuesta recibida (simulada hasta TASK-0032).");
+    setStatusMessage("Respuesta recibida.");
     setTransportLabel(getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri");
   };
 

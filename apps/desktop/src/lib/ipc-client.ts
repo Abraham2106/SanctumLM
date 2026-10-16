@@ -28,10 +28,11 @@ import type {
 } from "../ipc-types.ts";
 import { IPC_API_VERSION } from "../../../../packages/contracts/src/ipc.ts";
 import { mockWorkspace } from "./mock-workspace.ts";
+import { shouldUseMockIpc } from "./ipc-runtime.ts";
 
 export type IpcTransport = "tauri" | "mock";
 
-let transport: IpcTransport = "tauri";
+let transport: IpcTransport = shouldUseMockIpc() ? "mock" : "tauri";
 
 export function getIpcTransport(): IpcTransport {
   return transport;
@@ -41,18 +42,32 @@ function withVersion<T extends ApiVersioned>(payload: Omit<T, "api_version">): T
   return { ...payload, api_version: IPC_API_VERSION } as T;
 }
 
+function invokeTransportError(err: unknown): IpcResult<never> {
+  const detail =
+    err instanceof Error && err.message.trim().length > 0
+      ? err.message.trim()
+      : "error desconocido";
+  return {
+    ok: false,
+    error: {
+      code: "LOCAL_UNAVAILABLE",
+      message: `No se pudo invocar el núcleo local (${detail}). Comprueba que la aplicación de escritorio esté actualizada.`,
+    },
+  };
+}
+
 async function tryInvoke<TData>(
   command: IpcCommandName,
   request: ApiVersioned,
-): Promise<IpcResult<TData> | null> {
+): Promise<IpcResult<TData>> {
   try {
     const result = await invoke<IpcResult<TData>>(command, { request });
     if (result && typeof result === "object" && "ok" in result) {
       return result;
     }
     return { ok: true, data: result as TData };
-  } catch {
-    return null;
+  } catch (err) {
+    return invokeTransportError(err) as IpcResult<TData>;
   }
 }
 
@@ -170,13 +185,7 @@ async function callIpc<TData>(
     return mockDispatch(command, request);
   }
 
-  const fromTauri = await tryInvoke<TData>(command, request);
-  if (fromTauri) {
-    return fromTauri;
-  }
-
-  transport = "mock";
-  return mockDispatch(command, request);
+  return tryInvoke<TData>(command, request);
 }
 
 export async function notebookCreate(
@@ -233,6 +242,9 @@ export async function searchSources(
 }
 
 export function ensureMockSeed(): void {
+  if (transport !== "mock") {
+    return;
+  }
   mockWorkspace.seedDemoNotebook();
 }
 

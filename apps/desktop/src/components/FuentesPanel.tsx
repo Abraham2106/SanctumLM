@@ -106,7 +106,7 @@ export default function FuentesPanel() {
       setErrorMessage(formatProductError(result.error));
       return;
     }
-    if (result.data.notebooks.length === 0) {
+    if (result.data.notebooks.length === 0 && getIpcTransport() === "mock") {
       ensureMockSeed();
       result = await notebookList();
       if (!result.ok) {
