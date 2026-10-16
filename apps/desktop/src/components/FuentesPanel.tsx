@@ -19,6 +19,7 @@ import {
 } from "../lib/ipc-client.ts";
 import { formatProductError } from "../lib/product-errors.ts";
 import ProductMessage from "./ProductMessage.tsx";
+import SearchHitsEmptyState from "./SearchHitsEmptyState.tsx";
 import SourcesEmptyState from "./SourcesEmptyState.tsx";
 
 const ACCEPTED_EXT = [".txt", ".md"];
@@ -84,6 +85,7 @@ async function readFileAsText(file: File): Promise<string> {
 
 export default function FuentesPanel() {
   const searchId = useId();
+  const searchResultsId = useId();
   const fileInputId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,6 +93,7 @@ export default function FuentesPanel() {
   const [sources, setSources] = useState<SourceRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchHits, setSearchHits] = useState<SearchHit[]>([]);
+  const [searchCompleted, setSearchCompleted] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [busy, setBusy] = useState(false);
@@ -122,6 +125,12 @@ export default function FuentesPanel() {
   useEffect(() => {
     void refreshSources(activeNotebookId);
   }, [activeNotebookId, refreshSources]);
+
+  useEffect(() => {
+    setSearchHits([]);
+    setSearchCompleted(false);
+    setSearchQuery("");
+  }, [activeNotebookId]);
 
   useEffect(() => {
     if (!activeJob || activeJob.state === "completed" || activeJob.state === "failed" || activeJob.state === "cancelled") {
@@ -281,16 +290,19 @@ export default function FuentesPanel() {
       setSearchHits([]);
       return;
     }
+    setSearchCompleted(true);
     setSearchHits(result.data.hits);
     setStatusMessage(
       result.data.hits.length === 0
-        ? "Sin coincidencias en el cuaderno activo."
+        ? ""
         : `${result.data.hits.length} fragmento(s) encontrado(s).`,
     );
   };
 
+  const hasReadySources = sources.some((s) => s.status === "ready");
+
   return (
-    <div className="fuentes-panel">
+    <div className="fuentes-panel" aria-busy={panelBusy}>
       <p className="fuentes-lead">
         Importa TXT/MD, revisa fuentes del cuaderno activo y busca texto indexado (FTS).
         Canal IPC: <strong>{transportLabel || "…"}</strong>.
@@ -319,6 +331,7 @@ export default function FuentesPanel() {
             type="file"
             accept=".txt,.md,text/plain,text/markdown"
             multiple
+            aria-label="Seleccionar archivos TXT o Markdown para importar"
             disabled={panelBusy || !activeNotebookId}
             onChange={(e) => void handleImportFiles(e.target.files, e.currentTarget)}
           />
@@ -395,20 +408,31 @@ export default function FuentesPanel() {
           </button>
         </div>
 
-        {searchHits.length > 0 && (
-          <ol className="hit-list">
-            {searchHits.map((hit) => (
-              <li key={hit.chunk_id}>
-                <p className="hit-source">{hit.source_display_name}</p>
-                <p className="hit-snippet">{hit.snippet}</p>
-                <p className="hit-offset">
-                  Caracteres {hit.char_start}–{hit.char_end}
-                  {hit.page != null ? ` · pág. ${hit.page}` : ""}
-                </p>
-              </li>
-            ))}
-          </ol>
-        )}
+        <div
+          id={searchResultsId}
+          className="search-results"
+          role="region"
+          aria-live="polite"
+          aria-label="Resultados de búsqueda en fuentes"
+          aria-busy={panelBusy}
+        >
+          {searchCompleted && searchHits.length === 0 ? (
+            <SearchHitsEmptyState query={searchQuery} hasIndexedSources={hasReadySources} />
+          ) : searchHits.length > 0 ? (
+            <ol className="hit-list" aria-label="Fragmentos encontrados">
+              {searchHits.map((hit) => (
+                <li key={hit.chunk_id}>
+                  <p className="hit-source">{hit.source_display_name}</p>
+                  <p className="hit-snippet">{hit.snippet}</p>
+                  <p className="hit-offset">
+                    Caracteres {hit.char_start}–{hit.char_end}
+                    {hit.page != null ? ` · pág. ${hit.page}` : ""}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          ) : null}
+        </div>
       </section>
 
       <ProductMessage variant="status" message={statusMessage} />

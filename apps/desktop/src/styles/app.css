@@ -204,6 +204,10 @@ body {
   align-items: flex-end;
 }
 
+.search-results {
+  margin-top: 0.75rem;
+}
+
 .hit-source {
   margin: 0 0 0.25rem;
   font-weight: 600;

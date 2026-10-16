@@ -384,6 +384,7 @@ export default function ChatPanel() {
             ref={threadRef}
             className="chat-thread"
             role="log"
+            aria-label="Mensajes de la conversación"
             aria-live="polite"
             aria-relevant="additions"
             aria-busy={threadSyncing || busy}
@@ -392,10 +393,11 @@ export default function ChatPanel() {
               <p className="placeholder-note">Cargando conversación…</p>
             ) : threadError ? (
               <div className="chat-thread-error">
-                <p className="status-error" role="alert">{threadError}</p>
+                <ProductMessage variant="error" message={threadError} />
                 <button
                   type="button"
                   className="ipc-button"
+                  aria-label="Reintentar carga del hilo de chat"
                   onClick={() => {
                     setThreadSyncing(true);
                     void syncThread(chatMode, activeNotebookId).finally(() =>
@@ -484,6 +486,7 @@ export default function ChatPanel() {
             <button
               type="button"
               className="ipc-button send-button"
+              aria-label={busy ? "Enviando mensaje" : "Enviar mensaje"}
               disabled={
                 busy ||
                 threadSyncing ||
