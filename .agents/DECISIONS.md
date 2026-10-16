@@ -25,3 +25,5 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 **Integración TASK-0023 (2026-10-17):** reviewer + security APPROVE con residuales — `selected_source_ids` vacío interpreta todas las fuentes **ready** del notebook (contrato núcleo futuro); pruebas cubren no-fuga entre notebooks; R-PROD-105/007 al cablear chat e IPC; no bloquean merge del crate retrieval.
 
 **Integración TASK-0025 (2026-10-17):** planner — anexo OLA 4 en WBS, fichas TASK-0026..0028, reserva de archivos tramo 1; OPEN-014 resuelta; sin código Rust de producto; `validate_docs.py` OK.
+
+**Integración TASK-0026 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — `secure_io` canonicaliza bajo `staging_root` materializado (r2 `52d1b37`); offsets de chunks incluyen separadores de párrafo (`0e55eb0`); lote IPC no aborta por ítem fallido (R-PROD-002); R-PROD-105 al cablear spawn desktop; no bloquean merge del adaptador `native-text`.
