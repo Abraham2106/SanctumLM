@@ -37,7 +37,7 @@
 | TASK-0031 | RAG FTS + validación citas | WBS-4.1.5 | done | Implementer | PR #10 merge `integration/mvp` @ `7826254` ← `2222bf4`; APPROVE reviewer + security; `cargo test -p retrieval --locked` **15** OK |
 | TASK-0032 | Tauri chat + persistencia | WBS-4.1.6 | done | Implementer | Squash PR #14 → `main` @ `78bd8ba` ← `b528a2b`; APPROVE reviewer + security; merge limpio sobre `e99cd64`; CI rust OK |
 | TASK-0033 | Contratos + UI chat | WBS-4.1.7 | done | Implementer | PR #9 → `integration/mvp`; absorbido en squash PR #12 → `main` @ `f477628` (`872344a`, `e0334d5`); mock IPC; E2E tras TASK-0032 |
-| TASK-0034 | UI ↔ IPC Tauri real (E2E) | WBS-4.1.7 | in_review | Implementer | PR #16 → `main`; tests npm OK; smoke `tauri dev` manual; security IPC |
-| TASK-0035 | Persistencia tabla `jobs` | WBS-4.1.2 ext. | in_review | Implementer | PR → `main`; migración 0003 + `SqliteJobStore`; `cargo test -p storage --locked` **20** OK |
+| TASK-0034 | UI ↔ IPC Tauri real (E2E) | WBS-4.1.7 | done | Implementer | Squash PR #16 → `main` @ `c2a7dd9`; IPC real en Vite/Tauri; CI rust OK; desktop job skipped (#13) |
+| TASK-0035 | Persistencia tabla `jobs` | WBS-4.1.2 ext. | done | Implementer | Squash PR #20 → `main` @ `b75d7ff` ← `dd24902`; APPROVE reviewer r2 + security r2; migración 0003 + `SqliteJobStore`; CI OK |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde **`main`** (squash merge).
