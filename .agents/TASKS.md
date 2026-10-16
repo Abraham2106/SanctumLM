@@ -1,15 +1,23 @@
-# TASKS — Snapshot inicial del backlog
+# TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16. **Consolidador:** planner (rol). No representa tareas ya implementadas.
+**Última actualización:** 2026-10-16T05:30Z. **Consolidador:** planner (TASK-0008).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
-| TASK-0001 | Validar misión, usuarios y MVP | WBS-1.1 | done | Humano + planner | G0 aprobado 2026-10-16 (TASK-0007) |
-| TASK-0002 | Completar SRS funcional | WBS-1.2 | ready | Planner | Línea base R-PROD-001..015 y 101..111 creada; detallar TC-PROD en G1 |
-| TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | ready | Architect + humano | G0 aprobado; resolver OPEN-005..010 / G1 |
-| TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | PR #1 fusionado; el workflow `docs-governance` existe. Falta verificar protección de rama y revisión obligatoria |
-| TASK-0005 | Primer vertical slice | WBS-4.1 | blocked | Por asignar | G1 y tarea detallada |
-| TASK-0006 | Coherencia documental: registro OPEN, glosario, índice, trazabilidad y validador | WBS-2.2, WBS-2.5 | in_progress | Implementer (IA) a petición del humano | Revisión independiente y merge por el humano |
-| TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | in_progress | Implementer (IA) a petición del humano | Apilada sobre TASK-0006; revisión y merge por el humano |
+| TASK-0001 | Validar misión, usuarios y MVP | WBS-1.1 | done | Humano + planner | G0 aprobado |
+| TASK-0002 | Completar SRS funcional | WBS-1.2 | done | Planner | Línea base R-PROD en SRS §5; TC-PROD en G1 (A7) |
+| TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | in_progress | Architect + humano | OLA 1 A1–A7; G1 humano |
+| TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras G1; B1 CI |
+| TASK-0005 | Primer vertical slice | WBS-4.1 | blocked | Por asignar | G1 aprobado |
+| TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
+| TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | done | Implementer | PR #3 merge a main |
+| TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | in_progress | Planner | Checkpoint; no implementa producto |
+| TASK-0009 | A1 ADR-0006 stack Tauri 2 + §12 | WBS-3.2 | ready | Architect | Worktree exclusivo; ADR proposed |
+| TASK-0010 | A2 ADR-0007 storage + spike sqlite-vec | WBS-3.2 | ready | Architect | Spike %TEMP%; OPEN-010 no se cierra |
+| TASK-0011 | A3 ADR-0008 ModelAdapter + spike Ollama | WBS-3.2 | ready | Architect | Modelos >4 GB prohibidos; OPEN-008 no se cierra |
+| TASK-0012 | A4 ADR-0009 ingesta aislada | WBS-3.2, WBS-3.3 | ready | Architect | Sin implementar sidecar |
+| TASK-0013 | A5 ADR-0010 ArtifactSpec | WBS-3.2 | ready | Architect | §8.3 fuera de alcance |
+| TASK-0014 | A6 ADR-0011 amenazas/egress/§15 | WBS-3.3 | ready | Security | No editar SECURITY.md de proceso |
+| TASK-0015 | A7 C4, contratos, TC-PROD, OPEN-005..008 | WBS-3.2 | blocked | Architect | Tras merge A1–A6 |
 
-Los IDs de esta tabla son de planificación **no asignada a worktree aún**. No crear ramas automáticamente. Para pasar a `ready` se debe completar ficha según plantilla, abrir issue y registrar aprobación relevante.
+Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
