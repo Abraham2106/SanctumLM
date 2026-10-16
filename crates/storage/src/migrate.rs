@@ -3,28 +3,31 @@ use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
 
 const MIGRATION_0001: &str = include_str!("../migrations/0001_notebooks_sources_chunks_fts.sql");
+const MIGRATION_0002: &str = include_str!("../migrations/0002_chats_messages_citations.sql");
 
-const TARGET_VERSION: i64 = 1;
+const TARGET_VERSION: i64 = 2;
 
 /// Aplica migraciones pendientes (0001). Idempotente: no reejecuta una versión ya registrada.
 pub fn migrate_to_latest(conn: &Connection) -> rusqlite::Result<()> {
     conn.execute_batch("PRAGMA foreign_keys = ON;")?;
 
-    if migration_applied(conn, TARGET_VERSION)? {
+    apply_if_pending(conn, 1, MIGRATION_0001)?;
+    apply_if_pending(conn, 2, MIGRATION_0002)?;
+    Ok(())
+}
+
+fn apply_if_pending(conn: &Connection, version: i64, sql: &str) -> rusqlite::Result<()> {
+    if migration_applied(conn, version)? {
         return Ok(());
     }
-
-    conn.execute_batch(MIGRATION_0001)?;
-
+    conn.execute_batch(sql)?;
     let applied_at = OffsetDateTime::now_utc()
         .format(&Rfc3339)
         .map_err(|e| rusqlite::Error::ToSqlConversionFailure(Box::new(e)))?;
-
     conn.execute(
         "INSERT INTO schema_migrations (version, applied_at) VALUES (?1, ?2)",
-        (TARGET_VERSION, applied_at.as_str()),
+        (version, applied_at.as_str()),
     )?;
-
     Ok(())
 }
 

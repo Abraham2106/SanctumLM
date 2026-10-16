@@ -7,6 +7,7 @@ use rusqlite::{params, Connection};
 pub struct FtsHit {
     pub chunk_id: ChunkId,
     pub source_id: SourceId,
+    pub source_version_id: String,
     pub text: String,
     pub page: Option<i32>,
     pub char_start: Option<i32>,
@@ -32,7 +33,7 @@ pub fn search_sources_fts(
     let limit_i = i64::try_from(limit).unwrap_or(i64::MAX);
 
     let sql = if selected_source_ids.is_empty() {
-        "SELECT c.id, s.id, c.text, c.page, c.char_start, c.char_end, bm25(chunks_fts) AS rank \
+        "SELECT c.id, s.id, sv.id, c.text, c.page, c.char_start, c.char_end, bm25(chunks_fts) AS rank \
          FROM chunks_fts \
          JOIN chunks c ON c.id = chunks_fts.rowid \
          JOIN source_versions sv ON sv.id = c.source_version_id \
@@ -43,7 +44,7 @@ pub fn search_sources_fts(
          ORDER BY rank \
          LIMIT ?3"
     } else {
-        "SELECT c.id, s.id, c.text, c.page, c.char_start, c.char_end, bm25(chunks_fts) AS rank \
+        "SELECT c.id, s.id, sv.id, c.text, c.page, c.char_start, c.char_end, bm25(chunks_fts) AS rank \
          FROM chunks_fts \
          JOIN chunks c ON c.id = chunks_fts.rowid \
          JOIN source_versions sv ON sv.id = c.source_version_id \
@@ -65,14 +66,16 @@ pub fn search_sources_fts(
     let map_row = |row: &rusqlite::Row<'_>| {
         let chunk_id: i64 = row.get(0)?;
         let source_id: String = row.get(1)?;
-        let text: String = row.get(2)?;
-        let page: Option<i32> = row.get(3)?;
-        let char_start: Option<i32> = row.get(4)?;
-        let char_end: Option<i32> = row.get(5)?;
-        let rank: f64 = row.get(6)?;
+        let source_version_id: String = row.get(2)?;
+        let text: String = row.get(3)?;
+        let page: Option<i32> = row.get(4)?;
+        let char_start: Option<i32> = row.get(5)?;
+        let char_end: Option<i32> = row.get(6)?;
+        let rank: f64 = row.get(7)?;
         Ok(FtsHit {
             chunk_id: ChunkId(chunk_id.to_string()),
             source_id: SourceId(source_id),
+            source_version_id,
             text,
             page,
             char_start,

@@ -192,3 +192,111 @@ pub struct SearchSourcesResponse {
 }
 
 pub type IpcEnvelope<T> = IpcResult<T>;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ListModelsRequest {
+    pub api_version: i64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ModelCapabilitiesDto {
+    pub chat: bool,
+    pub embedding: bool,
+    pub json_schema: bool,
+    pub vision: bool,
+    pub image_generation: bool,
+    pub context_window: Option<u32>,
+    pub offline_available: bool,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ModelDescriptorDto {
+    pub model_id: String,
+    pub adapter_id: String,
+    pub capabilities: ModelCapabilitiesDto,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ListModelsResponse {
+    pub models: Vec<ModelDescriptorDto>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ChatTurnDto {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ChatSendRequest {
+    pub api_version: i64,
+    pub chat_id: Option<String>,
+    pub mode: String,
+    pub notebook_id: Option<String>,
+    pub model_id: String,
+    pub messages: Vec<ChatTurnDto>,
+    pub selected_source_ids: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatCitationDto {
+    pub chunk_id: String,
+    pub source_version_id: String,
+    pub quote: String,
+    pub verification: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatSendResponse {
+    pub chat_id: String,
+    pub message_id: String,
+    pub content: String,
+    pub citations: Vec<ChatCitationDto>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ChatCreateRequest {
+    pub api_version: i64,
+    pub mode: String,
+    pub notebook_id: Option<String>,
+    pub title: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatSummaryDto {
+    pub chat_id: String,
+    pub mode: String,
+    pub notebook_id: Option<String>,
+    pub title: String,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatCreateResponse {
+    pub chat: ChatSummaryDto,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ChatListRequest {
+    pub api_version: i64,
+    pub mode: Option<String>,
+    pub notebook_id: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatMessageRecordDto {
+    pub message_id: String,
+    pub chat_id: String,
+    pub role: String,
+    pub content: String,
+    pub model_id: Option<String>,
+    pub citations: Vec<ChatCitationDto>,
+    pub created_at: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatListResponse {
+    pub chats: Vec<ChatSummaryDto>,
+    pub messages_by_chat: std::collections::HashMap<String, Vec<ChatMessageRecordDto>>,
+}

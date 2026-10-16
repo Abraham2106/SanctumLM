@@ -1,5 +1,7 @@
 //! Núcleo Tauri: IPC import → storage/jobs (TASK-0027). Sin plugins de red HTTP.
 
+mod chat_service;
+mod chunk_search;
 mod commands;
 mod import_service;
 mod ipc_types;
@@ -59,6 +61,10 @@ pub fn run() {
             commands::job_status,
             commands::job_cancel,
             commands::search_sources,
+            commands::list_models,
+            commands::chat_create,
+            commands::chat_list,
+            commands::chat_send,
         ])
         .run(tauri::generate_context!())
         .expect("error al ejecutar la aplicación Tauri");
@@ -68,15 +74,83 @@ pub fn run() {
 mod integration_tests {
     use core_domain::{DataClassification, IpcResult};
 
+    use std::sync::{Arc, Mutex};
+
+    use ai_router::adapter::ModelAdapter;
+    use ai_router::types::{ChatRequest, ChatResponse, ChatRole};
+    use ai_router::{FakeModelAdapter, ModelRouter};
+    use retrieval::search::{ChunkHit, ChunkSearch, SearchQuery};
+    use storage::ChatMode;
+
+    use crate::chat_service::list_models_inner;
     use crate::commands::{
-        import_sources_inner, job_cancel_inner, job_status_inner, list_sources_inner,
-        notebook_create_inner, search_sources_inner,
+        chat_send_inner_state, import_sources_inner, job_cancel_inner, job_status_inner,
+        list_sources_inner, notebook_create_inner, search_sources_inner,
     };
     use crate::ipc_types::{
-        ImportInlineMime, ImportSourceInlineItem, ImportSourcesRequest, JobCancelRequest,
-        JobStatusRequest, ListSourcesRequest, NotebookCreateRequest, SearchSourcesRequest,
+        ChatSendRequest, ChatTurnDto, ImportInlineMime, ImportSourceInlineItem,
+        ImportSourcesRequest, JobCancelRequest, JobStatusRequest, ListModelsRequest,
+        ListSourcesRequest, NotebookCreateRequest, SearchSourcesRequest,
     };
     use crate::state::AppState;
+
+    struct PanicOnSearch;
+
+    impl ChunkSearch for PanicOnSearch {
+        fn search(&self, query: SearchQuery) -> Vec<ChunkHit> {
+            if query.notebook_id.is_some() {
+                panic!("FTS no debe ejecutarse en chat general");
+            }
+            Vec::new()
+        }
+    }
+
+    struct CitationEchoAdapter;
+
+    impl ModelAdapter for CitationEchoAdapter {
+        fn adapter_id(&self) -> &str {
+            "citation-echo"
+        }
+
+        fn list_models(&self) -> Result<Vec<ai_router::types::ModelDescriptor>, core_domain::AdapterError> {
+            FakeModelAdapter::ollama_loopback_stub().list_models()
+        }
+
+        fn describe_capabilities(
+            &self,
+            model_id: &str,
+        ) -> Result<ai_router::types::ModelCapabilities, core_domain::AdapterError> {
+            FakeModelAdapter::ollama_loopback_stub().describe_capabilities(model_id)
+        }
+
+        fn chat(&self, request: ChatRequest) -> Result<ChatResponse, core_domain::AdapterError> {
+            let chunk_id = request
+                .messages
+                .iter()
+                .find(|m| matches!(m.role, ChatRole::System))
+                .and_then(|m| {
+                    m.content
+                        .split("chunk_id=")
+                        .nth(1)
+                        .and_then(|rest| rest.split_whitespace().next())
+                })
+                .unwrap_or("1");
+            Ok(ChatResponse {
+                content: format!(
+                    "Respuesta con cita {{\"chunk_id\":\"{chunk_id}\",\"quote\":\"Evaporacion del ciclo\"}}"
+                ),
+                model_id: request.model_id,
+                adapter_id: self.adapter_id().into(),
+            })
+        }
+
+        fn embed(
+            &self,
+            request: ai_router::types::EmbedRequest,
+        ) -> Result<ai_router::types::EmbedResponse, core_domain::AdapterError> {
+            FakeModelAdapter::ollama_loopback_stub().embed(request)
+        }
+    }
 
     fn wait_job(state: &AppState, job_id: &str) {
         for _ in 0..50 {
@@ -316,5 +390,175 @@ mod integration_tests {
     #[test]
     fn ping_stub() {
         assert_eq!(super::ping(), "pong");
+    }
+
+    #[test]
+    fn list_models_uses_router_fake() {
+        let state = AppState::in_memory();
+        let resp = list_models_inner(
+            &state.chat,
+            ListModelsRequest { api_version: 1 },
+        );
+        assert!(resp.ok);
+        assert!(!resp.data.unwrap().models.is_empty());
+    }
+
+    #[test]
+    fn general_chat_does_not_invoke_fts() {
+        let conn = storage::open_memory_connection().expect("db");
+        let arc = Arc::new(Mutex::new(conn));
+        let staging = std::env::temp_dir().join("sanctumlm-chat-general-test");
+        let _ = std::fs::create_dir_all(&staging);
+        let state = AppState::from_connection_with_router(
+            Arc::clone(&arc),
+            staging,
+            None,
+            ModelRouter::local_only(FakeModelAdapter::ollama_loopback_stub()),
+            Arc::new(PanicOnSearch),
+        );
+
+        let resp = chat_send_inner_state(
+            &state,
+            ChatSendRequest {
+                api_version: 1,
+                chat_id: None,
+                mode: "general".into(),
+                notebook_id: None,
+                model_id: "llama3.2:latest".into(),
+                messages: vec![ChatTurnDto {
+                    role: "user".into(),
+                    content: "hola".into(),
+                }],
+                selected_source_ids: None,
+            },
+        );
+        assert!(resp.ok);
+        let data = resp.data.unwrap();
+        assert!(data.content.contains("fake-echo"));
+        assert!(data.citations.is_empty());
+    }
+
+    #[test]
+    fn notebook_chat_persists_validated_citations() {
+        let conn = storage::open_memory_connection().expect("db");
+        let arc = Arc::new(Mutex::new(conn));
+        let staging = std::env::temp_dir().join("sanctumlm-chat-nb-test");
+        let _ = std::fs::create_dir_all(&staging);
+        let state = AppState::from_connection_with_router(
+            Arc::clone(&arc),
+            staging,
+            None,
+            ModelRouter::local_only(CitationEchoAdapter),
+            Arc::new(crate::chunk_search::StorageChunkSearch::new(arc)),
+        );
+
+        let nb = notebook_create_inner(
+            &state,
+            NotebookCreateRequest {
+                api_version: 1,
+                title: "Chat NB".into(),
+                classification: Some(DataClassification::Public),
+            },
+        );
+        let nb_id = nb.data.unwrap().notebook.notebook_id;
+
+        let imported = import_sources_inner(
+            &state,
+            ImportSourcesRequest {
+                api_version: 1,
+                notebook_id: nb_id.clone(),
+                items: vec![ImportSourceInlineItem {
+                    kind: "inline_text".into(),
+                    display_name: "nota.md".into(),
+                    mime: ImportInlineMime::TextMarkdown,
+                    text: "Evaporacion del ciclo hidrologico.".into(),
+                    classification: Some(DataClassification::Public),
+                }],
+            },
+        );
+        wait_job(&state, &imported.data.unwrap().job_id);
+
+        let search = search_sources_inner(
+            &state,
+            SearchSourcesRequest {
+                api_version: 1,
+                notebook_id: nb_id.clone(),
+                query: "Evaporacion".into(),
+                limit: Some(1),
+                selected_source_ids: None,
+            },
+        );
+        let _chunk_id = search.data.unwrap().hits[0].chunk_id.clone();
+
+        let resp = chat_send_inner_state(
+            &state,
+            ChatSendRequest {
+                api_version: 1,
+                chat_id: None,
+                mode: "notebook".into(),
+                notebook_id: Some(nb_id.clone()),
+                model_id: "llama3.2:latest".into(),
+                messages: vec![ChatTurnDto {
+                    role: "user".into(),
+                    content: "Evaporacion".into(),
+                }],
+                selected_source_ids: None,
+            },
+        );
+        assert!(resp.ok, "{:?}", resp.error);
+        let data = resp.data.unwrap();
+        assert!(!data.citations.is_empty());
+
+        let listed = crate::chat_service::chat_list_inner(
+            &state.chat,
+            crate::ipc_types::ChatListRequest {
+                api_version: 1,
+                mode: Some("notebook".into()),
+                notebook_id: Some(nb_id),
+            },
+        );
+        let list = listed.data.unwrap();
+        let msgs = list.messages_by_chat.get(&data.chat_id).expect("messages");
+        assert_eq!(msgs.len(), 2);
+        assert!(!msgs[1].citations.is_empty());
+    }
+
+    #[test]
+    fn chat_send_rejects_mode_mismatch() {
+        let state = AppState::in_memory();
+        let nb = notebook_create_inner(
+            &state,
+            NotebookCreateRequest {
+                api_version: 1,
+                title: "NB".into(),
+                classification: Some(DataClassification::Public),
+            },
+        );
+        let nb_id = nb.data.unwrap().notebook.notebook_id;
+        let created = state
+            .chat
+            .chats
+            .create_chat(ChatMode::General, None, Some("g"))
+            .expect("chat");
+        let resp = chat_send_inner_state(
+            &state,
+            ChatSendRequest {
+                api_version: 1,
+                chat_id: Some(created.chat_id),
+                mode: "notebook".into(),
+                notebook_id: Some(nb_id),
+                model_id: "llama3.2:latest".into(),
+                messages: vec![ChatTurnDto {
+                    role: "user".into(),
+                    content: "hola".into(),
+                }],
+                selected_source_ids: None,
+            },
+        );
+        assert!(!resp.ok);
+        assert_eq!(
+            resp.error.unwrap().code,
+            core_domain::ProductErrorCode::ValidationFailed
+        );
     }
 }

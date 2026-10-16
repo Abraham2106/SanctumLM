@@ -12,6 +12,7 @@ pub mod source_meta;
 pub mod sqlite;
 pub mod sqlite_notebook;
 pub mod sqlite_fts;
+pub mod sqlite_chat;
 pub mod sqlite_source;
 
 pub use import_inline::{chunk_inline_text, sha256_hex, validate_inline_size};
@@ -23,4 +24,7 @@ pub use source_meta::{SourceMeta, SourceStatus};
 pub use sqlite::{notebook_repository, open_connection, open_memory_connection};
 pub use sqlite_notebook::SqliteNotebookRepository;
 pub use sqlite_fts::{search_sources_fts, FtsHit};
+pub use sqlite_chat::{
+    ChatMessageRole, ChatMode, ChatRecord, MessageRecord, SqliteChatRepository, StoredCitation,
+};
 pub use sqlite_source::{PersistedChunk, SqliteSourceRepository};
