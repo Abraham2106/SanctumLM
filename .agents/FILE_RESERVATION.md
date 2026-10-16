@@ -18,3 +18,9 @@ Los archivos de dueño único **no** los edita ningún agente de esta ola. Cada 
 **Compartidos (planner, secuencial al integrar):** `adr/README.md`, `.agents/DECISIONS.md`, `.agents/STATUS.md`, `.agents/TASKS.md`, `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`, `OPEN_QUESTIONS.md`.
 
 **A7 (TASK-0015)** exclusiva: `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`. No `.agents`, no índice ADR, no OPEN_QUESTIONS, no TRACEABILITY.
+
+## OLA 2 — B2 contratos (TASK-0021)
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0021 B2 | `crates/core-domain/**`, `crates/storage/**`, `crates/retrieval/**`, `crates/ai-router/**`, `crates/connectors/**`, `workers/documents/**`, `packages/contracts/**`, `apps/desktop/src/ipc-types.ts` | `apps/desktop/src/App.tsx`, `.github/**`, RAG/SQLite/Ollama real, merge `main` |

@@ -1,13 +1,13 @@
-//! Sidecar de ingesta aislado (Docling/MarkItDown). Stub OLA 2 — sin conversor embebido.
+//! Binario stub del sidecar de documentos (sin proceso real en B2).
 
 fn main() {
-    eprintln!("documents-worker: stub (TASK-0018); no Docling en este esqueleto.");
+    eprintln!("documents-worker stub: use library contracts in tests");
 }
 
 #[cfg(test)]
 mod tests {
     #[test]
     fn stub_compiles() {
-        assert_eq!(2 + 2, 4);
+        assert!(true);
     }
 }
