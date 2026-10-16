@@ -67,3 +67,31 @@ TASK-0021 (done)
 - **Cuestiones abiertas:** `OPEN-010` bloquea SQLCipher y persistencia `private`/`restricted` en builds de usuario; `OPEN-005`..`012` no bloquean estas tres tareas (hipótesis en fichas).
 
 **Fuera de OLA 3 (referencia WBS existente):** UI producto (`apps/desktop` salvo IPC tipado ya reservado), CI desktop, RAG/chat cableado, ModelAdapter real, conectores — WBS-4.1+ / tareas futuras.
+
+## Anexo — OLA 4 (cableado hacia vertical slice)
+
+**Alcance:** plan de implementación post-OLA 3 (TASK-0022..0024 integradas; TASK-0023 al cierre de merge); **no** declara gate **G2** ni sustituye la ficha paraguas **TASK-0005** (`WBS-4.1`). Desglosa el **primer tramo** del vertical slice acordado en G0/G1: cableado **importación → chunks → FTS → UI/búsqueda**, dejando chat/RAG+citas y demostración G2 para tramo posterior bajo la misma `WBS-4.1` (sin nuevos requisitos `R-PROD`).
+
+**Prerrequisito:** OLA 3 cerrada (0022, 0024 integrados; 0023 mergeado o en integración).
+
+| Sub-paquete | Entregable | Requisitos (diseño) | ADR | Verificación objetivo | Tarea |
+| --- | --- | --- | --- | --- | --- |
+| **WBS-4.1.1** Extractores sidecar ligeros | Adaptadores **TXT/MD** (y pegado vía mismo pipeline) en `workers/documents`; límites de tamaño; **sin** Docling/MarkItDown ni red | R-PROD-002 (parcial), R-PROD-111 | ADR-0009 | Tests contrato por MIME; lote mixto con archivo inválido no aborta el resto (preparación TC-PROD-002) | **TASK-0026** |
+| **WBS-4.1.2** Nucleo import → persistencia | Comandos Tauri + servicios: staging, spawn sidecar, persistir fuente/chunks/jobs vía API pública `storage`; SHA-256 y estados; **sin** UI React | R-PROD-002 (parcial), R-PROD-014 (parcial), R-PROD-106 (parcial), R-PROD-103 | ADR-0007, ADR-0009 | Tests integración Rust (DB temp); job cancel/retry idempotente a nivel núcleo (preparación TC-PROD-014) | **TASK-0027** |
+| **WBS-4.1.3** Contratos IPC + UI tramo import/búsqueda | Tipos en `packages/contracts`; panel fuentes + acción importar + búsqueda FTS en UI (español); invoca comandos de 0027; **sin** chat notebook ni ModelAdapter real | R-PROD-001 (parcial), R-PROD-002 (parcial), R-PROD-105 (parcial vía UI+API), R-PROD-108 (hipótesis OPEN-007) | ADR-0006, ADR-0007 | `tsc --noEmit`; smoke manual import+search; TC-PROD-001/002/105 **not-run** E2E hasta tramo chat | **TASK-0028** |
+
+### Orden y dependencias (OLA 4 — tramo 1)
+
+```text
+OLA 3 (0022, 0023, 0024)
+    ├── TASK-0026 (WBS-4.1.1)  [paralelo a 0023 si superficies distintas]
+    ├── TASK-0027 (WBS-4.1.2)  [depende 0022; sidecar 0024; opcional 0026 para TXT/MD real]
+    └── TASK-0028 (WBS-4.1.3)  [depende contratos acordados; cableado real tras 0027]
+```
+
+- **Paralelizable ya:** **0026** (worker) vs **0023** (retrieval) vs **0028** (solo contratos/types + UI mock) mientras **0027** no toque los mismos archivos.
+- **0027 antes de E2E UI:** la UI de 0028 asume comandos `import_*`, `job_*`, `notebook_*` mínimos implementados en núcleo.
+- **Chat / RAG / citas / TC-PROD-006–008:** fuera de este tramo; siguen bajo **TASK-0005** (`WBS-4.1`) — ver **OPEN-014** (planificación, no requisito nuevo).
+- **Cuestiones abiertas:** `OPEN-010` (sin SQLCipher); `OPEN-008`/`RSK-12` (Ollama not-run); `OPEN-005` (fakes en tests).
+
+**Fuera de OLA 4 tramo 1:** PDF/DOCX/HTML parsers pesados, conectores nube, artefactos, egress remoto, CI desktop habilitado, declaración G2 — `WBS-4.1` restante / `WBS-4.2+`.

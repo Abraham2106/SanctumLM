@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-17T07:05Z. **Consolidador:** planner (integración TASK-0024 en `integration/mvp`).
+**Última actualización:** 2026-10-17T12:30Z. **Consolidador:** planner (TASK-0025 anexo OLA 4).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -8,7 +8,7 @@
 | TASK-0002 | Completar SRS funcional | WBS-1.2 | done | Planner | Línea base R-PROD en SRS §5; TC-PROD en G1 (A7) |
 | TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | done | Architect + humano | G1 aprobado 2026-10-16; ADR-0006–0011 accepted |
 | TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras TASK-0019; ver TASK-0020 |
-| TASK-0005 | Primer vertical slice | WBS-4.1 | ready | Por asignar | G1 aprobado; pendiente ficha y asignación |
+| TASK-0005 | Primer vertical slice (paraguas G2) | WBS-4.1 | ready | Por asignar | Desglosado tramo 1 → TASK-0026..0028; **no** declarar G2 hasta criterio humano |
 | TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
 | TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | done | Implementer | PR #3 merge a main |
 | TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | done | Planner | PARADA 1 + G1 humano |
@@ -26,7 +26,11 @@
 | TASK-0020 | CI workspace Rust + reglas revisión (B1) | WBS-2.5, WBS-3.4 | done | Implementer | Merge `5546344` ← `4ce8c9d` APPROVED; bitácora `8554070` |
 | TASK-0021 | Contratos B2 Rust/TS + fakes in-memory | WBS-3.4 | done | Implementer | Merge `integration/mvp` ← `d9a8b20` APPROVED reviewer + security |
 | TASK-0022 | SQLite migraciones + esquema FTS5 (OLA 3 C1) | WBS-3.4.1 | done | Implementer | Merge `integration/mvp` ← `325d4c6` @ `fccd17d`; APPROVE reviewer r2 + security; OPEN-010: sin SQLCipher |
-| TASK-0023 | Recuperación FTS + VectorIndex stub | WBS-3.4.2 | in_progress | Por asignar | TASK-0022 integrado; R-PROD-105/007; ficha TASK-0023 |
+| TASK-0023 | Recuperación FTS + VectorIndex stub | WBS-3.4.2 | in_review | Por asignar | Merge pendiente a `integration/mvp`; R-PROD-105/007; ficha TASK-0023 |
 | TASK-0024 | Sidecar ingesta skeleton | WBS-3.4.3 | done | Implementer | Merge `integration/mvp` ← `ca24b48` @ `f002f47`; APPROVE reviewer r2 + security r2; ADR-0009 IPC/staging |
+| TASK-0025 | Planner: anexo OLA 4 + reserva tramo 1 | WBS-2.1, WBS-4.1 | in_progress | Planner | OPEN-014; rama `agent/TASK-0025-ola4-wbs`; sin código producto |
+| TASK-0026 | Sidecar extractores TXT/MD | WBS-4.1.1 | ready | Por asignar | TASK-0024 done; paralelo 0023; ficha TASK-0026 |
+| TASK-0027 | Tauri núcleo import → storage | WBS-4.1.2 | ready | Por asignar | 0022+0024; 0023 recomendado; ficha TASK-0027 |
+| TASK-0028 | Contratos + UI import/búsqueda | WBS-4.1.3 | ready | Por asignar | E2E tras 0027; ficha TASK-0028 |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
