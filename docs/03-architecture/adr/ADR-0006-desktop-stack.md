@@ -32,10 +32,12 @@ Estos invariantes derivan de §3.1, §3.3, §9, CHARTER y R-PROD-101/111; toda i
 | Invariante | Regla |
 | --- | --- |
 | Egress desde UI | El renderer **no** ejecuta `fetch()` ni equivalentes hacia red externa ni hacia proveedores de IA; toda salida pasa por comandos IPC al núcleo Rust. |
+| Política de egress | La autorización de salida de red y envíos a modelos remotos se evalúa en el núcleo Rust (código determinista / broker de política); el LLM **no** decide permisos de egress (CHARTER, investigación §9.2 / §11.4, R-PROD-102). |
 | IPC | Comandos **tipados**, versionados de forma compatible; errores tipados en respuestas (§12). |
 | Capabilities Tauri | Permisos **explícitos** por ventana/capability; sin acceso libre del renderer a archivos, red, secretos o shell (§3.1). |
 | Motores locales | Adaptadores HTTP a Ollama/llama.cpp/LM Studio escuchan **solo en `127.0.0.1`**; **nunca** en `0.0.0.0` ni exposición LAN por defecto (§3.3, R-PROD-111). |
 | Fallback remoto | **`cloud_fallback=false`** por defecto y **aplicado en el backend**; un fallo del modelo local **no** dispara envío automático a API remota (investigación §6.2, CHARTER). |
+| Secretos | Tokens OAuth y credenciales de proveedores **solo** en el keychain del SO; **nunca** en SQLite, especificaciones de artefactos ni logs (investigación §6.3, §9.1, R-PROD-111). |
 | Colas y sidecars | Trabajos largos en cola asíncrona con progreso y cancelación; conversor de documentos como sidecar restringido (§3.3). |
 
 ### Contrato de layout futuro (investigación §12)
