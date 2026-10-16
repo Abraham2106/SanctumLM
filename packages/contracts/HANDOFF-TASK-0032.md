@@ -16,7 +16,7 @@ Envelope: `IpcResult<T>` (`{ ok, data? \| error? }`). Payload anidado en `{ requ
 - **`list_models`:** delegar en `ModelRouter`; sin HTTP desde el renderer.
 - **`chat_create`:** `notebook_id` obligatorio si `mode === "notebook"`; omitido/null en `general` (R-PROD-007).
 - **`chat_list`:** filtrar por `mode` y/o `notebook_id`; devolver mensajes persistidos en `messages_by_chat`.
-- **`chat_send`:** si falta `chat_id`, crear chat; notebook → retrieval FTS + router; general → **cero** FTS; validar citas antes de responder.
+- **`chat_send`:** si falta `chat_id`, crear chat; si `chat_id` existe y `chat.mode !== request.mode`, rechazar (`VALIDATION_FAILED`); notebook → retrieval FTS + router; general → **cero** FTS; validar citas antes de responder.
 
 ## Huellas SHA-256 (TASK-0033, base `15eba56`)
 

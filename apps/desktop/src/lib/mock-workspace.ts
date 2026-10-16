@@ -332,6 +332,9 @@ export const mockWorkspace = {
 
   chatSend(req: ChatSendRequest): ChatSendResponse {
     let chat = req.chat_id ? chats.get(req.chat_id) : undefined;
+    if (chat && chat.mode !== req.mode) {
+      throw new Error("El chat indicado no coincide con el modo solicitado.");
+    }
     if (!chat) {
       const created = mockWorkspace.chatCreate(req.mode, req.notebook_id);
       chat = created.chat;

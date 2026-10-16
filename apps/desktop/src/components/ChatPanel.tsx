@@ -50,6 +50,7 @@ export default function ChatPanel() {
   const [errorMessage, setErrorMessage] = useState("");
   const [transportLabel, setTransportLabel] = useState("");
   const [citationNotice, setCitationNotice] = useState("");
+  const [threadSyncing, setThreadSyncing] = useState(true);
 
   const loadModels = useCallback(async () => {
     const result = await listModels();
@@ -89,41 +90,38 @@ export default function ChatPanel() {
     });
   }, []);
 
-  const syncThread = useCallback(
-    async (mode: ChatMode, notebookId: string) => {
-      setErrorMessage("");
-      const listResult = await chatList(
+  const syncThread = useCallback(async (mode: ChatMode, notebookId: string) => {
+    setErrorMessage("");
+    const listResult = await chatList(
+      mode,
+      mode === "notebook" ? notebookId : undefined,
+    );
+    if (!listResult.ok) {
+      setErrorMessage(formatProductError(listResult.error));
+      return;
+    }
+
+    let chat = listResult.data.chats.sort((a, b) =>
+      b.updated_at.localeCompare(a.updated_at),
+    )[0];
+
+    if (!chat) {
+      const created = await chatCreate(
         mode,
         mode === "notebook" ? notebookId : undefined,
       );
-      if (!listResult.ok) {
-        setErrorMessage(formatProductError(listResult.error));
+      if (!created.ok) {
+        setErrorMessage(formatProductError(created.error));
         return;
       }
+      setActiveChat(created.data.chat);
+      setMessages([]);
+      return;
+    }
 
-      let chat = listResult.data.chats.sort(
-        (a, b) => b.updated_at.localeCompare(a.updated_at),
-      )[0];
-
-      if (!chat) {
-        const created = await chatCreate(
-          mode,
-          mode === "notebook" ? notebookId : undefined,
-        );
-        if (!created.ok) {
-          setErrorMessage(formatProductError(created.error));
-          return;
-        }
-        setActiveChat(created.data.chat);
-        setMessages([]);
-        return;
-      }
-
-      setActiveChat(chat);
-      setMessages(listResult.data.messages_by_chat[chat.chat_id] ?? []);
-    },
-    [],
-  );
+    setActiveChat(chat);
+    setMessages(listResult.data.messages_by_chat[chat.chat_id] ?? []);
+  }, []);
 
   useEffect(() => {
     void loadModels();
@@ -133,9 +131,26 @@ export default function ChatPanel() {
 
   useEffect(() => {
     if (chatMode === "notebook" && !activeNotebookId) {
+      setActiveChat(null);
+      setMessages([]);
+      setThreadSyncing(false);
       return;
     }
-    void syncThread(chatMode, activeNotebookId);
+
+    setActiveChat(null);
+    setMessages([]);
+    setThreadSyncing(true);
+
+    let cancelled = false;
+    void syncThread(chatMode, activeNotebookId).finally(() => {
+      if (!cancelled) {
+        setThreadSyncing(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [chatMode, activeNotebookId, syncThread]);
 
   useEffect(() => {
@@ -157,7 +172,7 @@ export default function ChatPanel() {
 
   const handleSend = async () => {
     const text = draft.trim();
-    if (!text || !modelId || busy) {
+    if (!text || !modelId || busy || threadSyncing) {
       return;
     }
     if (chatMode === "notebook" && !activeNotebookId) {
@@ -286,7 +301,7 @@ export default function ChatPanel() {
             id={modelSelectId}
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            disabled={busy || models.length === 0}
+            disabled={busy || threadSyncing || models.length === 0}
           >
             {models.length === 0 ? (
               <option value="">Sin modelos</option>
@@ -307,7 +322,7 @@ export default function ChatPanel() {
               id={notebookSelectId}
               value={activeNotebookId}
               onChange={(e) => setActiveNotebookId(e.target.value)}
-              disabled={busy || notebooks.length === 0}
+              disabled={busy || threadSyncing || notebooks.length === 0}
             >
               {notebooks.length === 0 ? (
                 <option value="">Sin cuadernos</option>
@@ -349,7 +364,11 @@ export default function ChatPanel() {
             aria-live="polite"
             aria-relevant="additions"
           >
-            {messages.length === 0 ? (
+            {threadSyncing ? (
+              <p className="placeholder-note" aria-busy="true">
+                Cargando conversación…
+              </p>
+            ) : messages.length === 0 ? (
               <p className="placeholder-note">Escribe un mensaje para iniciar la conversación.</p>
             ) : (
               messages.map((msg) => (
@@ -386,7 +405,7 @@ export default function ChatPanel() {
                 id={composerId}
                 rows={3}
                 value={draft}
-                disabled={busy || !modelId}
+                disabled={busy || threadSyncing || !modelId}
                 placeholder={
                   chatMode === "general"
                     ? "Pregunta general al modelo local…"
@@ -404,7 +423,7 @@ export default function ChatPanel() {
             <button
               type="button"
               className="ipc-button send-button"
-              disabled={busy || !draft.trim() || !modelId}
+              disabled={busy || threadSyncing || !draft.trim() || !modelId}
               onClick={() => void handleSend()}
             >
               Enviar
