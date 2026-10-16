@@ -231,6 +231,13 @@ body {
   margin: 0.5rem 0;
 }
 
+.import-job-active {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel-bg));
+}
+
 .job-status {
   margin: 0;
   font-size: 0.9rem;
@@ -244,6 +251,10 @@ body {
 .ipc-button-danger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.import-cancel-button {
+  margin-right: 0;
 }
 
 .chat-panel {

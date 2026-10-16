@@ -40,12 +40,25 @@ const JOB_STATE_ES: Record<JobState, string> = {
   cancelled: "cancelado",
 };
 
+const JOB_ERROR_ES: Record<NonNullable<JobRecord["error_code"]>, string> = {
+  EXTRACTION_CORRUPT: "Uno o más archivos no se pudieron extraer correctamente.",
+  POLICY_DENIED: "La política del cuaderno impidió completar la importación.",
+  CANCELLED: "La importación fue cancelada antes de terminar.",
+};
+
 function formatSourceStatus(status: SourceStatus): string {
   return SOURCE_STATUS_ES[status] ?? status;
 }
 
 function formatJobState(state: JobState): string {
   return JOB_STATE_ES[state] ?? state;
+}
+
+function formatJobError(job: JobRecord): string | null {
+  if (!job.error_code) {
+    return null;
+  }
+  return JOB_ERROR_ES[job.error_code] ?? job.error_code;
 }
 
 function isActiveImportJob(job: JobRecord): boolean {
@@ -87,6 +100,10 @@ export default function FuentesPanel() {
   const [activeJob, setActiveJob] = useState<JobRecord | null>(null);
   const [cancellingImport, setCancellingImport] = useState(false);
   const [transportLabel, setTransportLabel] = useState("");
+
+  const importInFlight =
+    activeJob != null && isActiveImportJob(activeJob);
+  const panelBusy = busy || cancellingImport || importInFlight;
 
   const refreshSources = useCallback(async (notebookId: string) => {
     if (!notebookId) {
@@ -152,14 +169,22 @@ export default function FuentesPanel() {
           result.data.state === "cancelled"
         ) {
           await refreshSources(activeNotebookId);
+          const jobError = formatJobError(result.data);
           if (result.data.state === "completed") {
             setStatusMessage("Importación completada.");
+            if (jobError) {
+              setErrorMessage(jobError);
+            }
           } else if (result.data.state === "cancelled") {
             setStatusMessage("Importación cancelada.");
-            setActiveJob(null);
+            if (jobError) {
+              setErrorMessage(jobError);
+            }
           } else {
             setStatusMessage("Importación finalizada con incidencias.");
+            setErrorMessage(jobError ?? "El trabajo de importación falló.");
           }
+          setActiveJob(null);
         }
       })();
     }, 600);
@@ -310,7 +335,7 @@ export default function FuentesPanel() {
             id={notebookSelectId}
             value={activeNotebookId}
             onChange={(e) => setActiveNotebookId(e.target.value)}
-            disabled={busy || notebooks.length === 0}
+            disabled={panelBusy || notebooks.length === 0}
           >
             {notebooks.length === 0 ? (
               <option value="">Sin cuadernos</option>
@@ -324,7 +349,12 @@ export default function FuentesPanel() {
           </select>
         </label>
 
-        <button type="button" className="ipc-button" onClick={() => void handleCreateNotebook()} disabled={busy}>
+        <button
+          type="button"
+          className="ipc-button"
+          onClick={() => void handleCreateNotebook()}
+          disabled={panelBusy}
+        >
           Crear cuaderno
         </button>
 
@@ -336,20 +366,20 @@ export default function FuentesPanel() {
             type="file"
             accept=".txt,.md,text/plain,text/markdown"
             multiple
-            disabled={busy || !activeNotebookId}
+            disabled={panelBusy || !activeNotebookId}
             onChange={(e) => void handleImportFiles(e.target.files, e.currentTarget)}
           />
         </label>
       </div>
 
       {activeJob && isActiveImportJob(activeJob) && (
-        <div className="job-status-row" aria-live="polite">
+        <div className="job-status-row import-job-active" aria-live="polite">
           <p className="job-status">
             Importación: {activeJob.progress}% ({formatJobState(activeJob.state)})
           </p>
           <button
             type="button"
-            className="ipc-button ipc-button-danger"
+            className="ipc-button ipc-button-danger import-cancel-button"
             onClick={() => void handleCancelImport()}
             disabled={busy || cancellingImport}
           >
@@ -394,7 +424,7 @@ export default function FuentesPanel() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Ej.: indexa, metodología…"
-              disabled={busy || !activeNotebookId}
+              disabled={panelBusy || !activeNotebookId}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   void handleSearch();
@@ -402,7 +432,12 @@ export default function FuentesPanel() {
               }}
             />
           </label>
-          <button type="button" className="ipc-button" onClick={() => void handleSearch()} disabled={busy || !activeNotebookId}>
+          <button
+            type="button"
+            className="ipc-button"
+            onClick={() => void handleSearch()}
+            disabled={panelBusy || !activeNotebookId}
+          >
             Buscar
           </button>
         </div>
