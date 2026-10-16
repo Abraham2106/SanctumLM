@@ -1,11 +1,11 @@
 # ADR-0007 — Persistencia SQLite, FTS5 e índice vectorial
 
-- **Estado:** proposed
+- **Estado:** accepted
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — capa de almacenamiento local (metadatos, texto, vectores, archivos)
 - **Tarea:** TASK-0010
 - **Vínculos:** R-PROD-001, R-PROD-007, R-PROD-103, R-PROD-105, R-PROD-111; WBS-3.2, WBS-4.1
-- **Aprobación:** pendiente
+- **Aprobación:** Patrocinador humano, 2026-10-16, chat Cursor: instrucción explícita «g1 aprobado push a main».
 
 ## Contexto
 

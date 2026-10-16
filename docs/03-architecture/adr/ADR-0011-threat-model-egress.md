@@ -1,11 +1,11 @@
 # ADR-0011 — Modelo de amenazas, egress determinista y batería §15
 
-- **Estado:** proposed
+- **Estado:** accepted
 - **Fecha:** 2026-10-16
 - **Alcance:** producto SanctumLM (MVP)
 - **Tarea:** TASK-0014
 - **Vínculos:** R-PROD-003, R-PROD-101, R-PROD-102, R-PROD-104, R-PROD-105, R-PROD-110, R-PROD-111; WBS-3.3, WBS-4.5
-- **Aprobación:** pendiente
+- **Aprobación:** Patrocinador humano, 2026-10-16, chat Cursor: instrucción explícita «g1 aprobado push a main».
 
 ## Contexto
 

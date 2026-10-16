@@ -1,23 +1,24 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T05:30Z. **Consolidador:** planner (TASK-0008).
+**Última actualización:** 2026-10-16T12:00Z. **Consolidador:** planner (TASK-0008); G1 cerrado TASK-0016.
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
 | TASK-0001 | Validar misión, usuarios y MVP | WBS-1.1 | done | Humano + planner | G0 aprobado |
 | TASK-0002 | Completar SRS funcional | WBS-1.2 | done | Planner | Línea base R-PROD en SRS §5; TC-PROD en G1 (A7) |
-| TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | in_review | Architect + humano | Paquete PARADA 1 listo; espera G1 humano |
+| TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | done | Architect + humano | G1 aprobado 2026-10-16; ADR-0006–0011 accepted |
 | TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras G1; B1 CI |
-| TASK-0005 | Primer vertical slice | WBS-4.1 | blocked | Por asignar | G1 aprobado |
+| TASK-0005 | Primer vertical slice | WBS-4.1 | ready | Por asignar | G1 aprobado; pendiente ficha y asignación |
 | TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
 | TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | done | Implementer | PR #3 merge a main |
-| TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | in_progress | Planner | Checkpoint; no implementa producto |
-| TASK-0009 | A1 ADR-0006 stack Tauri 2 + §12 | WBS-3.2 | done | Architect | Merge local mvp `eb08f64`; reviewer r2+security approved; ADR proposed (G1 pendiente) |
-| TASK-0010 | A2 ADR-0007 storage + spike sqlite-vec | WBS-3.2 | done | Architect | Merge local mvp `eab2b53`; reviewer+security r2 approved; OPEN-010 abierta |
-| TASK-0011 | A3 ADR-0008 ModelAdapter + spike Ollama | WBS-3.2 | done | Architect | Merge local mvp `568b367`; reviewer+security approved; ADR proposed (G1 pendiente) |
-| TASK-0012 | A4 ADR-0009 ingesta aislada | WBS-3.2, WBS-3.3 | done | Architect | Merge local mvp `1ae9c32`; reviewer r2+security approved; ADR proposed (G1 pendiente) |
-| TASK-0013 | A5 ADR-0010 ArtifactSpec | WBS-3.2 | done | Architect | Merge local mvp `cf7cbd6`; reviewer+security approved; ADR proposed (G1 pendiente) |
-| TASK-0014 | A6 ADR-0011 amenazas/egress/§15 | WBS-3.3 | done | Security | Merge local mvp `b4581bd`; reviewer r2 contenido OK; ADR proposed (G1 pendiente) |
-| TASK-0015 | A7 C4, contratos, TC-PROD, OPEN-005..008 | WBS-3.2 | done | Architect | Merge local mvp; reviewer+security approved; PARADA 1 |
+| TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | done | Planner | PARADA 1 + G1 humano |
+| TASK-0009 | A1 ADR-0006 stack Tauri 2 + §12 | WBS-3.2 | done | Architect | ADR-0006 accepted G1 2026-10-16 |
+| TASK-0010 | A2 ADR-0007 storage + spike sqlite-vec | WBS-3.2 | done | Architect | ADR-0007 accepted; OPEN-010 abierta |
+| TASK-0011 | A3 ADR-0008 ModelAdapter + spike Ollama | WBS-3.2 | done | Architect | ADR-0008 accepted; spike Ollama not-run (RSK-12) |
+| TASK-0012 | A4 ADR-0009 ingesta aislada | WBS-3.2, WBS-3.3 | done | Architect | ADR-0009 accepted G1 2026-10-16 |
+| TASK-0013 | A5 ADR-0010 ArtifactSpec | WBS-3.2 | done | Architect | ADR-0010 accepted G1 2026-10-16 |
+| TASK-0014 | A6 ADR-0011 amenazas/egress/§15 | WBS-3.3 | done | Security | ADR-0011 accepted G1 2026-10-16 |
+| TASK-0015 | A7 C4, contratos, TC-PROD, OPEN-005..008 | WBS-3.2 | done | Architect | PARADA 1; soporte G1 |
+| TASK-0016 | Consolidación G1: accept ADR-0006–0011 y merge main | WBS-3.2 | done | Implementer | Evidencia humana 2026-10-16; push autorizado |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.

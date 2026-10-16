@@ -1,11 +1,11 @@
 # ADR-0010 — Motor de artefactos: ArtifactSpec, SVG y PPTX aislado
 
-- **Estado:** proposed
+- **Estado:** accepted
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — generación y exportación de artefactos de estudio (infografías, presentaciones, informes)
 - **Tarea:** TASK-0013
 - **Vínculos:** R-PROD-009, R-PROD-010, R-PROD-011, R-PROD-015; WBS-4.1, WBS-4.2; investigación §7.1–7.3, §8.1, §8.2, §11.5, §12; OPEN-012
-- **Aprobación:** pendiente
+- **Aprobación:** Patrocinador humano, 2026-10-16, chat Cursor: instrucción explícita «g1 aprobado push a main».
 
 ## Contexto
 

@@ -1,11 +1,11 @@
 # ADR-0006 — Stack de escritorio Tauri 2 y layout del repositorio (§12)
 
-- **Estado:** proposed
+- **Estado:** accepted
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — capa de escritorio y contrato de layout futuro
 - **Tarea:** TASK-0009
 - **Vínculos:** R-PROD-013, R-PROD-101, R-PROD-107, R-PROD-108; WBS-3.2, WBS-3.4
-- **Aprobación:** pendiente
+- **Aprobación:** Patrocinador humano, 2026-10-16, chat Cursor: instrucción explícita «g1 aprobado push a main».
 
 ## Contexto
 

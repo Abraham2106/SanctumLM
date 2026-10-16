@@ -1,11 +1,11 @@
 # ADR-0009 — Ingesta aislada, parsers por tipo y citas localizables
 
-- **Estado:** proposed
+- **Estado:** accepted
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — módulo de ingesta de fuentes (extracción y segmentación; no recuperación ni chat)
 - **Tarea:** TASK-0012
 - **Vínculos:** R-PROD-002, R-PROD-103, R-PROD-104, R-PROD-106, R-PROD-111; RSK-14; WBS-3.2, WBS-3.3
-- **Aprobación:** pendiente
+- **Aprobación:** Patrocinador humano, 2026-10-16, chat Cursor: instrucción explícita «g1 aprobado push a main».
 
 ## Contexto
 
