@@ -78,4 +78,19 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 
 **Paralelo seguro:** 0030 ∥ 0031 ∥ 0033 (contratos/UI mock) mientras 0032 no esté en la misma superficie. **0032** tras 0030+0031 listos para integración.
 
-**OLA 4 tramo 2 — liberación post-merge:** TASK-0032 **liberada** en `main` @ `78bd8ba` (squash PR #14); cambios futuros en `src-tauri`/storage chat vía nueva ficha.
+**OLA 4 tramo 2 — liberación post-merge:** TASK-0032 **liberada** en `main` @ `78bd8ba` (squash PR #14); TASK-0033 **liberada** en squash PR #12 @ `f477628`; cambios futuros vía ficha tramo 3.
+
+## OLA 4 — tramo 3 (E2E UI + jobs durables)
+
+**Vigente desde:** 2026-10-16 post TASK-0032 @ `84f2ca0`. **Base:** `origin/main`.
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0034 | `apps/desktop/src/**` excepto `src-tauri/**`, `packages/contracts/**` (mínimo), tests UI | `src-tauri/**`, `crates/**`, `workers/**`, `.github/**` |
+| TASK-0035 | `crates/storage/**`, `apps/desktop/src-tauri/src/**` (jobs/import), `Cargo.lock` | `apps/desktop/src/**` (React), `packages/contracts/**`, `workers/**`, `crates/retrieval/**`, `crates/ai-router/**` |
+
+**Compartidos (planner al integrar):** `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, este archivo.
+
+**Paralelo seguro:** **0034** ∥ **0035** (superficies disjointas). Integrar 0035 antes o después de 0034; conflicto posible solo en `Cargo.lock` → planner secuencia merge si ambos tocan lock.
+
+**Cross-task:** ningún agente en vuelo edita la superficie exclusiva de la otra fila tramo 3.
