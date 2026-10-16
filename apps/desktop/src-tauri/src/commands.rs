@@ -165,11 +165,7 @@ pub fn job_status(
     job_status_inner(&state, request)
 }
 
-#[tauri::command]
-pub fn job_cancel(
-    state: State<'_, AppState>,
-    request: JobCancelRequest,
-) -> IpcResult<JobRecordDto> {
+pub fn job_cancel_inner(state: &AppState, request: JobCancelRequest) -> IpcResult<JobRecordDto> {
     if let Err(err) = check_api_version(request.api_version) {
         return IpcResult::err(err);
     }
@@ -182,6 +178,14 @@ pub fn job_cancel(
         Ok(job) => IpcResult::ok(JobRecordDto::from(job)),
         Err(err) => IpcResult::err(err),
     }
+}
+
+#[tauri::command]
+pub fn job_cancel(
+    state: State<'_, AppState>,
+    request: JobCancelRequest,
+) -> IpcResult<JobRecordDto> {
+    job_cancel_inner(&state, request)
 }
 
 pub fn search_sources_inner(
