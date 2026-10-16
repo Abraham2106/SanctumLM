@@ -1,0 +1,7 @@
+Extracto de dominio público (texto sintético estilo glosario administrativo).
+
+«Acto administrativo»: manifestación unilateral de la Administración Pública
+que produce efectos jurídicos individuales o generales.
+
+Identificador: SRC-11-glosario-publico-dominio
+Licencia: sintético / uso libre en benchmarks SanctumLM.
