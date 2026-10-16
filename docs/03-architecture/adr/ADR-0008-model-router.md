@@ -1,11 +1,11 @@
 # ADR-0008 — Router de modelos y contrato `ModelAdapter` (Ollama primero)
 
-- **Estado:** proposed
+- **Estado:** accepted
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — capa de inferencia local/híbrida (`crates/ai-router` conceptual)
 - **Tarea:** TASK-0011
 - **Vínculos:** R-PROD-007, R-PROD-008, R-PROD-101, R-PROD-102, R-PROD-109; WBS-3.2, WBS-3.3, WBS-4.5; RSK-12; OPEN-008 (recomendación, sin cierre)
-- **Aprobación:** pendiente
+- **Aprobación:** Patrocinador humano, 2026-10-16, chat Cursor: instrucción explícita «g1 aprobado push a main».
 
 ## Contexto
 
