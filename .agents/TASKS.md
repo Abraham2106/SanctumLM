@@ -12,7 +12,7 @@
 | TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
 | TASK-0007 | Definición de producto y cierre de G0 | WBS-1.1, WBS-1.2 | done | Implementer | PR #3 merge a main |
 | TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | in_progress | Planner | Checkpoint; no implementa producto |
-| TASK-0009 | A1 ADR-0006 stack Tauri 2 + §12 | WBS-3.2 | in_review | Architect | Reviewer r2 approved `1e7dc37`; security en curso |
+| TASK-0009 | A1 ADR-0006 stack Tauri 2 + §12 | WBS-3.2 | done | Architect | Merge local mvp `eb08f64`; reviewer r2+security approved; ADR proposed (G1 pendiente) |
 | TASK-0010 | A2 ADR-0007 storage + spike sqlite-vec | WBS-3.2 | in_progress | Architect | Spike %TEMP%; OPEN-010 no se cierra |
 | TASK-0011 | A3 ADR-0008 ModelAdapter + spike Ollama | WBS-3.2 | done | Architect | Merge local mvp `568b367`; reviewer+security approved; ADR proposed (G1 pendiente) |
 | TASK-0012 | A4 ADR-0009 ingesta aislada | WBS-3.2, WBS-3.3 | in_review | Architect | Reviewer r2 approved `009f710`; security en curso |
