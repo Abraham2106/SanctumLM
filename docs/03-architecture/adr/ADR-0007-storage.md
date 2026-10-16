@@ -4,7 +4,7 @@
 - **Fecha:** 2026-10-16
 - **Alcance:** producto — capa de almacenamiento local (metadatos, texto, vectores, archivos)
 - **Tarea:** TASK-0010
-- **Vínculos:** R-PROD-001, R-PROD-103, R-PROD-105, R-PROD-111; WBS-3.2, WBS-4.1
+- **Vínculos:** R-PROD-001, R-PROD-007, R-PROD-103, R-PROD-105, R-PROD-111; WBS-3.2, WBS-4.1
 - **Aprobación:** pendiente
 
 ## Contexto
@@ -30,7 +30,8 @@ Adoptar **SQLite 3** como única base de metadatos e índices en el MVP, con:
 
 ### 2. Índice vectorial (sqlite-vec)
 
-- Fijar el binding Rust **`sqlite-vec = 0.1.9`** (extensión embebida vía auto-extension), **rechazando por ahora** `0.1.10-alpha.4` en Windows por fallo de compilación del crate (falta `sqlite-vec-diskann.c` en el paquete publicado). Evidencia: [spike Windows](../../04-quality/evidence/spike-sqlite-vec-windows.md).
+- Fijar el binding Rust **`sqlite-vec = 0.1.9`** enlazado **estáticamente / embebido** en el binario (`sqlite3_auto_extension` + símbolos del crate). **Prohibido en producto:** `load_extension` desde rutas de usuario, carpetas descargables o variables de entorno; solo el artefacto de build aprobado registra sqlite-vec. El spike TEMP usó `rusqlite` con feature `load_extension` únicamente para validar el crate en Windows — no es patrón de producción. Evidencia: [spike Windows](../../04-quality/evidence/spike-sqlite-vec-windows.md).
+- **Rechazar por ahora** `0.1.10-alpha.4` en Windows (fallo de compilación del crate). Evidencia detallada en el mismo documento.
 - Encapsular sqlite-vec detrás de un **`VectorIndex` trait** (nombre provisional) en `crates/retrieval/`: cargar extensión, crear tablas `vec0`, insertar/buscar, ocultar SQL específico y permitir sustituir el backend sin cambiar el núcleo RAG.
 - **No mezclar embeddings de distintos modelos ni dimensiones en el mismo índice físico.** Cada espacio de embedding se identifica por `(model_id, dimension)` y materializa su propia tabla virtual `vec0` (o equivalente), creada bajo transacción al registrar un nuevo par modelo/dimensión. Las consultas semánticas deben incluir siempre el `embedding_space_id` derivado del modelo activo de indexación/consulta; cambiar el modelo implica reindexar en un espacio nuevo, no reutilizar el anterior.
 - **LanceDB y Qdrant:** pospuestos; no forman parte del MVP. Si sqlite-vec deja de ser viable, la primera alternativa externa se evaluará con ADR dedicado y pruebas de portabilidad.
@@ -62,6 +63,37 @@ Propuesta arquitectónica para revisión humana/security (no cierra OPEN-010):
 
 **Recomendación para el humano (OPEN-010):** en MVP, exigir cifrado en reposo **por defecto** para notebooks con clasificación `private` (originales + DB + cachés), con opción explícita documentada para importaciones `public`/demostración sin cifrado de archivos (solo metadatos), sujeta a confirmación en G1. Security debe validar SQLCipher vs. cifrado a nivel de archivos del SO en Windows primero (OPEN-009).
 
+**Gate de implementación (OPEN-010):** hasta que `OPEN-010` se cierre con decisión humana + security **y** exista evidencia de **SQLCipher (o equivalente) coexistiendo con FTS5 y sqlite-vec embebido en Windows**, queda **prohibido** persistir en builds de usuario / candidatos G2 contenido clasificado `private` o `restricted` (filas en `sources`, blobs en vault, cachés derivadas). Excepción única: entornos de desarrollo con **datos sintéticos** explícitamente `public` y sin tokens reales. El esqueleto esquema, FTS5 sobre datos de prueba públicos y el spike vectorial siguen permitidos.
+
+### 6. Aislamiento de recuperación (R-PROD-105) y chat general (R-PROD-007)
+
+Toda recuperación — **FTS5 y búsqueda en tablas `vec0`** — debe aplicar el mismo filtro de autorización que [investigación §11.3](../../00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md): `notebook_id` acotado, `selected_source_ids` validados previamente por el núcleo (lista JSON/expansión segura, nunca confiar en IDs del LLM) y `sources.status = 'ready'`. Los candidatos léxicos y vectoriales se obtienen **solo** mediante `JOIN` a `sources`/`source_versions`/`chunks` con esas condiciones; no consultar `chunks_fts` ni `vec0` en aislamiento sin revalidar pertenencia al notebook y a la selección.
+
+Tras obtener un `chunk_id` (p. ej. vecino más cercano), **obligatorio** revalidar con el mismo patrón §11.3 antes de citar o devolver texto:
+
+```sql
+SELECT c.id, c.text, c.page, sv.id AS source_version_id
+FROM chunks c
+JOIN source_versions sv ON sv.id = c.source_version_id
+JOIN sources s ON s.id = sv.source_id
+WHERE s.notebook_id = :notebook_id
+  AND s.id IN (SELECT value FROM json_each(:selected_source_ids))
+  AND s.status = 'ready'
+  AND c.id = :candidate_chunk_id;
+```
+
+La búsqueda vectorial puede ordenar por distancia dentro de un subconjunto ya filtrado (p. ej. `chunk_id IN (...)` derivado del JOIN anterior) o aplicar el JOIN en la consulta compuesta; en ambos casos, un `chunk_id` fuera de notebook/selección **no puede** aparecer en resultados finales.
+
+**Prueba negativa obligatoria:** escenario **(e)** de §15 (dos notebooks con contenido similar/incompatible) debe fallar también en la rama **semántica** (vec0): ningún fragmento del notebook B en respuestas del notebook A, y viceversa.
+
+**R-PROD-007 (chat general):** conversaciones con `chats.notebook_id IS NULL` **no** invocan FTS5 ni índices vectoriales; el motor de recuperación devuelve **cero fragmentos** de fuentes. Prohibido atar un chat general a consultas sobre `chunks`, `chunks_fts` o `vec0`.
+
+### 7. Conectores y secretos (R-PROD-111)
+
+- Tokens OAuth, refresh tokens y credenciales de conectores: **solo keychain del SO** (mismo principio que R-PROD-111).
+- La tabla `connectors` almacena **metadatos** (`provider`, `scopes_json`, `policy_json`, identificadores no secretos). **Prohibido** persistir secretos en SQLite, en `settings_json` de `notebooks` o en logs.
+- Referencias en SQLite: p. ej. `connector_id` + handle opaco al keychain; la app resuelve el token en memoria solo durante la operación autorizada.
+
 ## Alternativas evaluadas
 
 | Opción | Pros | Contras | Veredicto |
@@ -84,7 +116,7 @@ Propuesta arquitectónica para revisión humana/security (no cierra OPEN-010):
 - Complejidad de SQLCipher + extensiones (FTS5 + vec) en un mismo archivo.
 - Decisión OPEN-010 retrasada bloquea implementación de cifrado pero **no** el esqueleto esquema/FTS.
 
-**Pruebas previstas al implementar:** migración 0001 idempotente; triggers FTS; escenario (e) aislamiento notebook; interrupción de ingestión; spike replicado en macOS/Linux; tests negativos de mezcla `model_id`/dimensión.
+**Pruebas previstas al implementar:** migración 0001 idempotente; triggers FTS; escenario (e) aislamiento notebook **léxico y semántico**; chat general sin fragmentos; interrupción de ingestión; spike replicado en macOS/Linux; tests negativos de mezcla `model_id`/dimensión; gate OPEN-010 antes de persistir `private`/`restricted` en builds de usuario.
 
 ## Migración 0001 propuesta (SQL)
 
@@ -93,6 +125,7 @@ Propuesta arquitectónica para revisión humana/security (no cierra OPEN-010):
 ```sql
 -- sanctumlm migration 0001 (PROPUESTA) — metadatos + FTS5 + registro de espacios vectoriales
 PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
 
 CREATE TABLE schema_migrations (
   version INTEGER PRIMARY KEY,
@@ -240,6 +273,7 @@ CREATE TABLE jobs (
   updated_at TEXT NOT NULL
 );
 
+-- Metadatos únicamente; tokens OAuth viven en keychain del SO (R-PROD-111).
 CREATE TABLE connectors (
   id TEXT PRIMARY KEY,
   provider TEXT NOT NULL,
