@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T23:30Z. **Consolidador:** planner (OLA 3 WBS + TASK-0022..0024).
+**Última actualización:** 2026-10-17T06:58Z. **Consolidador:** planner (integración TASK-0022 en `integration/mvp`).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -25,8 +25,8 @@
 | TASK-0019 | Stub desktop Tauri 2 + React/TS (B1) | WBS-3.4 | done | Implementer | Merge `2180b6a` ← `87dff19` APPROVED; `apps/desktop/**` |
 | TASK-0020 | CI workspace Rust + reglas revisión (B1) | WBS-2.5, WBS-3.4 | done | Implementer | Merge `5546344` ← `4ce8c9d` APPROVED; bitácora `8554070` |
 | TASK-0021 | Contratos B2 Rust/TS + fakes in-memory | WBS-3.4 | done | Implementer | Merge `integration/mvp` ← `d9a8b20` APPROVED reviewer + security |
-| TASK-0022 | SQLite migraciones + esquema FTS5 (OLA 3 C1) | WBS-3.4.1 | ready | Por asignar | TASK-0021 done; OPEN-010: sin SQLCipher; ficha `.agents/briefs/TASK-0022.md` |
-| TASK-0023 | Recuperación FTS + VectorIndex stub | WBS-3.4.2 | ready | Por asignar | **Depende TASK-0022**; R-PROD-105/007; ficha TASK-0023 |
-| TASK-0024 | Sidecar ingesta skeleton | WBS-3.4.3 | ready | Por asignar | Paralelo a TASK-0022; ADR-0009; ficha TASK-0024 |
+| TASK-0022 | SQLite migraciones + esquema FTS5 (OLA 3 C1) | WBS-3.4.1 | done | Implementer | Merge `integration/mvp` ← `325d4c6` @ `fccd17d`; APPROVE reviewer r2 + security; OPEN-010: sin SQLCipher |
+| TASK-0023 | Recuperación FTS + VectorIndex stub | WBS-3.4.2 | in_progress | Por asignar | TASK-0022 integrado; R-PROD-105/007; ficha TASK-0023 |
+| TASK-0024 | Sidecar ingesta skeleton | WBS-3.4.3 | ready | Por asignar | Sin merge en `integration/mvp`; ADR-0009; ficha TASK-0024 |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
