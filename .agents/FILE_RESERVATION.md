@@ -82,7 +82,7 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 
 ## OLA 4 — tramo 3 (E2E UI + jobs durables)
 
-**Vigente desde:** 2026-10-16 post TASK-0032 @ `84f2ca0`. **Base:** `origin/main`.
+**Vigente desde:** 2026-10-16 post plan tramo 3 @ `e238ade`. **Base:** `origin/main`. PRs abiertos: #16 (0034), jobs SQLite (0035).
 
 | Tarea | Superficie exclusiva | Prohibido |
 | --- | --- | --- |

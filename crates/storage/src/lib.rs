@@ -13,6 +13,7 @@ pub mod sqlite;
 pub mod sqlite_notebook;
 pub mod sqlite_fts;
 pub mod sqlite_chat;
+pub mod sqlite_jobs;
 pub mod sqlite_source;
 
 pub use import_inline::{chunk_inline_text, sha256_hex, validate_inline_size};
@@ -27,4 +28,5 @@ pub use sqlite_fts::{search_sources_fts, FtsHit};
 pub use sqlite_chat::{
     ChatMessageRole, ChatMode, ChatRecord, MessageRecord, SqliteChatRepository, StoredCitation,
 };
+pub use sqlite_jobs::SqliteJobStore;
 pub use sqlite_source::{PersistedChunk, SqliteSourceRepository};

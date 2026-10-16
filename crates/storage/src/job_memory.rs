@@ -3,11 +3,9 @@ use std::sync::{Arc, Mutex};
 
 use core_domain::{JobErrorCode, JobId, JobRecord, JobState, ProductError, ProductErrorCode};
 
-/// Cola de jobs en memoria para MVP (TASK-0027).
+/// Cola de jobs en memoria (tests y referencia TASK-0027).
 ///
-/// La tabla `jobs` de ADR-0007 §Migración 0001 **no está** en la migración 0001 aplicada;
-/// persistencia SQL queda para una tarea planner posterior (sin inventar schema aquí).
-/// Reinicio de la app pierde jobs en vuelo; fuentes/chunks confirmados siguen en SQLite.
+/// Producción usa [`SqliteJobStore`] (migración 0003, TASK-0035).
 #[derive(Debug, Default)]
 pub struct InMemoryJobStore {
     inner: Mutex<HashMap<JobId, JobRecord>>,

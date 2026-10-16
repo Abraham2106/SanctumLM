@@ -15,7 +15,7 @@ use core_domain::{
 };
 use rusqlite::Connection;
 use storage::{
-    chunk_inline_text, sha256_hex, validate_inline_size, CancelFlag, InMemoryJobStore,
+    chunk_inline_text, sha256_hex, validate_inline_size, CancelFlag, SqliteJobStore,
     SqliteSourceRepository,
 };
 use uuid::Uuid;
@@ -50,7 +50,7 @@ impl ImportRuntime {
 
     pub fn enqueue_batch(
         &self,
-        jobs: Arc<InMemoryJobStore>,
+        jobs: Arc<SqliteJobStore>,
         notebook_id: NotebookId,
         items: Vec<ImportSourceInlineItem>,
     ) -> ImportSourcesResponse {
@@ -62,7 +62,7 @@ impl ImportRuntime {
         };
         job.progress = if items.is_empty() { 100 } else { 0 };
         let job_id = job.job_id;
-        jobs.insert(job.clone());
+        jobs.insert(job.clone(), Some(&notebook_id));
 
         let cancel = CancelFlag::new();
         self.cancel_flags
@@ -133,7 +133,7 @@ impl ImportRuntime {
 
     fn run_batch(
         &self,
-        jobs: Arc<InMemoryJobStore>,
+        jobs: Arc<SqliteJobStore>,
         job_id: JobId,
         notebook_id: NotebookId,
         items: Vec<ImportSourceInlineItem>,
