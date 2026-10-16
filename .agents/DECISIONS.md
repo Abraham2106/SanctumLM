@@ -40,4 +40,6 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 
 **Planificación tramo 3 (2026-10-16):** planner — anexo OLA 4 tramo 3 en WBS; fichas **TASK-0034** (E2E UI↔IPC) y **TASK-0035** (jobs SQLite); reserva tramo 3; base `origin/main` @ `84f2ca0`; G2 no declarado; extractores PDF/DOCX/HTML pesados siguen fuera (WBS-4.2+).
 
+**Entrega TASK-0034 (2026-10-16):** implementer TASK-0034 (agente 8d3234bc) — PR #16 abierto → `main`; `npm test`/`build` OK; smoke `tauri dev` + Ollama caído para reviewer; **no** merge; **no** G2 ni 26/26.
+
 **Política git (2026-10-16, humano):** destino único **`main`**; PRs con **squash merge**; fin de `integration/mvp` como rama de integración. Consolidación: push `integration/mvp` @ `c56e7a5` (TASK-0033) + squash PR #12 → `main` @ `f477628` desde base `520234b` (sin reescritura de main). Stash `wip gen schemas` en worktree integration **no** incluido en commits.

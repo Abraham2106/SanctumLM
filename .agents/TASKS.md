@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-16T14:25Z. **Consolidador:** planner (post TASK-0032 @ `84f2ca0`; fichas 0034–0035).
+**Última actualización:** 2026-10-16T15:00Z. **Consolidador:** planner (TASK-0034 PR #16 en revisión).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -37,7 +37,7 @@
 | TASK-0031 | RAG FTS + validación citas | WBS-4.1.5 | done | Implementer | PR #10 merge `integration/mvp` @ `7826254` ← `2222bf4`; APPROVE reviewer + security; `cargo test -p retrieval --locked` **15** OK |
 | TASK-0032 | Tauri chat + persistencia | WBS-4.1.6 | done | Implementer | Squash PR #14 → `main` @ `78bd8ba` ← `b528a2b`; APPROVE reviewer + security; merge limpio sobre `e99cd64`; CI rust OK |
 | TASK-0033 | Contratos + UI chat | WBS-4.1.7 | done | Implementer | PR #9 → `integration/mvp`; absorbido en squash PR #12 → `main` @ `f477628` (`872344a`, `e0334d5`); mock IPC; E2E tras TASK-0032 |
-| TASK-0034 | UI ↔ IPC Tauri real (E2E) | WBS-4.1.7 | ready | Implementer | Dep 0032+0033; prioridad chat/fuentes visibles; PR → `main` |
+| TASK-0034 | UI ↔ IPC Tauri real (E2E) | WBS-4.1.7 | in_review | Implementer | PR #16 → `main` (`agent/TASK-0034-ui-ipc-e2e`); npm test/build OK; smoke manual pendiente reviewer; sin merge |
 | TASK-0035 | Persistencia tabla `jobs` | WBS-4.1.2 ext. | ready | Implementer | Paralelo 0034; storage + src-tauri jobs; sin UI |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde **`main`** (squash merge).
