@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- | --- |
 | TASK-0001 | Validar misión, usuarios y MVP | WBS-1.1 | done | Humano + planner | G0 aprobado |
 | TASK-0002 | Completar SRS funcional | WBS-1.2 | done | Planner | Línea base R-PROD en SRS §5; TC-PROD en G1 (A7) |
-| TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | in_progress | Architect + humano | OLA 1 A1–A7; G1 humano |
+| TASK-0003 | Aprobar arquitectura de producto | WBS-3.2 | in_review | Architect + humano | Paquete PARADA 1 listo; espera G1 humano |
 | TASK-0004 | Habilitar flujo CI y reglas de revisión | WBS-2.5 | draft | Planner | Tras G1; B1 CI |
 | TASK-0005 | Primer vertical slice | WBS-4.1 | blocked | Por asignar | G1 aprobado |
 | TASK-0006 | Coherencia documental | WBS-2.2, WBS-2.5 | done | Implementer | PR #2 merge a main |
@@ -18,6 +18,6 @@
 | TASK-0012 | A4 ADR-0009 ingesta aislada | WBS-3.2, WBS-3.3 | done | Architect | Merge local mvp `1ae9c32`; reviewer r2+security approved; ADR proposed (G1 pendiente) |
 | TASK-0013 | A5 ADR-0010 ArtifactSpec | WBS-3.2 | done | Architect | Merge local mvp `cf7cbd6`; reviewer+security approved; ADR proposed (G1 pendiente) |
 | TASK-0014 | A6 ADR-0011 amenazas/egress/§15 | WBS-3.3 | done | Security | Merge local mvp `b4581bd`; reviewer r2 contenido OK; ADR proposed (G1 pendiente) |
-| TASK-0015 | A7 C4, contratos, TC-PROD, OPEN-005..008 | WBS-3.2 | ready | Architect | Base integration/mvp con ADR-0006–0011 |
+| TASK-0015 | A7 C4, contratos, TC-PROD, OPEN-005..008 | WBS-3.2 | done | Architect | Merge local mvp; reviewer+security approved; PARADA 1 |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.

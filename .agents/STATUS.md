@@ -1,21 +1,20 @@
 # STATUS — Checkpoint canónico
 
-- **Timestamp de referencia:** 2026-10-16T05:30Z
-- **Fase:** G0 aprobado e integrado en `main`; OLA 1 (G1) en curso
+- **Timestamp de referencia:** 2026-10-16T06:00Z
+- **Fase:** **PARADA 1 (G1)** — paquete listo; espera «G1 aprobado»
 - **Implementación de producto:** ninguna (sin Cargo.toml / package.json)
-- **Gate actual:** G1 — pendiente de paquete al humano (PARADA 1)
-- **G0:** aprobado 2026-10-16; contenido en [CHARTER](../docs/00-project/CHARTER.md) y [SRS §5](../docs/01-requirements/SRS.md). Fusionado: PR #2 (TASK-0006) y PR #3 (TASK-0007) → `main` @ `4ff44a7`.
-- **Rama de integración:** `integration/mvp` creada desde `main`/`4ff44a7` (equivalente a TASK-0007 ya fusionada). Nada se escribe en `main`.
-- **Ramas de OLA 1:** `agent/TASK-0008-g1-ola1-plan` (planner) + TASK-0009..0014 (A1–A6). A7 (TASK-0015) no lanzada.
-- **ADRs accepted del flujo:** ADR-0001, ADR-0002, ADR-0003
-- **ADRs proposed (proceso):** ADR-0004, ADR-0005
-- **ADRs de producto G1:** ADR-0006–0011 proposed e integrados en `integration/mvp`. Ninguno accepted. A7 (TASK-0015) siguiente.
-- **Avance R-PROD:** 0/26 implementados con pruebas y revisión (solo diseño G1)
-- **Validador:** `python scripts/validate_docs.py` → OK (52 Markdown) en `main` @ `4ff44a7`
-- **Suite de producto:** not-run (no existe código)
-- **Riesgos principales:** RSK-13, RSK-12, RSK-14, RSK-11
-- **Bloqueo:** OPEN-005..012 abiertas; G1 no aprobado; sin autorización de push/PR en esta sesión
-- **Flujo de integración (provisional, sin respuesta humana a push):** ramas de tarea → reviewer → merge local `--no-ff` hacia `integration/mvp`
-- **Siguiente acción:** completar A1–A6, revisar, integrar en `integration/mvp`, lanzar A7 (TASK-0015), presentar PARADA 1. No OLA 2 hasta «G1 aprobado».
+- **Gate actual:** G1 — ADRs 0006–0011 `proposed`; no accepted hasta evidencia humana
+- **G0:** aprobado 2026-10-16; `main` @ `4ff44a7` (PR #2 y #3)
+- **Integración:** `integration/mvp` @ merge TASK-0015; nada en `main`
+- **OLA 1:** TASK-0008..0015 cerradas localmente (reviewer + security donde aplicaba)
+- **ADRs accepted (proceso):** 0001–0003
+- **ADRs proposed (proceso):** 0004, 0005
+- **ADRs producto G1 proposed:** 0006 stack, 0007 storage, 0008 router, 0009 ingesta, 0010 artefactos, 0011 amenazas
+- **Avance R-PROD (código+pruebas+revisión):** **0/26**. Diseño G1: 26/26 R-PROD tienen TC-PROD y ADR
+- **Validador:** `python scripts/validate_docs.py` en `integration/mvp` (tras consolidación)
+- **Spikes:** sqlite-vec 0.1.9 Windows **pass**; Ollama modelos **not-run** (RSK-12, no en PATH)
+- **Riesgos:** RSK-13, RSK-12 (benchmark no medido), RSK-14, RSK-11
+- **Bloqueo:** sin «G1 aprobado»; OPEN-005..012 abiertas; sin push/PR autorizado
+- **Siguiente:** humano aprueba o corrige G1. **No OLA 2** hasta entonces.
 
-Reserva: `.agents/FILE_RESERVATION.md`. Briefs: `.agents/briefs/TASK-0009.md` … `TASK-0014.md`.
+Reserva: `.agents/FILE_RESERVATION.md`.
