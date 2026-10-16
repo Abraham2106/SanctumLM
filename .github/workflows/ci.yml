@@ -32,9 +32,31 @@ jobs:
       - name: Test workspace
         run: cargo test --workspace --exclude sanctumlm-desktop --locked
 
-  # Desktop / Tauri: enable when apps/desktop exists on integration/mvp (TASK-0019).
+  typescript:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - packages/contracts
+          - apps/desktop
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ${{ matrix.package }}/package-lock.json
+      - name: Typecheck (${{ matrix.package }})
+        working-directory: ${{ matrix.package }}
+        run: |
+          npm ci
+          npm test
+
+  # Full Tauri build / gdk (packaging): deferred — OPEN-009; typecheck runs in `typescript` (TASK-0038).
   desktop:
     if: false
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Skipped until apps/desktop is merged (TASK-0019)."
+      - run: echo "Skipped — tsc in job typescript; Tauri build deferred (OPEN-009)."
