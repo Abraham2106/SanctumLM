@@ -47,12 +47,14 @@ mod tests {
             ChunkHit {
                 chunk_id: ChunkId("c1".into()),
                 source_id: SourceId("s1".into()),
+                source_version_id: "sv-1".into(),
                 quote: "agua evaporación".into(),
                 score: 1.0,
             },
             ChunkHit {
                 chunk_id: ChunkId("c2".into()),
                 source_id: SourceId("s2".into()),
+                source_version_id: "sv-2".into(),
                 quote: "agua lluvia".into(),
                 score: 0.9,
             },
@@ -72,6 +74,7 @@ mod tests {
         let search = FakeChunkSearch::with_static_hits(vec![ChunkHit {
             chunk_id: ChunkId("c1".into()),
             source_id: SourceId("s1".into()),
+            source_version_id: "sv-1".into(),
             quote: "agua".into(),
             score: 1.0,
         }]);

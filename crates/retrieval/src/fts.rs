@@ -46,7 +46,7 @@ impl ChunkSearch for FtsChunkSearch {
         let limit = i64::try_from(query.limit).unwrap_or(i64::MAX);
 
         let sql = if query.selected_source_ids.is_empty() {
-            "SELECT c.id, s.id, c.text, bm25(chunks_fts) AS rank \
+            "SELECT c.id, s.id, sv.id, c.text, bm25(chunks_fts) AS rank \
              FROM chunks_fts \
              JOIN chunks c ON c.id = chunks_fts.rowid \
              JOIN source_versions sv ON sv.id = c.source_version_id \
@@ -57,7 +57,7 @@ impl ChunkSearch for FtsChunkSearch {
              ORDER BY rank \
              LIMIT ?3"
         } else {
-            "SELECT c.id, s.id, c.text, bm25(chunks_fts) AS rank \
+            "SELECT c.id, s.id, sv.id, c.text, bm25(chunks_fts) AS rank \
              FROM chunks_fts \
              JOIN chunks c ON c.id = chunks_fts.rowid \
              JOIN source_versions sv ON sv.id = c.source_version_id \
@@ -79,11 +79,13 @@ impl ChunkSearch for FtsChunkSearch {
         let map_row = |row: &rusqlite::Row<'_>| {
             let chunk_id: i64 = row.get(0)?;
             let source_id: String = row.get(1)?;
-            let text: String = row.get(2)?;
-            let rank: f64 = row.get(3)?;
+            let source_version_id: String = row.get(2)?;
+            let text: String = row.get(3)?;
+            let rank: f64 = row.get(4)?;
             Ok(ChunkHit {
                 chunk_id: ChunkId(chunk_id.to_string()),
                 source_id: SourceId(source_id),
+                source_version_id,
                 quote: text,
                 score: (-rank) as f32,
             })
