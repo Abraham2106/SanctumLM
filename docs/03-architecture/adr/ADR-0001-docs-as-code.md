@@ -5,6 +5,7 @@
 - **Alcance:** proceso de desarrollo
 - **Origen:** instrucción explícita de mantener requerimientos y decisiones mediante `.md`
 - **Vínculos:** R-ENG-004, R-ENG-005, R-ENG-009; WBS-1.2, WBS-2.2
+- **Aprobación:** merge de [PR #1](https://github.com/Abraham2106/SanctumLM/pull/1) por @Abraham2106 el 2026-10-16 UTC; sin revisión independiente registrada en el PR.
 
 ## Contexto
 

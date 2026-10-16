@@ -4,7 +4,7 @@
 
 ## Capas de verificación
 
-1. **Estática/documental:** links Markdown locales, archivos canónicos, IDs/tareas, ADR y trazabilidad (`scripts/validate_docs.py`).
+1. **Estática/documental** (`scripts/validate_docs.py`, automatizada en CI): enlaces Markdown locales; archivos canónicos presentes; todo `R-ENG`/`R-NFR` del SRS aparece en la matriz y viceversa; los `TC-*` y `WBS-*` citados en la matriz o en `.agents/TASKS.md` existen en su fuente; todo `OPEN-*` citado figura en el registro; cada ADR está indexado, con el mismo estado en su archivo, el índice y `.agents/DECISIONS.md`, y los `accepted` tienen evidencia de aprobación.
 2. **Operativa del flujo:** creación/aislamiento de worktrees, colisión, checkpoint, estado y PR; inicialmente pruebas manuales reproducibles.
 3. **Por feature de producto (pendiente):** unitarias, integración, contratos, E2E, recuperación, seguridad y rendimiento según SRS aprobado.
 4. **Aceptación:** evidencia visible para PO/humano en cada gate. La revisión de agentes no es aceptación final.

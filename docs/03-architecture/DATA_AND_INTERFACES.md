@@ -2,7 +2,17 @@
 
 ## Proceso de desarrollo (definido)
 
-**IDs:** `R-ENG-###`, `R-NFR-###`, `R-PROD-###`, `WBS-n.n`, `TASK-####`, `ADR-####` y `TC-...`. No reciclar identificadores.
+**IDs:** no reciclar identificadores. Cada familia tiene un único documento que la define; los demás solo la citan.
+
+| Familia | Formato | Define |
+| --- | --- | --- |
+| Requisitos | `R-ENG-###`, `R-NFR-###`, `R-PROD-###` | [SRS](../01-requirements/SRS.md) |
+| Paquetes de trabajo | `WBS-n.n` | [WBS](../02-planning/WBS.md) |
+| Tareas | `TASK-####` | [TASKS](../../.agents/TASKS.md) |
+| Decisiones | `ADR-####` | [ADR](adr/README.md) |
+| Pruebas | `TC-ENG-##`, `TC-SEC-##`, `TC-PROD-###` | [TEST_PLAN](../04-quality/TEST_PLAN.md) |
+| Cuestiones abiertas | `OPEN-###` | [OPEN_QUESTIONS](../00-project/OPEN_QUESTIONS.md) |
+| Riesgos | `RSK-##` | [RISK_REGISTER](../02-planning/RISK_REGISTER.md) |
 
 **Objeto mínimo de tarea:** id, título, estado, dueño/rol, requisito, paquete WBS, criterios de aceptación, dependencias, archivos permitidos, rama, worktree, plazo o límites si procede, revisión y enlace de PR.
 

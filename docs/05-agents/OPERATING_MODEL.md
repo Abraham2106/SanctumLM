@@ -55,7 +55,7 @@ Agentes pueden leer, analizar, editar sus archivos permitidos, ejecutar pruebas 
 
 La prioridad es corrección verificable, no cantidad de cambios. Nunca declarar `done` por generar un diff.
 
-## 6. Artefactos de cada agregación
+## 6. Artefactos de cada tarea
 
 Ficha de tarea, rama/worktree, commits, pruebas, actualizaciones documentales, ADR cuando aplique, PR, revisión, handoff y asiento de cierre. Si un cambio no requiere ADR, justificar «ninguna decisión estructural nueva».
 

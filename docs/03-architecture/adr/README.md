@@ -2,7 +2,7 @@
 
 Un ADR explica **por qué se escogió** una solución; no sustituye al SRS (qué se necesita) ni a la WBS (qué se hará). También registra decisiones importantes del proceso de ingeniería.
 
-Formato: `ADR-####-slug.md` con título, estado (`proposed` / `accepted` / `rejected` / `superseded`), fecha, contexto, decisión, alternativas, consecuencias, vínculos `R-*`/`WBS-*` y aprobador. Numeración secuencial, IDs inmutables, historia en Git. Se crea con [plantilla](../../templates/ADR_TEMPLATE.md).
+Formato: `ADR-####-slug.md` con título, estado (`proposed` / `accepted` / `rejected` / `superseded`), fecha, contexto, decisión, alternativas, consecuencias, vínculos `R-*`/`WBS-*` y campo **Aprobación** con evidencia enlazada. Un ADR `accepted` sin evidencia de aprobación es un defecto. El estado de cada ADR debe coincidir en su archivo, en esta tabla y en [DECISIONS](../../../.agents/DECISIONS.md); el validador lo comprueba. Numeración secuencial, IDs inmutables, historia en Git. Se crea con [plantilla](../../templates/ADR_TEMPLATE.md).
 
 | ADR | Tema | Estado |
 | --- | --- | --- |

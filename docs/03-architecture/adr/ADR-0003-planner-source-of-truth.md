@@ -5,6 +5,7 @@
 - **Alcance:** proceso de desarrollo
 - **Origen:** indicación explícita de un agente planificador que centralice agentes, requisitos y decisiones
 - **Vínculos:** R-ENG-001, R-ENG-002, R-ENG-006, R-ENG-010; WBS-2.1
+- **Aprobación:** merge de [PR #1](https://github.com/Abraham2106/SanctumLM/pull/1) por @Abraham2106 el 2026-10-16 UTC; sin revisión independiente registrada en el PR.
 
 ## Contexto
 

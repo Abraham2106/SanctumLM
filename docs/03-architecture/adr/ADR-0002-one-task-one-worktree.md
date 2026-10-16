@@ -5,6 +5,7 @@
 - **Alcance:** proceso de desarrollo
 - **Origen:** requerimiento explícito de worktree propio por agregación
 - **Vínculos:** R-ENG-003, R-NFR-003, R-ENG-010; WBS-2.3
+- **Aprobación:** merge de [PR #1](https://github.com/Abraham2106/SanctumLM/pull/1) por @Abraham2106 el 2026-10-16 UTC; sin revisión independiente registrada en el PR.
 
 ## Contexto
 

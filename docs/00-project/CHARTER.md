@@ -8,6 +8,8 @@ Existe el repositorio `Abraham2106/SanctumLM` y se ha definido que **su desarrol
 
 ## Propósito, producto y éxito
 
+Las preguntas siguientes se siguen en el [registro OPEN](OPEN_QUESTIONS.md); al resolverse, la respuesta se escribe aquí y el registro guarda el vínculo.
+
 **Misión funcional del producto:** `OPEN-001` — describir problema que resuelve SanctumLM, usuarios, entorno y beneficio esperado; no asumir que el nombre determina su función.
 
 **Usuarios y actores:** `OPEN-002` — patrocinador/PO, usuarios primarios, operadores y partes afectadas.

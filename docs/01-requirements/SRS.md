@@ -45,14 +45,14 @@ Patrocinador humano, planner, architect, implementer, reviewer, QA y security. U
 
 `R-PROD-*` **no puede enumerarse aún con validez**. El planner debe entrevistar/confirmar `OPEN-001..004` de CHARTER, identificar journeys, casos normales/errores, interfaces externas, datos, SLAs/SLOs, accesibilidad, privacidad, plataforma y criterios de aceptación. Para cada requisito nuevo crear:
 - ID permanente `R-PROD-###`, enunciado «El sistema deberá...», usuario/origen y justificación.
-- Precondiciones, entradas/salidas, prioridad, límites, errores, criterio medible y prueba `TC-###`.
+- Precondiciones, entradas/salidas, prioridad, límites, errores, criterio medible y prueba `TC-PROD-###`.
 - Dependencias y exclusiones explícitas; decisión de aprobación y versión de línea base.
 
 No convertir propuestas del agente en requisitos «aprobados».
 
 ## 6. Interfaz y datos
 
-`OPEN-005` sistemas externos/MCP/APIs; `OPEN-006` datos, clasificación y retención; `OPEN-007` experiencia de usuario, accesibilidad e idioma; `OPEN-008` plataforma, rendimiento y disponibilidad. Todas sujetas a G0/G1.
+`OPEN-005` sistemas externos/MCP/APIs; `OPEN-006` datos, clasificación y retención; `OPEN-007` experiencia de usuario, accesibilidad e idioma; `OPEN-008` plataforma, rendimiento y disponibilidad. Todas sujetas a G0/G1. Su estado y responsable se siguen en el [registro OPEN](../00-project/OPEN_QUESTIONS.md).
 
 ## 7. Validación, control y aceptación
 

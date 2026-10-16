@@ -2,9 +2,10 @@
 
 - **Estado:** proposed
 - **Fecha:** YYYY-MM-DD
-- **Aprobador/rol:** [pendiente]
+- **Alcance:** [proceso de desarrollo / producto / componente concreto]
 - **Tarea:** TASK-####
-- **Requisitos y WBS:** R-..., WBS-...
+- **Vínculos:** R-..., WBS-...
+- **Aprobación:** pendiente | [persona/rol, fecha UTC y enlace al PR o acta]
 
 ## Contexto
 [Problema, restricciones verificadas y fuerzas en tensión.]

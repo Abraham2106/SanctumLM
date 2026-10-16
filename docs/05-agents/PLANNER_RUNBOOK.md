@@ -37,4 +37,4 @@ Cada checkpoint incluye fecha UTC, branch/commit/PR, task, dueño, estado, bloqu
 
 ## Prompt de delegación mínimo
 
-«Ejecutá únicamente TASK-#### en rama/worktree exclusivos. Leé AGENTS.md y la ficha. No elijas requisitos de producto ni ADRs por tu cuenta. Ejecutá tests y reportá evidencia. Abrí PR y handoff; escalá cualquier conflicto o acción externa sensible.»
+«Ejecuta únicamente TASK-#### en rama/worktree exclusivos. Lee AGENTS.md y la ficha. No elijas requisitos de producto ni ADRs por tu cuenta. Ejecuta las pruebas y reporta evidencia. Abre PR y handoff; escala cualquier conflicto o acción externa sensible.»
