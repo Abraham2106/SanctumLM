@@ -14,6 +14,10 @@
 | RSK-08 | Dependencias/servicios externos cambian | Medio | Medio | ADR de integración, versiones fijadas, contratos/pruebas | Architect / G1 |
 | RSK-09 | Tiempo/costo de agentes sin control | Medio | Medio | Presupuesto por tarea, hitos, cancelación y límites | Planner / ejecución sobre límite |
 | RSK-10 | Requisito sin prueba o criterio ambiguo | Medio | Alto | Trazabilidad y criterios de aceptación previos | QA / revisión de backlog |
+| RSK-11 | G0 basado en investigación documental, sin validación con estudiantes, docentes o investigadores reales | Medio | Alto | Pruebas con usuarios del recorrido de la fase 1 antes de G3; revisar prioridades con sus datos | PO / primeras sesiones con usuarios |
+| RSK-12 | Los modelos locales en 16 GB no alcanzan calidad o latencia útiles en español (KPI-3, KPI-4) | Medio | Alto | Benchmark temprano en G1; ADR con modelos alternativos y degradación controlada | Architect / benchmark de G1 |
+| RSK-13 | Alcance excesivo: perseguir paridad con Gemini Notebook impide entregar una versión estable (investigación §14.3) | Alto | Alto | Tramos MVP/v1 del CHARTER; nada de fases 4–5 antes de cerrar las fases 1–3 | Planner / tareas de v1 antes de G2 |
+| RSK-14 | El parser pierde tablas, encabezados o ubicación y produce citas engañosas aunque el modelo responda bien | Medio | Alto | Corpus difícil en el conjunto de evaluación; ubicación verificada por cita; parser aislado y reemplazable | QA / caída de `citation_precision` |
 
 ## Tratamiento
 

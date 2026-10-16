@@ -1,6 +1,8 @@
 # SanctumLM
 
-Repositorio de SanctumLM. **Estado: definición y arranque**, sin implementación del producto ni stack aprobados. El propósito funcional del producto debe concretarse mediante descubrimiento y aprobación humana en G0; no se deben tratar hipótesis como hechos.
+**SanctumLM** es una aplicación de escritorio local-first de investigación y estudio asistidos por IA, inspirada en NotebookLM: notebooks con fuentes locales y web, chat con citas verificables e IA local por defecto, con envío a proveedores remotos solo opt-in y auditable. Ver [CHARTER](docs/00-project/CHARTER.md) y la [investigación de referencia](docs/00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md).
+
+**Estado:** G0 aprobado (2026-10-16); arquitectura (G1) pendiente. Sin implementación ni stack aprobados todavía.
 
 Este repositorio establece una base **docs-as-code** para desarrollo agéntico: un agente planificador gobierna el backlog y la trazabilidad; agentes especializados implementan tareas acotadas en ramas y `git worktree` independientes; las decisiones se registran en ADR y el trabajo se integra mediante pull requests con revisión.
 
