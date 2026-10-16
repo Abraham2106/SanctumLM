@@ -37,6 +37,7 @@ export type {
   DataClassification,
   ImportSourceItemResult,
   JobRecord,
+  JobState,
   NotebookSummary,
   ProductError,
   ProductErrorCode,

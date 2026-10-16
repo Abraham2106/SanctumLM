@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type {
   ImportInlineMime,
   ImportSourcesRequest,
   JobRecord,
+  JobState,
   NotebookSummary,
   SearchHit,
   SourceRecord,
+  SourceStatus,
 } from "../ipc-types.ts";
 import {
   ensureMockSeed,
@@ -20,6 +22,34 @@ import {
 import { formatProductError } from "../lib/product-errors.ts";
 
 const ACCEPTED_EXT = [".txt", ".md"];
+
+const SOURCE_STATUS_ES: Record<SourceStatus, string> = {
+  pending: "pendiente",
+  processing: "procesando",
+  ready: "listo",
+  failed: "fallido",
+  partial: "parcial",
+};
+
+const JOB_STATE_ES: Record<JobState, string> = {
+  queued: "en cola",
+  running: "en curso",
+  completed: "completado",
+  failed: "fallido",
+  cancelled: "cancelado",
+};
+
+function formatSourceStatus(status: SourceStatus): string {
+  return SOURCE_STATUS_ES[status] ?? status;
+}
+
+function formatJobState(state: JobState): string {
+  return JOB_STATE_ES[state] ?? state;
+}
+
+function isActiveImportJob(job: JobRecord): boolean {
+  return job.state === "queued" || job.state === "running";
+}
 
 function mimeFromName(name: string): ImportInlineMime {
   return name.toLowerCase().endsWith(".md") ? "text/markdown" : "text/plain";
@@ -43,6 +73,7 @@ export default function FuentesPanel() {
   const notebookSelectId = useId();
   const searchId = useId();
   const fileInputId = useId();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [notebooks, setNotebooks] = useState<NotebookSummary[]>([]);
   const [activeNotebookId, setActiveNotebookId] = useState<string>("");
@@ -119,11 +150,14 @@ export default function FuentesPanel() {
           result.data.state === "cancelled"
         ) {
           await refreshSources(activeNotebookId);
-          setStatusMessage(
-            result.data.state === "completed"
-              ? "Importación completada."
-              : "Importación finalizada con incidencias.",
-          );
+          if (result.data.state === "completed") {
+            setStatusMessage("Importación completada.");
+          } else if (result.data.state === "cancelled") {
+            setStatusMessage("Importación cancelada.");
+            setActiveJob(null);
+          } else {
+            setStatusMessage("Importación finalizada con incidencias.");
+          }
         }
       })();
     }, 600);
@@ -149,7 +183,10 @@ export default function FuentesPanel() {
     setStatusMessage("Cuaderno creado.");
   };
 
-  const handleImportFiles = async (files: FileList | null) => {
+  const handleImportFiles = async (
+    files: FileList | null,
+    inputEl?: HTMLInputElement | null,
+  ) => {
     if (!files || files.length === 0 || !activeNotebookId) {
       return;
     }
@@ -157,42 +194,60 @@ export default function FuentesPanel() {
     setErrorMessage("");
     setStatusMessage("Preparando importación…");
 
-    const items: ImportSourcesRequest["items"] = [];
-    for (const file of files) {
-      if (!isAcceptedFile(file.name)) {
-        setErrorMessage(`Tipo no admitido en este tramo: ${file.name}. Usa .txt o .md.`);
-        setBusy(false);
+    try {
+      const items: ImportSourcesRequest["items"] = [];
+      for (const file of files) {
+        if (!isAcceptedFile(file.name)) {
+          setErrorMessage(
+            `Tipo no admitido en este tramo: ${file.name}. Usa .txt o .md.`,
+          );
+          return;
+        }
+        let text: string;
+        try {
+          text = await readFileAsText(file);
+        } catch {
+          setErrorMessage(
+            `No se pudo leer el archivo «${file.name}». Comprueba que no esté dañado o en uso.`,
+          );
+          return;
+        }
+        items.push({
+          kind: "inline_text",
+          display_name: file.name,
+          mime: mimeFromName(file.name),
+          text,
+        });
+      }
+
+      const result = await importSources(activeNotebookId, items);
+      if (!result.ok) {
+        setErrorMessage(formatProductError(result.error));
         return;
       }
-      const text = await readFileAsText(file);
-      items.push({
-        kind: "inline_text",
-        display_name: file.name,
-        mime: mimeFromName(file.name),
-        text,
-      });
-    }
 
-    const result = await importSources(activeNotebookId, items);
-    setBusy(false);
-    if (!result.ok) {
-      setErrorMessage(formatProductError(result.error));
-      return;
-    }
+      const itemErrors = result.data.item_results.filter((r) => r.error);
+      if (itemErrors.length > 0) {
+        setErrorMessage(
+          itemErrors.map((r) => formatProductError(r.error!)).join(" "),
+        );
+      }
 
-    const itemErrors = result.data.item_results.filter((r) => r.error);
-    if (itemErrors.length > 0) {
-      setErrorMessage(
-        itemErrors.map((r) => formatProductError(r.error!)).join(" "),
-      );
+      setStatusMessage(`Trabajo de importación ${result.data.job_id} en cola.`);
+      const job = await jobStatus(result.data.job_id);
+      if (job.ok) {
+        setActiveJob(job.data);
+      }
+      await refreshSources(activeNotebookId);
+    } catch {
+      setErrorMessage("Ocurrió un error inesperado al importar archivos.");
+    } finally {
+      setBusy(false);
+      const input = inputEl ?? fileInputRef.current;
+      if (input) {
+        input.value = "";
+      }
     }
-
-    setStatusMessage(`Trabajo de importación ${result.data.job_id} en cola.`);
-    const job = await jobStatus(result.data.job_id);
-    if (job.ok) {
-      setActiveJob(job.data);
-    }
-    await refreshSources(activeNotebookId);
   };
 
   const handleSearch = async () => {
@@ -252,19 +307,20 @@ export default function FuentesPanel() {
         <label className="ipc-button file-label" htmlFor={fileInputId}>
           Importar archivos
           <input
+            ref={fileInputRef}
             id={fileInputId}
             type="file"
             accept=".txt,.md,text/plain,text/markdown"
             multiple
             disabled={busy || !activeNotebookId}
-            onChange={(e) => void handleImportFiles(e.target.files)}
+            onChange={(e) => void handleImportFiles(e.target.files, e.currentTarget)}
           />
         </label>
       </div>
 
-      {activeJob && activeJob.state !== "completed" && activeJob.state !== "failed" && (
+      {activeJob && isActiveImportJob(activeJob) && (
         <p className="job-status" aria-live="polite">
-          Importación: {activeJob.progress}% ({activeJob.state})
+          Importación: {activeJob.progress}% ({formatJobState(activeJob.state)})
         </p>
       )}
 
@@ -284,7 +340,7 @@ export default function FuentesPanel() {
               <li key={source.source_id}>
                 <span className="source-name">{source.display_name}</span>
                 <span className="source-meta">
-                  {source.status}
+                  {formatSourceStatus(source.status)}
                   {source.sha256_prefix ? ` · ${source.sha256_prefix}` : ""}
                 </span>
               </li>
