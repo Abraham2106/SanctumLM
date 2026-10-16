@@ -14,7 +14,7 @@ const PANELS: { id: PanelId; label: string; hint: string }[] = [
   {
     id: "chat",
     label: "Chat",
-    hint: "Chat de cuaderno o general; modelos vía IPC (mock hasta TASK-0032).",
+    hint: "Chat de cuaderno o general; modelos y mensajes vía IPC al núcleo Tauri.",
   },
   {
     id: "estudio",
@@ -44,7 +44,7 @@ export default function App() {
         <h1>SanctumLM</h1>
         <p className="tagline">Cuaderno local — fuentes, búsqueda y chat (OLA 4 tramo 2)</p>
         <button type="button" className="ipc-button" onClick={() => void probeIpc()}>
-          Probar IPC stub
+          Probar ping IPC
         </button>
         <span className="ipc-status" aria-live="polite">
           Estado IPC: {ipcStatus}
