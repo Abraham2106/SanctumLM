@@ -10,5 +10,6 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 | ADR-0004 | Canal durable/efímero | proposed | Requiere decidir runtime |
 | ADR-0005 | Puertas y autoridad | proposed | Requiere ratificar criterios |
 | ADR-0008 | Router ModelAdapter / Ollama | proposed | TASK-0011 merge `568b367`; spike Ollama not-run (RSK-12); G1 pendiente |
+| ADR-0010 | Motor ArtifactSpec | proposed | TASK-0013 merge `cf7cbd6`; reviewer+security approved; G1 pendiente |
 
-**Decisiones de producto:** ADR-0008 proposed (integrado en `integration/mvp`, no accepted). No convertir propuesta en aceptación sin G1 y campo Aprobación.
+**Decisiones de producto:** ADR-0008 y ADR-0010 proposed en `integration/mvp` (no accepted). No convertir propuesta en aceptación sin G1 y campo Aprobación.

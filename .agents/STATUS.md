@@ -9,7 +9,7 @@
 - **Ramas de OLA 1:** `agent/TASK-0008-g1-ola1-plan` (planner) + TASK-0009..0014 (A1–A6). A7 (TASK-0015) no lanzada.
 - **ADRs accepted del flujo:** ADR-0001, ADR-0002, ADR-0003
 - **ADRs proposed (proceso):** ADR-0004, ADR-0005
-- **ADRs de producto G1:** ADR-0008 proposed e integrado en `integration/mvp` (`568b367`); 0006, 0007, 0009, 0010, 0011 en revisión/spike. Ninguno accepted.
+- **ADRs de producto G1:** ADR-0008 y ADR-0010 proposed e integrados en `integration/mvp`; 0006/0009 en security; 0011 ronda 2; 0007 spike. Ninguno accepted.
 - **Avance R-PROD:** 0/26 implementados con pruebas y revisión (solo diseño G1)
 - **Validador:** `python scripts/validate_docs.py` → OK (52 Markdown) en `main` @ `4ff44a7`
 - **Suite de producto:** not-run (no existe código)
