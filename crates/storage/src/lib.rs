@@ -1,9 +1,7 @@
 //! SQLite, cifrado, migraciones y vault de archivos (ADR-0007; implementación en C1).
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn workspace_smoke() {
-        assert!(true);
-    }
-}
+pub mod memory;
+pub mod repository;
+
+pub use memory::InMemoryNotebookRepository;
+pub use repository::{NotebookMeta, NotebookRepository};

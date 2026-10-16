@@ -6,10 +6,10 @@
 //! - `cloud_fallback = false` por defecto y aplicado en el backend; un fallo local no dispara envío automático a API remota.
 //! - La UI (renderer) no ejecuta `fetch()` ni equivalentes hacia red; toda salida pasa por IPC al núcleo Rust.
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn workspace_smoke() {
-        assert!(true);
-    }
-}
+pub mod adapter;
+pub mod fake;
+pub mod types;
+
+pub use adapter::ModelAdapter;
+pub use fake::FakeModelAdapter;
+pub use types::*;

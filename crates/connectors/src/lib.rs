@@ -7,10 +7,10 @@
 //! - La UI no usa `fetch()` hacia proveedores externos; solo comandos IPC tipados.
 //! - Adaptadores a motores locales: destino `127.0.0.1` únicamente; `cloud_fallback = false` en backend.
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn workspace_smoke() {
-        assert!(true);
-    }
-}
+pub mod fake;
+pub mod url;
+pub mod web;
+
+pub use fake::{FakePublicWebSearch, FakeUrlImportGateway};
+pub use url::{UrlImportPreview, UrlImportRequest};
+pub use web::{PublicWebSearch, WebSearchResult};

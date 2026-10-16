@@ -1,69 +1,44 @@
-# Handoff — TASK-0019
+# Handoff — TASK-0021 B2 contratos y fakes
 
-- **Agente/rol:** implementer (subagente)
-- **Worktree y rama:** `C:\Users\solan\Documents\Personal\Startup\SanctumLM-wt-TASK-0019` · `agent/TASK-0019-b1-desktop`
-- **Base:** `agent/TASK-0018-b1-crates` @ `dee152d`
-- **PR y commits:** pendiente (sin push)
-- **Estado:** ready_for_review
-- **Fecha UTC:** 2026-10-16
+## Git
 
-## Alcance ejecutado
+- **Rama:** `agent/TASK-0021-b2-contracts`
+- **Base:** `agent/TASK-0019-b1-desktop` @ `87dff19`
+- **Worktree:** `C:\Users\solan\Documents\Personal\Startup\SanctumLM-wt-TASK-0021`
 
-- `apps/desktop/`: Vite + React 19 + TypeScript; UI en español con pestañas **Fuentes | Chat | Estudio** (placeholders, sin datos reales).
-- `apps/desktop/src-tauri/`: Tauri 2, comando IPC stub `ping`, sin plugins HTTP/red; capability `default` con solo `core:default`; CSP sin `https://` remoto.
-- Manifiestos Node **solo** en `apps/desktop/` (`package.json` + `package-lock.json`); raíz sin `package.json`.
-- `Cargo.toml` (raíz): único cambio en crates TASK-0018 — miembro `apps/desktop/src-tauri`.
-- `Cargo.lock`: resolución Tauri 2.x al compilar el crate desktop.
+## Alcance
 
-**Desviaciones:** iconos generados con `npx tauri icon` local (no `create-tauri-app`); subcarpetas `android/`/`ios/` no versionadas.
-
-## Cómo correr
-
-```powershell
-cd C:\Users\solan\Documents\Personal\Startup\SanctumLM-wt-TASK-0019\apps\desktop
-npm ci
-npm test          # tsc --noEmit
-npm run dev       # UI en navegador (5173)
-npx tauri dev     # app Tauri + Vite (Rust + WebView2)
-```
-
-Desde la raíz del worktree: `cargo test --workspace`.
-
-## Verificación
-
-| Comando | Entorno | Resultado |
-| --- | --- | --- |
-| `npm test` (apps/desktop) | Node local | pass |
-| `cargo test --workspace` | Windows, Rust stable | pass |
-| `python scripts/validate_docs.py` | worktree | pass |
-| `git diff --check` | worktree | pass |
-| `scripts/verify.ps1` | npm ci + test + cargo + validate_docs | not-run completo (npm/cargo ya pasaron por separado) |
-
-## Dependencias (§9.4 — revisión de licencias)
-
-| Paquete | Versión fijada |
-| --- | --- |
-| `@tauri-apps/api` | 2.12.4 |
-| `@tauri-apps/cli` | 2.12.3 (dev) |
-| `react` / `react-dom` | 19.1.0 |
-| `vite` | 6.3.5 |
-| `typescript` | 5.8.3 |
-| `@vitejs/plugin-react` | 4.5.2 |
-| `tauri` / `tauri-build` (crates.io) | 2.x (lock: 2.12.4 / 2.7.3) |
-
-## Trazabilidad
-
-- ADR-0006 (Tauri 2 + React/TS), R-PROD-108 (esqueleto UI tres paneles).
-- Invariantes: UI sin `fetch()`; egress futuro vía IPC Rust; capabilities explícitas deny-by-default salvo `core:default`.
-
-## Riesgos / seguimiento
-
-- **WebView2** obligatorio en Windows para `tauri dev`/build.
-- **Primer build Rust** descarga muchas crates Tauri (tiempo/red en desarrollo, no en runtime de producto).
-- **npm audit** reportó 1 vulnerabilidad alta en árbol dev; no corregida en este stub (fuera de alcance).
-- Integración con crates de dominio (storage, ai-router) pendiente de tareas posteriores.
+Contratos Rust (traits/tipos) + fakes in-memory + paquete TS `packages/contracts` + reexport mínimo `apps/desktop/src/ipc-types.ts`. Sin RAG real, sin IPC wired, sin tocar `App.tsx`.
 
 ## Archivos principales
 
-- `Cargo.toml`, `Cargo.lock`, `scripts/verify.ps1`
-- `apps/desktop/package.json`, `package-lock.json`, `vite.config.ts`, `src/App.tsx`, `src-tauri/**`
+- `crates/core-domain/` — `ProductError`, `IpcResult`, jobs, `ArtifactSpec` + validación prohibiciones ADR-0010
+- `crates/ai-router/` — `ModelAdapter` + `FakeModelAdapter`
+- `crates/storage/` — `NotebookRepository` + `InMemoryNotebookRepository`
+- `crates/retrieval/` — `ChunkSearch` + `FakeChunkSearch`
+- `crates/connectors/` — web/URL stubs + fakes (SSRF loopback bloqueado en fake)
+- `workers/documents/` — `DocumentExtractor` + fake
+- `packages/contracts/` — tipos IPC/producto TS
+- `apps/desktop/src/ipc-types.ts` — puente renderer
+- `.agents/FILE_RESERVATION.md` — fila TASK-0021
+
+## Pruebas
+
+```text
+cargo test   # workspace completo
+cd packages/contracts && npm install && npm test
+cd apps/desktop && npm test
+```
+
+## Gaps / OPEN (no bloqueantes)
+
+- **OPEN-005:** marcas concretas de buscador/OAuth siguen abiertas; fakes simulan resultados.
+- **OPEN-006:** reserva `internal|restricted` no modelada; solo `public|private` MVP.
+- **OPEN-008:** modelos Ollama reales no probados; fake usa `llama3.2:latest` como id de ejemplo.
+- **Dual source of truth:** tipos TS y Rust se mantienen alineados manualmente hasta generación de esquema (futuro ADR).
+
+## Riesgos (security / IPC)
+
+- Tipos IPC incluyen `selected_source_ids` y URLs: el núcleo debe fijar alcance (R-PROD-105) — no confiar en listas del renderer cuando se cablee IPC.
+- `ArtifactSpec` valida claves prohibidas en stub; lista no exhaustiva frente a ADR-0010 (tokens anidados en JSON profundo — revisar en implementación real).
+- Payloads IPC aún no validados en Tauri; exponer solo tras validación Rust + `api_version`.
