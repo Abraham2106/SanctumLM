@@ -1,12 +1,12 @@
 //! Núcleo Tauri: IPC import → storage/jobs (TASK-0027). Sin plugins de red HTTP.
 
-mod chat_service;
-mod chunk_search;
-mod commands;
+pub mod chat_service;
+pub mod chunk_search;
+pub mod commands;
 mod import_service;
-mod ipc_types;
+pub mod ipc_types;
 mod sidecar;
-mod state;
+pub mod state;
 
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
