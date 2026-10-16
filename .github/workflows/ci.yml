@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, integration/mvp]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate documentation
+        run: python3 scripts/validate_docs.py
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Test workspace
+        run: cargo test --workspace
+
+  # Desktop / Tauri: enable when apps/desktop exists on integration/mvp (TASK-0019).
+  desktop:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Skipped until apps/desktop is merged (TASK-0019)."
