@@ -3,13 +3,12 @@
 use core_domain::{IpcResult, JobErrorCode, ProductError, ProductErrorCode};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Read, Write};
+use std::path::PathBuf;
 use std::time::Instant;
 
 use crate::fake::FakeDocumentExtractor;
-use crate::staging::validate_staging_path;
-use crate::{
-    DocumentExtractor, ExtractionInput, ExtractionMetadata, ExtractionOutput,
-};
+use crate::staging::{validate_staging_path, validate_staging_root};
+use crate::{DocumentExtractor, ExtractionInput, ExtractionMetadata, ExtractionOutput};
 
 const STUB_ADAPTER_ID: &str = "stub-native";
 const STUB_ADAPTER_VERSION: &str = "0.0.0-skeleton";
@@ -54,12 +53,15 @@ pub struct IngestSidecarResponse {
     pub items: Vec<ExtractionItemResponse>,
 }
 
-pub fn process_ingest_request(request: &IngestSidecarRequest) -> IngestSidecarResponse {
+pub fn process_ingest_request(
+    request: &IngestSidecarRequest,
+    staging_root: &PathBuf,
+) -> IngestSidecarResponse {
     let extractor = FakeDocumentExtractor;
     let mut items = Vec::with_capacity(request.items.len());
 
     for item in &request.items {
-        items.push(process_one_item(&extractor, &request.staging_root, item));
+        items.push(process_one_item(&extractor, staging_root, item));
     }
 
     IngestSidecarResponse { items }
@@ -67,14 +69,14 @@ pub fn process_ingest_request(request: &IngestSidecarRequest) -> IngestSidecarRe
 
 fn process_one_item(
     extractor: &impl DocumentExtractor,
-    staging_root: &str,
+    staging_root: &PathBuf,
     item: &ExtractionItemRequest,
 ) -> ExtractionItemResponse {
     let started = Instant::now();
 
     match validate_staging_path(staging_root, &item.staging_path) {
-        Ok(_) => match extractor.extract(ExtractionInput {
-            staging_path: item.staging_path.clone(),
+        Ok(validated_path) => match extractor.extract(ExtractionInput {
+            staging_path: validated_path,
             mime: item.mime.clone(),
             max_bytes: item.max_bytes,
         }) {
@@ -150,7 +152,10 @@ pub fn run_stdio_sidecar() -> io::Result<()> {
                     "items no puede estar vacío",
                 ))
             } else {
-                IpcResult::ok(process_ingest_request(&request))
+                match validate_staging_root(&request.staging_root) {
+                    Ok(root) => IpcResult::ok(process_ingest_request(&request, &root)),
+                    Err(err) => IpcResult::err(err),
+                }
             }
         }
         Err(parse_err) => IpcResult::err(ProductError::new(
@@ -171,6 +176,8 @@ pub fn run_stdio_sidecar() -> io::Result<()> {
 mod tests {
     use super::*;
     use crate::ExtractedChunk;
+    use core_domain::{ProductError, ProductErrorCode};
+    use std::sync::{Arc, Mutex};
 
     fn sample_request(staging_root: &str, paths: &[(&str, &str)]) -> IngestSidecarRequest {
         IngestSidecarRequest {
@@ -188,16 +195,34 @@ mod tests {
         }
     }
 
+    fn normalized_root(staging_root: &str) -> PathBuf {
+        validate_staging_root(staging_root).expect("root de prueba válido")
+    }
+
+    struct PathCaptureExtractor {
+        last_path: Arc<Mutex<Option<PathBuf>>>,
+    }
+
+    impl DocumentExtractor for PathCaptureExtractor {
+        fn extract(&self, input: ExtractionInput) -> Result<ExtractionOutput, ProductError> {
+            *self.last_path.lock().unwrap() = Some(input.staging_path.clone());
+            FakeDocumentExtractor.extract(input)
+        }
+    }
+
     #[test]
     fn batch_continues_when_one_item_fails() {
-        let root = "/var/sanctum/staging";
-        let response = process_ingest_request(&sample_request(
-            root,
-            &[
-                ("ok", "/var/sanctum/staging/a.txt"),
-                ("bad", "/tmp/outside.txt"),
-            ],
-        ));
+        let root = normalized_root("/var/sanctum/staging");
+        let response = process_ingest_request(
+            &sample_request(
+                "/var/sanctum/staging",
+                &[
+                    ("ok", "/var/sanctum/staging/a.txt"),
+                    ("bad", "/tmp/outside.txt"),
+                ],
+            ),
+            &root,
+        );
 
         assert_eq!(response.items.len(), 2);
         assert_eq!(response.items[0].state, ItemOutcomeState::Completed);
@@ -210,8 +235,11 @@ mod tests {
 
     #[test]
     fn ipc_envelope_ok_shape() {
-        let root = "/staging";
-        let response = process_ingest_request(&sample_request(root, &[("1", "/staging/x.md")]));
+        let root = normalized_root("/staging");
+        let response = process_ingest_request(
+            &sample_request("/staging", &[("1", "/staging/x.md")]),
+            &root,
+        );
         let envelope = IpcResult::ok(response);
         let raw = serde_json::to_value(&envelope).unwrap();
         assert_eq!(raw["ok"], true);
@@ -220,10 +248,11 @@ mod tests {
 
     #[test]
     fn stub_output_includes_metadata_and_chunks() {
-        let response = process_ingest_request(&sample_request(
-            "/data/staging",
-            &[("doc", "/data/staging/file.txt")],
-        ));
+        let root = normalized_root("/data/staging");
+        let response = process_ingest_request(
+            &sample_request("/data/staging", &[("doc", "/data/staging/file.txt")]),
+            &root,
+        );
         let out = response.items[0].output.as_ref().unwrap();
         assert_eq!(out.extraction_metadata.adapter_id, STUB_ADAPTER_ID);
         assert!(!out.chunks.is_empty());
@@ -233,5 +262,32 @@ mod tests {
             char_start: 0,
             char_end: out.normalized_text.len() as u32,
         });
+    }
+
+    #[test]
+    fn extractor_receives_validated_path_not_raw_json() {
+        let root = normalized_root("/var/staging");
+        let capture = PathCaptureExtractor {
+            last_path: Arc::new(Mutex::new(None)),
+        };
+        let last = Arc::clone(&capture.last_path);
+        let item = ExtractionItemRequest {
+            item_id: "x".into(),
+            staging_path: "/var/staging/./nested/doc.txt".into(),
+            mime: "text/plain".into(),
+            max_bytes: 1,
+            adapter_hint: None,
+        };
+        let expected = validate_staging_path(&root, &item.staging_path).unwrap();
+        assert!(item.staging_path.contains("./"));
+        process_one_item(&capture, &root, &item);
+        let captured = last.lock().unwrap().take().expect("debe invocar extractor");
+        assert_eq!(captured, expected);
+    }
+
+    #[test]
+    fn invalid_staging_root_rejects_via_validate() {
+        let err = validate_staging_root("/bad/../root").unwrap_err();
+        assert_eq!(err.code, ProductErrorCode::PolicyDenied);
     }
 }

@@ -11,7 +11,7 @@ pub struct FakeDocumentExtractor;
 
 impl DocumentExtractor for FakeDocumentExtractor {
     fn extract(&self, input: ExtractionInput) -> Result<ExtractionOutput, ProductError> {
-        if input.staging_path.is_empty() {
+        if input.staging_path.as_os_str().is_empty() {
             return Err(ProductError::new(
                 ProductErrorCode::ValidationFailed,
                 "staging_path requerido",
@@ -41,13 +41,14 @@ impl DocumentExtractor for FakeDocumentExtractor {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn fake_extractor_returns_one_chunk() {
         let ex = FakeDocumentExtractor;
         let out = ex
             .extract(ExtractionInput {
-                staging_path: "/staging/doc.txt".into(),
+                staging_path: PathBuf::from("/staging/doc.txt"),
                 mime: "text/plain".into(),
                 max_bytes: 1_000_000,
             })

@@ -3,27 +3,26 @@
 use core_domain::{ProductError, ProductErrorCode};
 use std::path::{Component, Path, PathBuf};
 
-/// Comprueba que `file_path` quede bajo `staging_root` sin traversal (`..`).
+/// Normaliza y valida `staging_root` (sin componentes `..`).
+pub fn validate_staging_root(staging_root: &str) -> Result<PathBuf, ProductError> {
+    require_non_empty(staging_root, "staging_root requerido")?;
+    let root = Path::new(staging_root);
+    if has_parent_traversal(root) {
+        return Err(ProductError::new(
+            ProductErrorCode::PolicyDenied,
+            "staging_root inválido: componentes parent",
+        ));
+    }
+    Ok(normalize_prefix(root))
+}
+
+/// Comprueba que `file_path` quede bajo `staging_root` normalizado, sin traversal (`..`).
 pub fn validate_staging_path(
-    staging_root: &str,
+    staging_root: &PathBuf,
     file_path: &str,
 ) -> Result<PathBuf, ProductError> {
-    if staging_root.trim().is_empty() {
-        return Err(ProductError::new(
-            ProductErrorCode::ValidationFailed,
-            "staging_root requerido",
-        ));
-    }
-    if file_path.trim().is_empty() {
-        return Err(ProductError::new(
-            ProductErrorCode::ValidationFailed,
-            "staging_path requerido",
-        ));
-    }
-
-    let root = Path::new(staging_root);
+    require_non_empty(file_path, "staging_path requerido")?;
     let file = Path::new(file_path);
-
     if has_parent_traversal(file) {
         return Err(ProductError::new(
             ProductErrorCode::PolicyDenied,
@@ -31,10 +30,9 @@ pub fn validate_staging_path(
         ));
     }
 
-    let root_abs = normalize_prefix(root);
     let file_abs = normalize_prefix(file);
 
-    if !file_abs.starts_with(&root_abs) {
+    if !file_abs.starts_with(staging_root) {
         return Err(ProductError::new(
             ProductErrorCode::PolicyDenied,
             "ruta fuera de staging acordado",
@@ -42,6 +40,16 @@ pub fn validate_staging_path(
     }
 
     Ok(file_abs)
+}
+
+fn require_non_empty(value: &str, message: &str) -> Result<(), ProductError> {
+    if value.trim().is_empty() {
+        return Err(ProductError::new(
+            ProductErrorCode::ValidationFailed,
+            message,
+        ));
+    }
+    Ok(())
 }
 
 fn has_parent_traversal(path: &Path) -> bool {
@@ -70,31 +78,50 @@ mod tests {
     use super::*;
 
     #[test]
-    fn accepts_path_under_staging_root() {
-        let root = std::env::temp_dir().join("sanctum-staging-test");
-        let file = root.join("batch").join("doc.txt");
-        validate_staging_path(
-            root.to_str().unwrap(),
-            file.to_str().unwrap(),
-        )
-        .expect("debe aceptar ruta hija");
+    fn accepts_valid_staging_root() {
+        let root = validate_staging_root("/var/sanctum/staging").unwrap();
+        assert_eq!(root, PathBuf::from("/var/sanctum/staging"));
     }
 
     #[test]
-    fn rejects_path_outside_staging_root() {
-        let err = validate_staging_path("/var/staging", "/etc/passwd").unwrap_err();
+    fn rejects_staging_root_with_parent_dir() {
+        let err = validate_staging_root("/var/staging/../escape").unwrap_err();
         assert_eq!(err.code, ProductErrorCode::PolicyDenied);
     }
 
     #[test]
-    fn rejects_parent_dir_in_path() {
-        let err = validate_staging_path("/var/staging", "/var/staging/../secret").unwrap_err();
+    fn accepts_path_under_staging_root() {
+        let root = validate_staging_root(std::env::temp_dir().to_str().unwrap()).unwrap();
+        let file = root.join("batch").join("doc.txt");
+        validate_staging_path(&root, file.to_str().unwrap()).expect("debe aceptar ruta hija");
+    }
+
+    #[test]
+    fn rejects_path_outside_staging_root() {
+        let root = validate_staging_root("/var/staging").unwrap();
+        let err = validate_staging_path(&root, "/etc/passwd").unwrap_err();
+        assert_eq!(err.code, ProductErrorCode::PolicyDenied);
+    }
+
+    #[test]
+    fn rejects_parent_dir_in_item_path() {
+        let root = validate_staging_root("/var/staging").unwrap();
+        let err = validate_staging_path(&root, "/var/staging/../secret").unwrap_err();
         assert_eq!(err.code, ProductErrorCode::PolicyDenied);
     }
 
     #[test]
     fn rejects_empty_staging_path() {
-        let err = validate_staging_path("/var/staging", "").unwrap_err();
+        let root = validate_staging_root("/var/staging").unwrap();
+        let err = validate_staging_path(&root, "").unwrap_err();
         assert_eq!(err.code, ProductErrorCode::ValidationFailed);
+    }
+
+    #[test]
+    fn item_path_normalized_before_prefix_check() {
+        let root = validate_staging_root("/var/staging").unwrap();
+        let validated =
+            validate_staging_path(&root, "/var/staging/./nested/doc.txt").unwrap();
+        assert_eq!(validated, PathBuf::from("/var/staging/nested/doc.txt"));
     }
 }

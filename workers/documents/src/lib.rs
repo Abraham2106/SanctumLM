@@ -2,10 +2,12 @@
 
 use core_domain::ProductError;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExtractionInput {
-    pub staging_path: String,
+    /// Ruta ya validada y normalizada bajo `staging_root` (no usar JSON crudo).
+    pub staging_path: PathBuf,
     pub mime: String,
     pub max_bytes: u64,
 }

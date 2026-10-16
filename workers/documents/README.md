@@ -9,7 +9,7 @@ Proceso aislado para extracción de documentos según [ADR-0009](../../docs/03-a
 | Proceso separado del núcleo | Binario `documents-worker` invocable por spawn |
 | Sin red en extracción | No hay crates ni sockets de red |
 | Sin keychain / secretos | No lee credenciales ni variables sensibles |
-| Entrada solo en staging | `staging_root` + validación de prefijo en cada ítem |
+| Entrada solo en staging | **PARCIAL** — `validate_staging_root` / `validate_staging_path` rechazan `..` y exigen prefijo bajo root normalizado; el extractor recibe solo `PathBuf` validado. Pendiente (tarea posterior): `canonicalize` bajo root acordado u `open` sin follow-symlink (junctions/symlinks Windows). Tests: `staging::tests` (`..` en root e ítem). |
 | Salida JSON tipada | `IpcResult<IngestSidecarResponse>` (ver `src/ipc.rs`) |
 | Reinicio aislado | Fallo de un ítem no aborta el lote (R-PROD-002) |
 
