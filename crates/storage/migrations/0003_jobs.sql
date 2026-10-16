@@ -1,4 +1,4 @@
--- sanctumlm migration 0003 — jobs (ADR-0007 §jobs)
+-- sanctumlm migration 0003 — jobs durables (ADR-0007 §jobs)
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE jobs (
@@ -12,3 +12,4 @@ CREATE TABLE jobs (
 );
 
 CREATE INDEX idx_jobs_notebook ON jobs(notebook_id);
+CREATE INDEX idx_jobs_state ON jobs(state);
