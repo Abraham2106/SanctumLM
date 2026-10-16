@@ -3,7 +3,7 @@
 - **Fecha de snapshot:** 2026-10-16
 - **Estado:** G0 y **G1 aprobados** (ADR-0006–0011 accepted)
 - **Objetivo del producto:** aplicación de escritorio local-first de investigación y estudio con IA, inspirada en NotebookLM, con fronteras verificables entre lo local y lo remoto ([CHARTER](../docs/00-project/CHARTER.md)).
-- **Objetivo inmediato:** iniciar **OLA 2** (cimientos técnicos WBS-3.4) sin adelantar features fuera de tarea; materializar layout §12 solo cuando una tarea lo autorice.
+- **Objetivo inmediato:** ejecutar **OLA 3** (WBS-3.4.1..3: storage/FTS, retrieval, sidecar ingesta) según fichas TASK-0022..0024; sin G2 ni features fuera de reserva.
 - **Objetivo de programa (sesión larga):** ≥ 22/26 R-PROD (001..015 y 101..111) implementados, con pruebas que pasan y revisados. Techo 24/26. R-PROD-012 OAuth real y R-PROD-107 instaladores 3 SO solo si el humano autoriza.
 - **Restricciones:** privacidad por defecto, `cloud_fallback=false`, offline real, español primero; sin push/PR/publicar/firmar sin autorización; AGENTS.md prevalece.
 - **Criterio de éxito de la fase anterior (G1):** cumplido — ADRs de producto con campo Aprobación y evidencia humana 2026-10-16.

@@ -41,3 +41,29 @@
 ## Diccionario y reglas de desglose
 
 Cada paquete se transforma en tareas `TASK-####` con *resultado observable*, límite de archivos, esfuerzo estimado por el agente responsable, dependencias, requisito `R-*`, pruebas `TC-*`, ADR relevante y criterio de Done. Ningún paquete significa una funcionalidad concreta hasta G0. Evitar asignar simultáneamente dos tareas sobre el mismo contrato o archivo de coordinación. El planner actualiza el porcentaje solo con evidencias, no con apreciaciones del modelo.
+
+## Anexo — OLA 3 (cimientos de datos e ingesta)
+
+**Alcance:** plan de implementación post-OLA 2 (TASK-0017..0021 integradas en `integration/mvp`); **no** es cambio de producto ni gate G2. Desglosa el paquete padre **WBS-3.4** hacia persistencia local, recuperación léxica/vectorial inicial y sidecar de ingesta, según ADR-0006 (layout §12), ADR-0007, ADR-0009 y requisitos MVP ya aprobados en G0/G1.
+
+**Prerrequisito:** OLA 2 cerrada (workspace §12, contratos B2 TASK-0021).
+
+| Sub-paquete | Entregable | Requisitos (diseño) | ADR | Verificación objetivo | Tarea |
+| --- | --- | --- | --- | --- | --- |
+| **WBS-3.4.1** Persistencia SQLite | Migraciones versionadas (`schema_migrations`), `PRAGMA` WAL + FK, esquema migración **0001** (notebooks, sources, versiones, chunks, FTS5 `chunks_fts`, jobs/audit mínimo según ADR-0007); API de conexión en `crates/storage` sin **SQLCipher** hasta cierre `OPEN-010` | R-PROD-001, R-PROD-103, R-PROD-106; soporte esquema R-PROD-105 | ADR-0007 | Tests unitarios migración idempotente; triggers FTS; datos de prueba solo `public` si aplica gate OPEN-010 | **TASK-0022** |
+| **WBS-3.4.2** Recuperación (FTS + vector) | Consultas FTS5 con filtros notebook/fuentes (`§11.3` ADR-0007); trait `VectorIndex` + stub Plan B; **sin** chat general accediendo a índices (R-PROD-007) | R-PROD-006 (parcial), R-PROD-105, R-PROD-007 | ADR-0007, ADR-0008 (embeddings posteriores) | TC-PROD-105 (preparación); escenario (e) léxico en tests de crate | **TASK-0023** |
+| **WBS-3.4.3** Sidecar ingesta (esqueleto) | Proceso/worker aislado en `workers/documents`: contrato IPC JSON hacia núcleo, límites sin red/keychain, stubs de adaptadores; **sin** parsers pesados ni Docling en esta tarea | R-PROD-002 (parcial), R-PROD-106, R-PROD-111 | ADR-0009 | Tests de contrato sidecar; job estados recuperables | **TASK-0024** |
+
+### Orden y dependencias (OLA 3)
+
+```text
+TASK-0021 (done)
+    ├── TASK-0022 (WBS-3.4.1) ──► TASK-0023 (WBS-3.4.2)
+    └── TASK-0024 (WBS-3.4.3)   [paralelo a 0022; integración funcional con storage vía contratos/núcleo en tareas posteriores]
+```
+
+- **0022 antes de 0023:** la recuperación consume esquema y conexión SQLite/FTS materializados en storage.
+- **0024 en paralelo con 0022:** no modifica migraciones ni `crates/retrieval`; cableado end-to-end importación → chunks → FTS queda para OLA 4 / vertical slice (TASK-0005), no inventado aquí.
+- **Cuestiones abiertas:** `OPEN-010` bloquea SQLCipher y persistencia `private`/`restricted` en builds de usuario; `OPEN-005`..`012` no bloquean estas tres tareas (hipótesis en fichas).
+
+**Fuera de OLA 3 (referencia WBS existente):** UI producto (`apps/desktop` salvo IPC tipado ya reservado), CI desktop, RAG/chat cableado, ModelAdapter real, conectores — WBS-4.1+ / tareas futuras.
