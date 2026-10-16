@@ -84,6 +84,53 @@ export interface SearchHit {
   rank: number;
 }
 
+export type ChatMode = "general" | "notebook";
+
+export type ChatMessageRole = "system" | "user" | "assistant";
+
+export type CitationVerification =
+  | "backed"
+  | "inference"
+  | "discrepancy"
+  | "unverified";
+
+export interface ChatCitation {
+  chunk_id: string;
+  source_version_id: string;
+  quote: string;
+  verification: CitationVerification;
+}
+
+export interface ChatSummary {
+  chat_id: string;
+  mode: ChatMode;
+  notebook_id: string | null;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessageRecord {
+  message_id: string;
+  chat_id: string;
+  role: ChatMessageRole;
+  content: string;
+  model_id: string | null;
+  citations: ChatCitation[];
+  created_at: string;
+}
+
+export interface ModelDescriptor {
+  model_id: string;
+  adapter_id: string;
+  capabilities: {
+    chat: boolean;
+    embedding: boolean;
+    offline_available: boolean;
+    context_window: number | null;
+  };
+}
+
 export type ArtifactType = "infographic" | "slides" | "report";
 
 export type EvidenceMode = "source_backed" | "exploratory";
