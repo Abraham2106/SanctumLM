@@ -40,6 +40,50 @@ export interface JobRecord {
   dedupe_key?: string;
 }
 
+export type SourceKind = "file" | "paste" | "url";
+
+export type SourceStatus =
+  | "pending"
+  | "processing"
+  | "ready"
+  | "failed"
+  | "partial";
+
+export interface NotebookSummary {
+  notebook_id: string;
+  title: string;
+  classification: DataClassification;
+}
+
+export interface SourceRecord {
+  source_id: string;
+  notebook_id: string;
+  display_name: string;
+  kind: SourceKind;
+  mime: string | null;
+  status: SourceStatus;
+  classification: DataClassification;
+  sha256_prefix?: string;
+  updated_at: string;
+}
+
+export interface ImportSourceItemResult {
+  item_index: number;
+  source_id?: string;
+  error?: ProductError;
+}
+
+export interface SearchHit {
+  chunk_id: string;
+  source_id: string;
+  source_display_name: string;
+  snippet: string;
+  page: number | null;
+  char_start: number;
+  char_end: number;
+  rank: number;
+}
+
 export type ArtifactType = "infographic" | "slides" | "report";
 
 export type EvidenceMode = "source_backed" | "exploratory";

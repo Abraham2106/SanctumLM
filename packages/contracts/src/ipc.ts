@@ -1,4 +1,13 @@
-import type { ArtifactSpec, JobRecord, ProductError } from "./product.js";
+import type {
+  ArtifactSpec,
+  DataClassification,
+  ImportSourceItemResult,
+  JobRecord,
+  NotebookSummary,
+  ProductError,
+  SearchHit,
+  SourceRecord,
+} from "./product.js";
 
 /** Envelope IPC estándar (renderer ↔ núcleo). */
 export type IpcResult<T> =
@@ -61,3 +70,75 @@ export interface JobStatusRequest extends ApiVersioned {
 }
 
 export type JobStatusResponse = JobRecord;
+
+/** Comandos acordados con TASK-0027 (núcleo Tauri). */
+export type IpcCommandName =
+  | "ping"
+  | "notebook_create"
+  | "notebook_list"
+  | "list_sources"
+  | "import_sources"
+  | "job_status"
+  | "job_cancel"
+  | "search_sources";
+
+export interface NotebookCreateRequest extends ApiVersioned {
+  title: string;
+  classification?: DataClassification;
+}
+
+export interface NotebookCreateResponse {
+  notebook: NotebookSummary;
+}
+
+export interface NotebookListRequest extends ApiVersioned {}
+
+export interface NotebookListResponse {
+  notebooks: NotebookSummary[];
+}
+
+export interface ListSourcesRequest extends ApiVersioned {
+  notebook_id: string;
+}
+
+export interface ListSourcesResponse {
+  sources: SourceRecord[];
+}
+
+export type ImportInlineMime = "text/plain" | "text/markdown";
+
+export interface ImportSourceInlineItem {
+  kind: "inline_text";
+  display_name: string;
+  mime: ImportInlineMime;
+  text: string;
+  classification?: DataClassification;
+}
+
+export interface ImportSourcesRequest extends ApiVersioned {
+  notebook_id: string;
+  items: ImportSourceInlineItem[];
+}
+
+export interface ImportSourcesResponse {
+  job_id: string;
+  item_results: ImportSourceItemResult[];
+}
+
+export interface JobCancelRequest extends ApiVersioned {
+  job_id: string;
+}
+
+export type JobCancelResponse = JobRecord;
+
+export interface SearchSourcesRequest extends ApiVersioned {
+  notebook_id: string;
+  query: string;
+  limit?: number;
+  selected_source_ids?: string[];
+}
+
+export interface SearchSourcesResponse {
+  query: string;
+  hits: SearchHit[];
+}
