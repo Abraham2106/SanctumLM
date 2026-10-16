@@ -2,15 +2,13 @@
 
 ## Jobs de importación (MVP / TASK-0027)
 
-Los estados de `import_batch` (`queued`, `running`, `completed`, `cancelled`, …) viven en
-[`InMemoryJobStore`](../../../crates/storage/src/job_memory.rs) dentro del proceso Tauri.
-**No hay tabla `jobs` en SQLite** en la migración 0001 actual; la fila `jobs` descrita en
-[ADR-0007](../../../docs/03-architecture/adr/ADR-0007-storage.md) queda para una tarea planner
-posterior (sin schema ad hoc en este crate).
+Los estados de `import_batch` (`queued`, `running`, `completed`, `cancelled`, …) persisten en SQLite
+vía [`SqliteJobStore`](../../../crates/storage/src/sqlite_jobs.rs) (migración **0003**, TASK-0035).
+[`InMemoryJobStore`](../../../crates/storage/src/job_memory.rs) queda solo para referencia/tests.
 
-Implicaciones MVP:
+Implicaciones:
 
-- Tras reiniciar la app, `job_status` no recupera jobs antiguos; fuentes/chunks ya `ready` sí persisten.
+- Tras reiniciar la app, `job_status` recupera jobs no terminales; fuentes/chunks ya `ready` siguen en SQLite.
 - `job_cancel` es **cooperativo**: la señal se observa **entre ítems** del lote, no a mitad de un ítem
   (ver comentario en `src/import_service.rs`).
 

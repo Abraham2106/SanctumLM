@@ -4,15 +4,21 @@ use time::OffsetDateTime;
 
 const MIGRATION_0001: &str = include_str!("../migrations/0001_notebooks_sources_chunks_fts.sql");
 const MIGRATION_0002: &str = include_str!("../migrations/0002_chats_messages_citations.sql");
+const MIGRATION_0003: &str = include_str!("../migrations/0003_jobs.sql");
 
-const TARGET_VERSION: i64 = 2;
+const MIGRATIONS: &[(i64, &str)] = &[
+    (1, MIGRATION_0001),
+    (2, MIGRATION_0002),
+    (3, MIGRATION_0003),
+];
 
 /// Aplica migraciones pendientes (0001). Idempotente: no reejecuta una versión ya registrada.
 pub fn migrate_to_latest(conn: &Connection) -> rusqlite::Result<()> {
     conn.execute_batch("PRAGMA foreign_keys = ON;")?;
 
-    apply_if_pending(conn, 1, MIGRATION_0001)?;
-    apply_if_pending(conn, 2, MIGRATION_0002)?;
+    for &(version, sql) in MIGRATIONS {
+        apply_if_pending(conn, version, sql)?;
+    }
     Ok(())
 }
 
@@ -120,6 +126,30 @@ mod tests {
     }
 
     #[test]
+    fn migration_0003_creates_jobs_table() {
+        let conn = open_test_conn();
+        migrate_to_latest(&conn).expect("migrate");
+
+        let count: i64 = conn
+            .query_row(
+                "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'jobs'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("jobs table");
+        assert_eq!(count, 1);
+
+        let versions: i64 = conn
+            .query_row(
+                "SELECT count(*) FROM schema_migrations WHERE version = 3",
+                [],
+                |row| row.get(0),
+            )
+            .expect("migration 3 row");
+        assert_eq!(versions, 1);
+    }
+
+    #[test]
     fn migration_0001_creates_core_tables() {
         let conn = open_test_conn();
         migrate_to_latest(&conn).expect("migrate");
@@ -130,6 +160,7 @@ mod tests {
             "source_versions",
             "chunks",
             "chunks_fts",
+            "jobs",
         ] {
             let count: i64 = conn
                 .query_row(
