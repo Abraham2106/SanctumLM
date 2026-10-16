@@ -30,7 +30,7 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
       - name: Test workspace
-        run: cargo test --workspace
+        run: cargo test --workspace --exclude sanctumlm-desktop --locked
 
   # Desktop / Tauri: enable when apps/desktop exists on integration/mvp (TASK-0019).
   desktop:
