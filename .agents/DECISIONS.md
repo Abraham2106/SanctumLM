@@ -21,3 +21,5 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 **Integración TASK-0021 (2026-10-16):** security APPROVE con residuales documentados — tratamiento `api_key`, validación nested forbidden keys, y R-PROD-105 al cablear IPC desktop; no bloquean merge de contratos/fakes.
 
 **Integración TASK-0024 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — staging restringe paths bajo root acordado; sidecar sin red en pruebas actuales; spawn/capabilities desktop y política egress (R-PROD-105) al integrar con Tauri; no bloquean merge del skeleton.
+
+**Integración TASK-0023 (2026-10-17):** reviewer + security APPROVE con residuales — `selected_source_ids` vacío interpreta todas las fuentes **ready** del notebook (contrato núcleo futuro); pruebas cubren no-fuga entre notebooks; R-PROD-105/007 al cablear chat e IPC; no bloquean merge del crate retrieval.

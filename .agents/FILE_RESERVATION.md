@@ -39,11 +39,11 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 
 **Cross-task:** ningún agente en vuelo edita la superficie exclusiva de otra fila OLA 3. Cambios en `packages/contracts` o `crates/core-domain` requieren tarea dedicada (no incluidos en 0022..0024).
 
-**OLA 3 — liberación post-merge:** TASK-0022 y TASK-0024 **liberadas** en integración @ `accbe04`. TASK-0023 activa hasta merge; luego liberada salvo nueva ficha.
+**OLA 3 — liberación post-merge:** TASK-0022..0024 **liberadas** en integración @ `119743a`; cambios futuros vía ficha OLA 4+.
 
 ## OLA 4 — vertical slice tramo 1 (import → FTS → UI)
 
-**Vigente desde:** 2026-10-17 (cierre OPEN-014). **Base integración:** `integration/mvp` @ `accbe04` (post TASK-0024; TASK-0023 al merge).
+**Vigente desde:** 2026-10-17 (cierre OPEN-014). **Base integración:** `integration/mvp` @ `119743a` (OLA 3 cerrada: TASK-0022..0024).
 
 | Tarea | Superficie exclusiva | Prohibido |
 | --- | --- | --- |
