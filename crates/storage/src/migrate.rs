@@ -59,6 +59,47 @@ mod tests {
         conn
     }
 
+    fn fts_match_count(conn: &Connection, term: &str) -> i64 {
+        conn.query_row(
+            "SELECT count(*) FROM chunks_fts WHERE chunks_fts MATCH ?1",
+            [term],
+            |row| row.get(0),
+        )
+        .expect("fts query")
+    }
+
+    /// Inserta notebook → source → source_version → chunk; devuelve `chunk.id`.
+    fn insert_public_chunk(conn: &Connection, text: &str) -> i64 {
+        let now = OffsetDateTime::now_utc()
+            .format(&Rfc3339)
+            .expect("rfc3339");
+
+        conn.execute(
+            "INSERT INTO notebooks (id, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
+            ("nb-1", "Demo", now.as_str()),
+        )
+        .expect("notebook");
+        conn.execute(
+            "INSERT INTO sources (id, notebook_id, kind, sha256, classification, status) \
+             VALUES (?1, ?2, 'file', 'abc', 'public', 'ready')",
+            ("src-1", "nb-1"),
+        )
+        .expect("source");
+        conn.execute(
+            "INSERT INTO source_versions (id, source_id, revision, fetched_at, content_hash, storage_path) \
+             VALUES (?1, ?2, 1, ?3, 'hash', 'vault/demo')",
+            ("sv-1", "src-1", now.as_str()),
+        )
+        .expect("source_version");
+        conn.execute(
+            "INSERT INTO chunks (source_version_id, ordinal, text) VALUES (?1, 0, ?2)",
+            ("sv-1", text),
+        )
+        .expect("chunk");
+
+        conn.last_insert_rowid()
+    }
+
     #[test]
     fn migration_0001_is_idempotent() {
         let conn = open_test_conn();
@@ -103,40 +144,39 @@ mod tests {
         let conn = open_test_conn();
         migrate_to_latest(&conn).expect("migrate");
 
-        let now = OffsetDateTime::now_utc()
-            .format(&Rfc3339)
-            .expect("rfc3339");
+        insert_public_chunk(&conn, "contenido lexico sanctum");
+        assert_eq!(fts_match_count(&conn, "lexico"), 1);
+    }
+
+    #[test]
+    fn fts_update_trigger_reindexes_text() {
+        let conn = open_test_conn();
+        migrate_to_latest(&conn).expect("migrate");
+
+        let chunk_id = insert_public_chunk(&conn, "tokenviejo lexico");
+        assert_eq!(fts_match_count(&conn, "tokenviejo"), 1);
 
         conn.execute(
-            "INSERT INTO notebooks (id, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
-            ("nb-1", "Demo", now.as_str()),
+            "UPDATE chunks SET text = ?1 WHERE id = ?2",
+            ("tokennuevo lexico", chunk_id),
         )
-        .expect("notebook");
-        conn.execute(
-            "INSERT INTO sources (id, notebook_id, kind, sha256, classification, status) \
-             VALUES (?1, ?2, 'file', 'abc', 'public', 'ready')",
-            ("src-1", "nb-1"),
-        )
-        .expect("source");
-        conn.execute(
-            "INSERT INTO source_versions (id, source_id, revision, fetched_at, content_hash, storage_path) \
-             VALUES (?1, ?2, 1, ?3, 'hash', 'vault/demo')",
-            ("sv-1", "src-1", now.as_str()),
-        )
-        .expect("source_version");
-        conn.execute(
-            "INSERT INTO chunks (source_version_id, ordinal, text) VALUES (?1, 0, ?2)",
-            ("sv-1", "contenido lexico sanctum"),
-        )
-        .expect("chunk");
+        .expect("update chunk");
 
-        let hits: i64 = conn
-            .query_row(
-                "SELECT count(*) FROM chunks_fts WHERE chunks_fts MATCH ?1",
-                ["lexico"],
-                |row| row.get(0),
-            )
-            .expect("fts query");
-        assert_eq!(hits, 1);
+        assert_eq!(fts_match_count(&conn, "tokenviejo"), 0);
+        assert_eq!(fts_match_count(&conn, "tokennuevo"), 1);
+    }
+
+    #[test]
+    fn fts_delete_trigger_removes_index_row() {
+        let conn = open_test_conn();
+        migrate_to_latest(&conn).expect("migrate");
+
+        let chunk_id = insert_public_chunk(&conn, "tokenborrar lexico");
+        assert_eq!(fts_match_count(&conn, "tokenborrar"), 1);
+
+        conn.execute("DELETE FROM chunks WHERE id = ?1", [chunk_id])
+            .expect("delete chunk");
+
+        assert_eq!(fts_match_count(&conn, "tokenborrar"), 0);
     }
 }

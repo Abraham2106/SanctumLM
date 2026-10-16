@@ -28,3 +28,33 @@ pub fn notebook_repository(
     migrate_to_latest(&conn)?;
     Ok(SqliteNotebookRepository::new(Arc::new(Mutex::new(conn))))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn open_connection_enables_wal_and_foreign_keys() {
+        let dir = std::env::temp_dir().join(format!(
+            "sanctumlm-storage-test-{}",
+            uuid::Uuid::new_v4()
+        ));
+        fs::create_dir_all(&dir).expect("temp dir");
+        let path = dir.join("test.db");
+
+        let conn = open_connection(&path).expect("open_connection");
+        let fk: i64 = conn
+            .query_row("PRAGMA foreign_keys", [], |row| row.get(0))
+            .expect("foreign_keys pragma");
+        let journal_mode: String = conn
+            .query_row("PRAGMA journal_mode", [], |row| row.get(0))
+            .expect("journal_mode pragma");
+
+        assert_eq!(fk, 1);
+        assert_eq!(journal_mode.to_lowercase(), "wal");
+
+        drop(conn);
+        let _ = fs::remove_dir_all(&dir);
+    }
+}

@@ -134,10 +134,27 @@ mod tests {
     fn create_and_get_notebook() {
         let conn = test_conn();
         let mut repo = SqliteNotebookRepository::new(Arc::new(Mutex::new(conn)));
-        let created = repo.create("Estudio".into(), DataClassification::Private);
+        let created = repo.create("Estudio".into(), DataClassification::Public);
         let fetched = repo.get(&created.id).unwrap();
         assert_eq!(fetched.title, "Estudio");
-        assert_eq!(fetched.classification, DataClassification::Private);
+        assert_eq!(fetched.classification, DataClassification::Public);
+    }
+
+    #[test]
+    fn list_returns_persisted_notebooks() {
+        let conn = test_conn();
+        let mut repo = SqliteNotebookRepository::new(Arc::new(Mutex::new(conn)));
+        assert!(repo.list().is_empty());
+
+        let a = repo.create("Alpha".into(), DataClassification::Public);
+        let b = repo.create("Beta".into(), DataClassification::Public);
+
+        let listed = repo.list();
+        assert_eq!(listed.len(), 2);
+        assert_eq!(listed[0].id, a.id);
+        assert_eq!(listed[0].classification, DataClassification::Public);
+        assert_eq!(listed[1].id, b.id);
+        assert_eq!(listed[1].title, "Beta");
     }
 
     #[test]
