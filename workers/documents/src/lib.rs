@@ -1,4 +1,4 @@
-//! Contrato del sidecar de ingesta (ADR-0009); sin red ni parsers reales.
+//! Contrato del sidecar de ingesta (ADR-0009); adaptadores nativos TXT/MD.
 
 use core_domain::ProductError;
 use serde::{Deserialize, Serialize};
@@ -6,6 +6,8 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExtractionInput {
+    /// Root de staging normalizado (mismo valor que en la petición IPC).
+    pub staging_root: PathBuf,
     /// Ruta ya validada y normalizada bajo `staging_root` (no usar JSON crudo).
     pub staging_path: PathBuf,
     pub mime: String,
@@ -42,4 +44,6 @@ pub trait DocumentExtractor: Send + Sync {
 
 pub mod fake;
 pub mod ipc;
+pub mod native_text;
+pub mod secure_io;
 pub mod staging;

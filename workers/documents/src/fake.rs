@@ -48,6 +48,7 @@ mod tests {
         let ex = FakeDocumentExtractor;
         let out = ex
             .extract(ExtractionInput {
+                staging_root: PathBuf::from("/staging"),
                 staging_path: PathBuf::from("/staging/doc.txt"),
                 mime: "text/plain".into(),
                 max_bytes: 1_000_000,
