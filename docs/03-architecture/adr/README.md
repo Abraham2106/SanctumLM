@@ -11,7 +11,8 @@ Formato: `ADR-####-slug.md` con título, estado (`proposed` / `accepted` / `reje
 | [0003](ADR-0003-planner-source-of-truth.md) | Gobierno central del planner | accepted |
 | [0004](ADR-0004-agent-runtime-boundaries.md) | Estado efímero vs. durable | proposed |
 | [0005](ADR-0005-approval-gates.md) | Puertas de aprobación y controles | proposed |
+| [0008](ADR-0008-model-router.md) | Router ModelAdapter y Ollama loopback | proposed |
 
-Las decisiones `accepted` de 0001-0003 derivan de las instrucciones explícitas de organización del desarrollo. No implican aceptación de arquitectura funcional de SanctumLM. Las propuestas solo son candidatas hasta revisión.
+Las decisiones `accepted` de 0001-0003 derivan de las instrucciones explícitas de organización del desarrollo. No implican aceptación de arquitectura funcional de SanctumLM. Las propuestas de producto (p. ej. ADR-0008) solo son candidatas hasta G1 humano.
 
 **Proceso:** abrir propuesta vinculada a tarea/RFC → enumerar alternativas → revisar riesgos/impacto → obtener aprobación adecuada → marcar estado en PR → implementar → actualizar trazabilidad. No borrar ADR antiguos; si cambia la decisión crear otro y enlazar `superseded by`.

@@ -1,16 +1,21 @@
 # STATUS — Checkpoint canónico
 
-- **Timestamp de referencia:** 2026-10-16T04:40Z (conciliado con Git/GitHub; no es heartbeat)
-- **Fase:** G0 aprobado; preparación de G1
-- **Implementación de producto:** ninguna
-- **Gate actual:** G1 — pendiente
-- **G0:** aprobado 2026-10-16 por @Abraham2106 por instrucción en chat; contenido extraído de su [investigación](../docs/00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md) ([CHARTER](../docs/00-project/CHARTER.md)).
-- **Integrado en `main`:** [PR #1](https://github.com/Abraham2106/SanctumLM/pull/1), fusionado 2026-10-16T04:11Z por su autor, sin revisión independiente registrada.
-- **Ramas locales sin publicar:** `agent/TASK-0006-mejora-documental` → `agent/TASK-0007-g0-producto` (apilada sobre la anterior).
+- **Timestamp de referencia:** 2026-10-16T05:30Z
+- **Fase:** G0 aprobado e integrado en `main`; OLA 1 (G1) en curso
+- **Implementación de producto:** ninguna (sin Cargo.toml / package.json)
+- **Gate actual:** G1 — pendiente de paquete al humano (PARADA 1)
+- **G0:** aprobado 2026-10-16; contenido en [CHARTER](../docs/00-project/CHARTER.md) y [SRS §5](../docs/01-requirements/SRS.md). Fusionado: PR #2 (TASK-0006) y PR #3 (TASK-0007) → `main` @ `4ff44a7`.
+- **Rama de integración:** `integration/mvp` creada desde `main`/`4ff44a7` (equivalente a TASK-0007 ya fusionada). Nada se escribe en `main`.
+- **Ramas de OLA 1:** `agent/TASK-0008-g1-ola1-plan` (planner) + TASK-0009..0014 (A1–A6). A7 (TASK-0015) no lanzada.
 - **ADRs accepted del flujo:** ADR-0001, ADR-0002, ADR-0003
-- **ADRs proposed:** ADR-0004, ADR-0005
-- **Riesgos principales:** RSK-13 (alcance excesivo), RSK-12 (calidad/latencia de modelos locales), RSK-14 (parser y citas), RSK-11 (sin validación con usuarios)
-- **Bloqueo:** OPEN-005..010 para G1; OPEN-011 para el conector piloto; OPEN-012 para infografías (v1)
-- **Siguiente acción:** el planner lanza la ola de arquitectura (ratificar el stack de la investigación por ADR, datos y cifrado, router de modelos y egress, modelo de amenazas) y la presenta al humano para aprobar G1.
+- **ADRs proposed (proceso):** ADR-0004, ADR-0005
+- **ADRs de producto G1:** ADR-0008 proposed e integrado en `integration/mvp` (`568b367`); 0006, 0007, 0009, 0010, 0011 en revisión/spike. Ninguno accepted.
+- **Avance R-PROD:** 0/26 implementados con pruebas y revisión (solo diseño G1)
+- **Validador:** `python scripts/validate_docs.py` → OK (52 Markdown) en `main` @ `4ff44a7`
+- **Suite de producto:** not-run (no existe código)
+- **Riesgos principales:** RSK-13, RSK-12, RSK-14, RSK-11
+- **Bloqueo:** OPEN-005..012 abiertas; G1 no aprobado; sin autorización de push/PR en esta sesión
+- **Flujo de integración (provisional, sin respuesta humana a push):** ramas de tarea → reviewer → merge local `--no-ff` hacia `integration/mvp`
+- **Siguiente acción:** completar A1–A6, revisar, integrar en `integration/mvp`, lanzar A7 (TASK-0015), presentar PARADA 1. No OLA 2 hasta «G1 aprobado».
 
-En sesiones posteriores el planner debe conciliar este snapshot con el estado real de GitHub antes de declarar progreso. No tratar fechas históricas como señal de agente vivo.
+Reserva: `.agents/FILE_RESERVATION.md`. Briefs: `.agents/briefs/TASK-0009.md` … `TASK-0014.md`.

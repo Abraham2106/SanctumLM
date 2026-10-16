@@ -9,5 +9,6 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 | ADR-0003 | Planner coordinador | accepted | Flujo de desarrollo |
 | ADR-0004 | Canal durable/efímero | proposed | Requiere decidir runtime |
 | ADR-0005 | Puertas y autoridad | proposed | Requiere ratificar criterios |
+| ADR-0008 | Router ModelAdapter / Ollama | proposed | TASK-0011 merge `568b367`; spike Ollama not-run (RSK-12); G1 pendiente |
 
-**Decisiones de producto:** ninguna registrada. No convertir propuesta en aceptación sin modificación del ADR y evidencia enlazada.
+**Decisiones de producto:** ADR-0008 proposed (integrado en `integration/mvp`, no accepted). No convertir propuesta en aceptación sin G1 y campo Aprobación.
