@@ -1,6 +1,6 @@
 # TASKS — Backlog canónico
 
-**Última actualización:** 2026-10-17T07:05Z. **Consolidador:** planner (integración TASK-0024 en `integration/mvp`).
+**Última actualización:** 2026-10-17T07:25Z. **Consolidador:** planner (integración TASK-0023 en `integration/mvp`).
 
 | ID | Título | WBS | Estado | Owner | Dependencia / criterio |
 | --- | --- | --- | --- | --- | --- |
@@ -26,7 +26,7 @@
 | TASK-0020 | CI workspace Rust + reglas revisión (B1) | WBS-2.5, WBS-3.4 | done | Implementer | Merge `5546344` ← `4ce8c9d` APPROVED; bitácora `8554070` |
 | TASK-0021 | Contratos B2 Rust/TS + fakes in-memory | WBS-3.4 | done | Implementer | Merge `integration/mvp` ← `d9a8b20` APPROVED reviewer + security |
 | TASK-0022 | SQLite migraciones + esquema FTS5 (OLA 3 C1) | WBS-3.4.1 | done | Implementer | Merge `integration/mvp` ← `325d4c6` @ `fccd17d`; APPROVE reviewer r2 + security; OPEN-010: sin SQLCipher |
-| TASK-0023 | Recuperación FTS + VectorIndex stub | WBS-3.4.2 | in_progress | Por asignar | TASK-0022 integrado; R-PROD-105/007; ficha TASK-0023 |
+| TASK-0023 | Recuperación FTS + VectorIndex stub | WBS-3.4.2 | done | Implementer | Merge `integration/mvp` ← `1aec186` @ `119743a`; APPROVE reviewer + security; OPEN-010 abierta |
 | TASK-0024 | Sidecar ingesta skeleton | WBS-3.4.3 | done | Implementer | Merge `integration/mvp` ← `ca24b48` @ `f002f47`; APPROVE reviewer r2 + security r2; ADR-0009 IPC/staging |
 
 Estados: `ready` implica ficha en `.agents/briefs/` y worktree creado desde `integration/mvp`.
