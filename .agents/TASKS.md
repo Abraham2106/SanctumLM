@@ -14,7 +14,7 @@
 | TASK-0008 | Planner: OLA 1 plan, reserva, consolidación | WBS-2.1, WBS-3.2 | in_progress | Planner | Checkpoint; no implementa producto |
 | TASK-0009 | A1 ADR-0006 stack Tauri 2 + §12 | WBS-3.2 | ready | Architect | Worktree exclusivo; ADR proposed |
 | TASK-0010 | A2 ADR-0007 storage + spike sqlite-vec | WBS-3.2 | ready | Architect | Spike %TEMP%; OPEN-010 no se cierra |
-| TASK-0011 | A3 ADR-0008 ModelAdapter + spike Ollama | WBS-3.2 | ready | Architect | Modelos >4 GB prohibidos; OPEN-008 no se cierra |
+| TASK-0011 | A3 ADR-0008 ModelAdapter + spike Ollama | WBS-3.2 | done | Architect | Merge local mvp `568b367`; reviewer+security approved; ADR proposed (G1 pendiente) |
 | TASK-0012 | A4 ADR-0009 ingesta aislada | WBS-3.2, WBS-3.3 | ready | Architect | Sin implementar sidecar |
 | TASK-0013 | A5 ADR-0010 ArtifactSpec | WBS-3.2 | ready | Architect | §8.3 fuera de alcance |
 | TASK-0014 | A6 ADR-0011 amenazas/egress/§15 | WBS-3.3 | ready | Security | No editar SECURITY.md de proceso |
