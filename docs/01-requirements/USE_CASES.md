@@ -1,6 +1,6 @@
 # Casos de uso y escenarios
 
-**Estado:** escenarios de ingeniería aprobables; escenarios de producto pendientes de G0.
+**Estado:** escenarios de ingeniería aprobables; escenarios de producto aprobados en G0 (2026-10-16).
 
 ## UC-ENG-01 — De necesidad a tarea ejecutable
 
@@ -36,6 +36,41 @@
 
 **Actor:** planner/architect/PO. Registrar RFC, motivación, alternativas, impacto (SRS/WBS/tests/seguridad), ADR si corresponde, aprobación competente, versión y comunicación a agentes afectados.
 
-## UC-PROD — pendiente
+## Casos de uso del producto (línea base G0)
 
-En G0 redactar como mínimo: flujo principal, flujo de error, permisos/abuso, experiencia inicial, recuperación y salida de datos, según el producto real. Ninguna de esas capacidades se afirma como existente.
+Describen el comportamiento aprobado; ninguno está implementado todavía.
+
+### UC-PROD-01 — Primera puesta en marcha
+
+**Actor:** usuario primario. **Requisitos:** R-PROD-009, R-PROD-001, R-PROD-013.
+1. Abre la aplicación; esta detecta el entorno del modelo local.
+2. Si falta, la aplicación guía la instalación o la selección del modelo, sin conexión una vez descargado.
+3. Crea su primera colección.
+
+**Error:** el equipo no cumple el mínimo de memoria → la aplicación lo indica y sugiere un modelo más pequeño.
+
+### UC-PROD-02 — Importar e indexar
+
+**Actor:** usuario primario. **Requisitos:** R-PROD-002, R-PROD-003.
+1. Arrastra una carpeta o elige archivos.
+2. La aplicación importa los formatos admitidos y muestra el progreso del indexado.
+3. Al terminar, informa los archivos rechazados con su motivo.
+
+**Error:** se cierra la aplicación a mitad → al reabrir se reanuda sin reprocesar.
+
+### UC-PROD-03 — Preguntar con citas
+
+**Actor:** usuario primario. **Requisitos:** R-PROD-004, R-PROD-005, R-PROD-008, R-PROD-011.
+1. Escribe una pregunta sobre la colección.
+2. Recibe una respuesta generada localmente, con citas a documento y página.
+3. Pulsa una cita y ve el fragmento de origen resaltado.
+
+**Error:** no hay evidencia → la respuesta lo dice explícitamente y sugiere reformular.
+
+### UC-PROD-04 — Buscar y resumir
+
+**Actor:** usuario primario. **Requisitos:** R-PROD-006, R-PROD-007. Busca un término o concepto, abre un resultado y pide el resumen del documento con citas.
+
+### UC-PROD-05 — Exportar y borrar
+
+**Actor:** usuario primario. **Requisitos:** R-PROD-010. Exporta una conversación a Markdown; elimina una colección y todos sus datos locales desaparecen.

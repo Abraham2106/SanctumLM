@@ -14,6 +14,8 @@
 | RSK-08 | Dependencias/servicios externos cambian | Medio | Medio | ADR de integración, versiones fijadas, contratos/pruebas | Architect / G1 |
 | RSK-09 | Tiempo/costo de agentes sin control | Medio | Medio | Presupuesto por tarea, hitos, cancelación y límites | Planner / ejecución sobre límite |
 | RSK-10 | Requisito sin prueba o criterio ambiguo | Medio | Alto | Trazabilidad y criterios de aceptación previos | QA / revisión de backlog |
+| RSK-11 | Definición de G0 redactada por IA sin validar con usuarios reales: mercado, KPIs u objetivos equivocados | Alto | Alto | Entrevistas con 5+ profesionales objetivo antes de G3; revisar KPIs con datos de G2 | PO / resultados del piloto o primeras entrevistas |
+| RSK-12 | Los modelos locales en el equipo de referencia no alcanzan la calidad o latencia objetivo (KPI-1, KPI-4) | Medio | Alto | Prototipo de medición temprano en G1; ADR con modelos alternativos y degradación controlada | Architect / benchmark de G1 |
 
 ## Tratamiento
 

@@ -16,7 +16,20 @@ Los requisitos `R-ENG`/`R-NFR` rigen el proceso desde hoy, así que su paquete p
 | R-ENG-010 | WBS-2.1, WBS-2.3 | TC-ENG-08 | — | Propuesto |
 | R-NFR-001, R-NFR-007 | WBS-2.1, WBS-2.5 | TC-SEC-01 | WBS-3.3, WBS-4.5 | Propuesto |
 | R-NFR-002, R-NFR-004 | WBS-2.3, WBS-2.5 | TC-ENG-09 | WBS-4.3 | Propuesto |
-| R-PROD-* | Pendiente de G0 | Pendiente de G0 | — | No definido |
+
+
+## Producto (línea base G0)
+
+Los casos `TC-PROD-*` y los componentes se asignan en G1; hasta entonces la verificación indicada es el criterio de aceptación del SRS.
+
+| Requisito(s) | Paquete WBS | Verificación | Estado |
+| --- | --- | --- | --- |
+| R-PROD-001, R-PROD-002, R-PROD-003 | WBS-3.1, WBS-4.1 | Criterio SRS; TC-PROD por definir en G1 | Aprobado G0 |
+| R-PROD-004, R-PROD-005, R-PROD-006, R-PROD-007 | WBS-3.1, WBS-4.1, WBS-4.2 | Criterio SRS + conjunto de evaluación (KPI-1) | Aprobado G0 |
+| R-PROD-008 | WBS-3.3, WBS-4.5 | Prueba de tráfico de red (KPI-2) | Aprobado G0 |
+| R-PROD-009, R-PROD-010, R-PROD-011 | WBS-3.2, WBS-4.1 | Criterio SRS; TC-PROD por definir en G1 | Aprobado G0 |
+| R-PROD-012 | WBS-4.4 | Auditoría de teclado y contraste | Aprobado G0 |
+| R-PROD-013 | WBS-4.4 | Benchmark en equipo de referencia (KPI-3, KPI-4) | Aprobado G0 |
 
 Cada PR incorpora un bloque `Traceability` con IDs de requisito, WBS, TC, ADR y evidencia. El planner revisa enlaces rotos, requisitos sin pruebas, pruebas sin dueño y elementos implementados sin requisito. Actualizar tabla en el mismo PR que modifica cualquiera de sus enlaces.
 

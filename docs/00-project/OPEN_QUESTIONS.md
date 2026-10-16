@@ -6,10 +6,10 @@ Una cuestión `OPEN-###` es información necesaria que **nadie ha confirmado**. 
 
 | ID | Pregunta | Origen | Resuelve | Bloquea | Estado |
 | --- | --- | --- | --- | --- | --- |
-| OPEN-001 | ¿Qué problema resuelve SanctumLM, para quién, en qué entorno y con qué beneficio? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | abierta |
-| OPEN-002 | ¿Quiénes son el patrocinador/PO, los usuarios primarios, los operadores y las partes afectadas? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | abierta |
-| OPEN-003 | ¿Qué indicadores (máximo cinco) miden el éxito, con línea base, objetivo, ventana y método? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | abierta |
-| OPEN-004 | ¿Qué restricciones aplican: stack, presupuesto, dispositivos, licencias, plataformas, datos, privacidad, conectividad, accesibilidad, integración? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | abierta |
+| OPEN-001 | ¿Qué problema resuelve SanctumLM, para quién, en qué entorno y con qué beneficio? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | resuelta 2026-10-16 — patrocinador, por instrucción en chat; respuesta en [CHARTER](CHARTER.md) |
+| OPEN-002 | ¿Quiénes son el patrocinador/PO, los usuarios primarios, los operadores y las partes afectadas? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | resuelta 2026-10-16 — patrocinador, por instrucción en chat; respuesta en [CHARTER](CHARTER.md) |
+| OPEN-003 | ¿Qué indicadores (máximo cinco) miden el éxito, con línea base, objetivo, ventana y método? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | resuelta 2026-10-16 — patrocinador, por instrucción en chat; respuesta en [CHARTER](CHARTER.md) |
+| OPEN-004 | ¿Qué restricciones aplican: stack, presupuesto, dispositivos, licencias, plataformas, datos, privacidad, conectividad, accesibilidad, integración? | [CHARTER](CHARTER.md) | Patrocinador humano | G0, TASK-0001 | resuelta 2026-10-16 — patrocinador, por instrucción en chat; respuesta en [CHARTER](CHARTER.md) |
 | OPEN-005 | ¿Con qué sistemas externos, MCP o APIs se integra el producto, y con qué formatos y versiones? | [SRS §6](../01-requirements/SRS.md) | Humano + architect | G1, TASK-0003 | abierta |
 | OPEN-006 | ¿Qué datos maneja, cómo se clasifican, cifran y retienen, y hay datos personales? | [SRS §6](../01-requirements/SRS.md) | Humano + security | G1, TASK-0003 | abierta |
 | OPEN-007 | ¿Qué experiencia de usuario, nivel de accesibilidad e idiomas se exigen? | [SRS §6](../01-requirements/SRS.md) | Humano/PO | G1, TASK-0003 | abierta |
