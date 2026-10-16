@@ -38,3 +38,22 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 **Compartidos (planner al integrar):** `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md`, `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, este archivo.
 
 **Cross-task:** ningún agente en vuelo edita la superficie exclusiva de otra fila OLA 3. Cambios en `packages/contracts` o `crates/core-domain` requieren tarea dedicada (no incluidos en 0022..0024).
+
+**OLA 3 — liberación post-merge:** TASK-0022..0024 **liberadas** en integración @ `119743a`; cambios futuros vía ficha OLA 4+.
+
+## OLA 4 — vertical slice tramo 1 (import → FTS → UI)
+
+**Vigente desde:** 2026-10-17 (cierre OPEN-014). **Base integración:** `integration/mvp` @ `119743a` (OLA 3 cerrada: TASK-0022..0024).
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0025 planner | `.agents/*`, `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md` (OPEN-014), consolidación | código producto |
+| TASK-0026 | `workers/documents/**` | `crates/storage/**`, `apps/desktop/**`, `.github/**`, parsers pesados |
+| TASK-0027 | `apps/desktop/src-tauri/src/**`, `crates/storage/src/**` excepto `migrations/**` | `apps/desktop/src/**` (UI), `packages/contracts/**`, `workers/documents/**` (salvo spawn bin), `.github/**`, chat/RAG |
+| TASK-0028 | `packages/contracts/**`, `apps/desktop/src/**` excepto `src-tauri/**` | `apps/desktop/src-tauri/**`, `crates/**`, `workers/**`, `.github/**` |
+
+**Compartidos (planner al integrar):** `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, `.agents/FILE_RESERVATION.md`, `docs/02-planning/WBS.md`.
+
+**Cross-task:** 0027 implementa comandos; 0028 define tipos y UI — acordar nombres de comandos vía contratos (0028) antes de merge final E2E.
+
+**Paralelo seguro:** 0026 ∥ 0023 ∥ 0028 (solo contratos/UI mock) mientras 0027 no esté en la misma superficie.
