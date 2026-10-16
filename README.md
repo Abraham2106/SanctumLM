@@ -1,6 +1,6 @@
 # SanctumLM
 
-**SanctumLM** es un asistente de IA privado y local para trabajar con documentos confidenciales: preguntas, búsqueda y resúmenes con citas a la fuente, sin que el contenido salga del equipo. Ver [CHARTER](docs/00-project/CHARTER.md).
+**SanctumLM** es una aplicación de escritorio local-first de investigación y estudio asistidos por IA, inspirada en NotebookLM: notebooks con fuentes locales y web, chat con citas verificables e IA local por defecto, con envío a proveedores remotos solo opt-in y auditable. Ver [CHARTER](docs/00-project/CHARTER.md) y la [investigación de referencia](docs/00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md).
 
 **Estado:** G0 aprobado (2026-10-16); arquitectura (G1) pendiente. Sin implementación ni stack aprobados todavía.
 

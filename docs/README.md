@@ -18,6 +18,7 @@ Los términos propios (gate, handoff, `OPEN-*`, `not-run`…) están en el [glos
 | Área | Fuente canónica | Propósito |
 | --- | --- | --- |
 | Gobierno | [CHARTER](00-project/CHARTER.md) | Problema, límites, aprobación |
+| Gobierno | [Investigación de producto](00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md) | Fuente de G0: referente, requisitos RF, arquitectura recomendada y plan por fases |
 | Gobierno | [OPEN_QUESTIONS](00-project/OPEN_QUESTIONS.md) | Cuestiones sin respuesta que bloquean trabajo |
 | Gobierno | [GLOSSARY](00-project/GLOSSARY.md) | Vocabulario común |
 | Requisitos | [SRS](01-requirements/SRS.md) | Requisitos y aceptación |

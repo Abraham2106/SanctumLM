@@ -38,39 +38,48 @@
 
 ## Casos de uso del producto (línea base G0)
 
-Describen el comportamiento aprobado; ninguno está implementado todavía.
+Describen el comportamiento aprobado; ninguno está implementado todavía. Actores según el [CHARTER](../00-project/CHARTER.md).
 
-### UC-PROD-01 — Primera puesta en marcha
+### UC-PROD-01 — Notebook local con fuentes (fase 1)
 
-**Actor:** usuario primario. **Requisitos:** R-PROD-009, R-PROD-001, R-PROD-013.
-1. Abre la aplicación; esta detecta el entorno del modelo local.
-2. Si falta, la aplicación guía la instalación o la selección del modelo, sin conexión una vez descargado.
-3. Crea su primera colección.
+**Actor:** estudiante. **Requisitos:** R-PROD-001, R-PROD-002, R-PROD-014, R-PROD-013.
+1. Crea un notebook y arrastra PDFs, apuntes en Markdown y un DOCX.
+2. La cola muestra el progreso de extracción e indexado; puede cancelar y reintentar.
+3. Cierra la aplicación, desactiva la red y reabre: el notebook y sus fuentes siguen disponibles.
 
-**Error:** el equipo no cumple el mínimo de memoria → la aplicación lo indica y sugiere un modelo más pequeño.
+**Error:** un archivo corrupto o de tipo falso se rechaza con un motivo concreto, sin afectar al resto del lote.
 
-### UC-PROD-02 — Importar e indexar
+### UC-PROD-02 — Preguntar a las fuentes con citas (fases 1–2)
 
-**Actor:** usuario primario. **Requisitos:** R-PROD-002, R-PROD-003.
-1. Arrastra una carpeta o elige archivos.
-2. La aplicación importa los formatos admitidos y muestra el progreso del indexado.
-3. Al terminar, informa los archivos rechazados con su motivo.
+**Actor:** investigador. **Requisitos:** R-PROD-006, R-PROD-104, R-PROD-105.
+1. Selecciona las fuentes del notebook que entran en contexto.
+2. Pregunta; la respuesta, generada con un modelo local, marca qué es respaldado, inferencia, discrepancia o no comprobado.
+3. Pulsa una cita y se abre exactamente el fragmento de la versión citada.
 
-**Error:** se cierra la aplicación a mitad → al reabrir se reanuda sin reprocesar.
+**Error:** no hay evidencia → «no hay evidencia suficiente», sin citas inventadas. Una fuente con instrucciones incrustadas («ignora al usuario») se trata como datos.
 
-### UC-PROD-03 — Preguntar con citas
+### UC-PROD-03 — Chat general (fase 1)
 
-**Actor:** usuario primario. **Requisitos:** R-PROD-004, R-PROD-005, R-PROD-008, R-PROD-011.
-1. Escribe una pregunta sobre la colección.
-2. Recibe una respuesta generada localmente, con citas a documento y página.
-3. Pulsa una cita y ve el fragmento de origen resaltado.
+**Actor:** usuario general. **Requisitos:** R-PROD-007, R-PROD-008. Abre un chat fuera de cualquier notebook, elige el modelo y conversa; ningún documento entra en el contexto.
 
-**Error:** no hay evidencia → la respuesta lo dice explícitamente y sugiere reformular.
+### UC-PROD-04 — Investigar en la web e importar (fase 3)
 
-### UC-PROD-04 — Buscar y resumir
+**Actor:** docente. **Requisitos:** R-PROD-004, R-PROD-003, R-PROD-111.
+1. Busca un tema en la web; ve fuente, dominio, fecha y fragmento.
+2. Selecciona dos resultados y revisa la vista previa.
+3. Se guardan copias textuales locales que luego funcionan sin red.
 
-**Actor:** usuario primario. **Requisitos:** R-PROD-006, R-PROD-007. Busca un término o concepto, abre un resultado y pide el resumen del documento con citas.
+**Error:** una página redirige a `127.0.0.1` o a una red privada → la descarga se deniega y queda en la auditoría.
 
-### UC-PROD-05 — Exportar y borrar
+### UC-PROD-05 — Usar un proveedor remoto con consentimiento (fase 3)
 
-**Actor:** usuario primario. **Requisitos:** R-PROD-010. Exporta una conversación a Markdown; elimina una colección y todos sus datos locales desaparecen.
+**Actor:** investigador. **Requisitos:** R-PROD-008, R-PROD-102, R-PROD-110.
+1. Para una pregunta concreta elige un modelo remoto.
+2. La aplicación muestra destino, fragmentos exactos a enviar, tamaño y categorías de datos.
+3. Aprueba solo esa solicitud; la decisión queda registrada.
+
+**Error:** el modelo local se cae → la aplicación lo informa y **no** cambia sola a un proveedor remoto. Una fuente `restricted` nunca se envía.
+
+### UC-PROD-06 — Generar un artefacto de estudio (fases 4–5, v1)
+
+**Actor:** docente. **Requisitos:** R-PROD-009, R-PROD-010, R-PROD-011. Pide una guía, una infografía o una presentación; revisa el esquema con sus evidencias, edita una sección sin regenerar el resto y exporta.

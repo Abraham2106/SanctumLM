@@ -27,7 +27,7 @@ flowchart TD
 
 ## Plano B. Producto SanctumLM
 
-Arquitectura pendiente de G0/G1. No hay decisión aprobada sobre frontend, backend, modelo de lenguaje, proveedores, bases de datos, servicios, CLI, MCP, ejecución local/nube, redes ni librerías. El nombre del repositorio no prueba ninguna de esas características.
+Arquitectura pendiente de G1. No hay decisión aprobada sobre frontend, backend, modelo de lenguaje, proveedores, bases de datos, servicios, redes ni librerías. El insumo principal es la [investigación de producto](../00-project/research/INVESTIGACION_NOTEBOOK_IA_LOCAL_HIBRIDO.md) (§3 componentes y fronteras de confianza, §4 datos, §6 router de modelos, §9 seguridad, §12 estructura del repositorio): su stack es la **recomendación de partida** que los ADR de G1 deben ratificar o rebatir con evidencia.
 
 En G1 documentar al menos:
 - Contexto C4 nivel 1: usuarios/sistemas externos y límites de confianza.
