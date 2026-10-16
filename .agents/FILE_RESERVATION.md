@@ -24,3 +24,17 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 **Prohibido cross-task:** ningún agente en vuelo edita la superficie activa de otra fila.
 
 **A7 (TASK-0015)** exclusiva histórica: `ARCHITECTURE.md`, `DATA_AND_INTERFACES.md`, `TEST_PLAN.md`. Cerrada G1; cambios futuros vía nueva tarea.
+
+## OLA 3 — datos e ingesta (cimientos)
+
+**Vigente desde:** 2026-10-16 (cierre OPEN-013). **Base integración:** `integration/mvp` @ `1b3c875` (post TASK-0021).
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0022 | `crates/storage/**` (migraciones SQL, `rusqlite`, pruebas de esquema/FTS en crate storage) | `crates/retrieval/**`, `workers/documents/**`, `apps/desktop/src/App.tsx`, `.github/**`, SQLCipher, `load_extension` usuario |
+| TASK-0023 | `crates/retrieval/**` (consultas FTS, trait `VectorIndex`, tests aislamiento léxico) | `crates/storage/migrations/**` (salvo usar API pública de storage), `workers/documents/**`, `App.tsx`, `.github/**` |
+| TASK-0024 | `workers/documents/**` (binario/proceso sidecar, contrato IPC, stubs adaptadores, tests contrato) | `crates/storage/migrations/**`, lógica FTS en retrieval, parsers Docling/MarkItDown pesados, `App.tsx`, `.github/**` |
+
+**Compartidos (planner al integrar):** `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md`, `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, este archivo.
+
+**Cross-task:** ningún agente en vuelo edita la superficie exclusiva de otra fila OLA 3. Cambios en `packages/contracts` o `crates/core-domain` requieren tarea dedicada (no incluidos en 0022..0024).
