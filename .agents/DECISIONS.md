@@ -35,3 +35,5 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 **Planificación TASK-0029 (2026-10-17):** planner — anexo OLA 4 tramo 2 en WBS (WBS-4.1.4–4.1.7), fichas TASK-0030..0033, reserva tramo 2; OPEN-015 resuelta; sin código Rust de producto; G2 no declarado; `validate_docs.py` OK.
 
 **Integración TASK-0031 (2026-10-16):** reviewer + security APPROVE con residuales — orquestación RAG notebook vs chat general y abstención sin hits FTS en crate `retrieval`; revalidación SQL `chunk_id`/`quote` prepara TASK-0032 (R-PROD-104/105); egress/capabilities al cablear invoke Tauri; no bloquean merge PR #10 @ `2222bf4` → `integration/mvp` @ `7826254`.
+
+**Política git (2026-10-16, humano):** destino único **`main`**; PRs con **squash merge**; fin de `integration/mvp` como rama de integración. Consolidación: push `integration/mvp` @ `c56e7a5` (TASK-0033) + squash PR #12 → `main` @ `f477628` desde base `520234b` (sin reescritura de main). Stash `wip gen schemas` en worktree integration **no** incluido en commits.
