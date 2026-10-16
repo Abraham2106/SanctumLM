@@ -1,0 +1,11 @@
+[package]
+name = "documents-worker"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "documents-worker"
+path = "src/main.rs"
+
+[dependencies]
