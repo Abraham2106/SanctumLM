@@ -1,6 +1,6 @@
 # Reserva de archivos
 
-**Dueño del mapa:** planner. **Bitácora canónica:** rama `integration/mvp` (worktree `SanctumLM-wt-integration`).
+**Dueño del mapa:** planner. **Bitácora canónica:** rama **`main`** (squash-merge); histórico `integration/mvp` obsoleto post PR #12.
 
 ## OLA 1 (G1) — cerrada
 
@@ -69,7 +69,7 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 | TASK-0029 planner | `.agents/*`, `docs/02-planning/WBS.md`, `docs/00-project/OPEN_QUESTIONS.md` (OPEN-015), consolidación | código producto |
 | TASK-0030 | `crates/ai-router/**` | `apps/desktop/**`, `crates/retrieval/**`, `crates/storage/**`, `packages/contracts/**`, `.github/**`, remoto real |
 | TASK-0031 | `crates/retrieval/**` | `crates/ai-router/**`, `apps/desktop/**`, `packages/contracts/**`, `storage/migrations/**`, `.github/**` |
-| TASK-0032 | `apps/desktop/src-tauri/src/**`, `crates/storage/src/**` excepto `migrations/**` | `apps/desktop/src/**` (UI), `packages/contracts/**`, `crates/ai-router/**`, `crates/retrieval/**` (solo deps), `.github/**` |
+| TASK-0032 | `apps/desktop/src-tauri/**`, `crates/storage/**` (incl. migración **0002** chats), `Cargo.lock` | `apps/desktop/src/**` (UI), `packages/contracts/**`, `crates/ai-router/**`, `crates/retrieval/**` (solo deps), `.github/**` |
 | TASK-0033 | `packages/contracts/**`, `apps/desktop/src/**` excepto `src-tauri/**` | `apps/desktop/src-tauri/**`, `crates/**`, `workers/**`, `.github/**` |
 
 **Compartidos (planner al integrar):** `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, `.agents/FILE_RESERVATION.md`, `docs/02-planning/WBS.md`.

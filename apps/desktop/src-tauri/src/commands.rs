@@ -1,17 +1,31 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use core_domain::{IpcResult, NotebookId, ProductError};
+use core_domain::{IpcResult, NotebookId, ProductError, ProductErrorCode};
 use storage::{parse_job_id, search_sources_fts, source_meta, NotebookRepository, SourceMeta};
 use tauri::State;
 
+use crate::chat_service::{
+    chat_create_inner, chat_list_inner, chat_send_inner, list_models_inner,
+};
 use crate::ipc_types::{
-    check_api_version, ImportSourcesRequest, ImportSourcesResponse, JobCancelRequest, JobRecordDto,
-    JobStatusRequest, ListSourcesRequest, ListSourcesResponse, NotebookCreateRequest,
-    NotebookCreateResponse, NotebookListRequest, NotebookListResponse, NotebookSummaryDto,
-    SearchHitDto, SearchSourcesRequest, SearchSourcesResponse, SourceRecordDto,
+    check_api_version, ChatCreateRequest, ChatCreateResponse, ChatListRequest, ChatListResponse,
+    ChatSendRequest, ChatSendResponse, ImportSourcesRequest, ImportSourcesResponse,
+    JobCancelRequest, JobRecordDto, JobStatusRequest, ListModelsRequest, ListModelsResponse,
+    ListSourcesRequest, ListSourcesResponse, NotebookCreateRequest, NotebookCreateResponse,
+    NotebookListRequest, NotebookListResponse, NotebookSummaryDto, SearchHitDto,
+    SearchSourcesRequest, SearchSourcesResponse, SourceRecordDto,
 };
 use crate::state::AppState;
+
+fn ensure_notebook_exists(state: &AppState, notebook_id: &str) -> Result<(), ProductError> {
+    state
+        .notebooks
+        .lock()
+        .expect("notebook lock")
+        .get(&NotebookId(notebook_id.to_string()))
+        .map(|_| ())
+}
 
 fn source_to_dto(meta: SourceMeta) -> SourceRecordDto {
     SourceRecordDto {
@@ -257,4 +271,84 @@ pub fn search_sources(
     request: SearchSourcesRequest,
 ) -> IpcResult<SearchSourcesResponse> {
     search_sources_inner(&state, request)
+}
+
+#[tauri::command]
+pub fn list_models(
+    state: State<'_, AppState>,
+    request: ListModelsRequest,
+) -> IpcResult<ListModelsResponse> {
+    if let Err(err) = check_api_version(request.api_version) {
+        return IpcResult::err(err);
+    }
+    list_models_inner(&state.chat, request)
+}
+
+pub fn chat_create_inner_state(
+    state: &AppState,
+    request: ChatCreateRequest,
+) -> IpcResult<ChatCreateResponse> {
+    if let Err(err) = check_api_version(request.api_version) {
+        return IpcResult::err(err);
+    }
+    if request.mode == "notebook" {
+        let Some(nb) = request.notebook_id.as_deref() else {
+            return IpcResult::err(ProductError::new(
+                ProductErrorCode::ValidationFailed,
+                "notebook_id es obligatorio en modo notebook",
+            ));
+        };
+        if let Err(err) = ensure_notebook_exists(state, nb) {
+            return IpcResult::err(err);
+        }
+    }
+    chat_create_inner(&state.chat, request)
+}
+
+#[tauri::command]
+pub fn chat_create(
+    state: State<'_, AppState>,
+    request: ChatCreateRequest,
+) -> IpcResult<ChatCreateResponse> {
+    chat_create_inner_state(&state, request)
+}
+
+#[tauri::command]
+pub fn chat_list(
+    state: State<'_, AppState>,
+    request: ChatListRequest,
+) -> IpcResult<ChatListResponse> {
+    if let Err(err) = check_api_version(request.api_version) {
+        return IpcResult::err(err);
+    }
+    chat_list_inner(&state.chat, request)
+}
+
+pub fn chat_send_inner_state(
+    state: &AppState,
+    request: ChatSendRequest,
+) -> IpcResult<ChatSendResponse> {
+    if let Err(err) = check_api_version(request.api_version) {
+        return IpcResult::err(err);
+    }
+    if request.mode == "notebook" {
+        let Some(nb) = request.notebook_id.as_deref() else {
+            return IpcResult::err(ProductError::new(
+                ProductErrorCode::ValidationFailed,
+                "notebook_id es obligatorio en modo notebook",
+            ));
+        };
+        if let Err(err) = ensure_notebook_exists(state, nb) {
+            return IpcResult::err(err);
+        }
+    }
+    chat_send_inner(&state.chat, request)
+}
+
+#[tauri::command]
+pub fn chat_send(
+    state: State<'_, AppState>,
+    request: ChatSendRequest,
+) -> IpcResult<ChatSendResponse> {
+    chat_send_inner_state(&state, request)
 }

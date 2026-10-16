@@ -2894,8 +2894,10 @@ dependencies = [
 name = "sanctumlm-desktop"
 version = "0.0.0"
 dependencies = [
+ "ai-router",
  "core-domain",
  "documents-worker",
+ "retrieval",
  "rusqlite",
  "serde",
  "serde_json",
