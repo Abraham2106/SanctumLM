@@ -94,3 +94,21 @@ Reservas TASK-0009..0015 **liberadas** tras G1 y merges documentales. Referencia
 **Paralelo seguro:** **0034** ∥ **0035** (superficies disjointas). Integrar 0035 antes o después de 0034; conflicto posible solo en `Cargo.lock` → planner secuencia merge si ambos tocan lock.
 
 **Cross-task:** ningún agente en vuelo edita la superficie exclusiva de la otra fila tramo 3.
+
+**OLA 4 tramo 3 — liberación post-merge:** TASK-0034 **liberada** en `main` @ `c2a7dd9` (PR #16); TASK-0035 **liberada** @ `b75d7ff` (PR #20); bitácora @ `6a600ed`.
+
+## OLA 4 — tramo 4 (cierre slice MVP)
+
+**Vigente desde:** 2026-10-16 post TASK-0035 @ `6a600ed`. **Base:** `origin/main`.
+
+| Tarea | Superficie exclusiva | Prohibido |
+| --- | --- | --- |
+| TASK-0036 | `apps/desktop/src/**` excepto `src-tauri/**` | `src-tauri/**`, `crates/**`, `workers/**`, `.github/**` |
+| TASK-0037 | `docs/04-quality/evidence/**`, `docs/01-requirements/TRACEABILITY.md`, `scripts/smoke-desktop.*` (opcional), `benchmarks/README.md` (mínimo) | código Rust/UI; `.github/**` |
+| TASK-0038 | `.github/workflows/**`, `apps/desktop/package.json` (+ lock), `packages/contracts/package.json` (+ lock) si CI lo exige | `apps/desktop/src/**`, `src-tauri/**`, `crates/**`, build Tauri |
+
+**Compartidos (planner al integrar):** `.agents/TASKS.md`, `.agents/STATUS.md`, `.agents/GOAL.md`, este archivo, `docs/02-planning/WBS.md`.
+
+**Paralelo seguro:** **0036** ∥ **0037** ∥ **0038**. Conflicto posible en `package-lock.json` si 0038 toca deps — secuenciar merge con planner si ambos PRs abiertos.
+
+**Cross-task:** ningún agente en vuelo edita la superficie exclusiva de otra fila tramo 4.

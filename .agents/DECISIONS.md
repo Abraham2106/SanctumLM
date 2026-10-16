@@ -40,4 +40,6 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 
 **Planificación tramo 3 (2026-10-16):** planner — anexo OLA 4 tramo 3 en WBS; fichas **TASK-0034** (E2E UI↔IPC) y **TASK-0035** (jobs SQLite); reserva tramo 3; base `origin/main` @ `84f2ca0`; G2 no declarado; extractores PDF/DOCX/HTML pesados siguen fuera (WBS-4.2+).
 
+**Planificación tramo 4 (2026-10-16):** planner — anexo OLA 4 tramo 4 en WBS (cierre slice MVP sin G2); fichas **TASK-0036** (UI `job_cancel`), **TASK-0037** (evidencia TC-PROD smoke), **TASK-0038** (CI `tsc` desktop); OPEN-016 resuelta; reserva tramo 4; base `origin/main` @ `6a600ed`; OPEN-009..012 no bloquean estas tareas; G2 no declarado.
+
 **Política git (2026-10-16, humano):** destino único **`main`**; PRs con **squash merge**; fin de `integration/mvp` como rama de integración. Consolidación: push `integration/mvp` @ `c56e7a5` (TASK-0033) + squash PR #12 → `main` @ `f477628` desde base `520234b` (sin reescritura de main). Stash `wip gen schemas` en worktree integration **no** incluido en commits.

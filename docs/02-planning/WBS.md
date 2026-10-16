@@ -137,3 +137,30 @@ OLA 4 tramo 1 (0026..0028)
 | **WBS-4.1.2** (ext.) | Migración `jobs` + repos; cancel/retry durable | 014, 106 | **TASK-0035** |
 
 **Paralelo:** 0034 ∥ 0035 (superficies disjointas; ver `.agents/FILE_RESERVATION.md`).
+
+## Anexo — OLA 4 tramo 4 (cierre vertical slice MVP — sin G2)
+
+**Alcance:** post TASK-0034/0035 en `main` @ `6a600ed`; **no** declara gate **G2** ni sustituye **TASK-0005**. Cierra huecos visibles del slice MVP ya cableado: **cancelación de import en UI**, **evidencia E2E manual** (import TXT/MD → búsqueda → chat) y **CI TypeScript desktop**; sin nuevos requisitos `R-PROD`. PDF/DOCX/HTML pesados, `job_retry` explícito, conectores (`R-PROD-012`), artefactos v1 y empaquetado multi-SO siguen fuera (`OPEN-009`..`012`, `WBS-4.2+` / `WBS-5.1`).
+
+**Prerrequisito:** OLA 4 tramo 3 cerrado (TASK-0034, TASK-0035 integrados en `main`).
+
+| Sub-paquete | Entregable | Requisitos (diseño) | ADR | Verificación objetivo | Tarea |
+| --- | --- | --- | --- | --- | --- |
+| **WBS-4.1.3** (ext. UI jobs) | Botón cancelar importación activa; `job_cancel` vía IPC; estado job en español | R-PROD-014 (parcial) | ADR-0006, ADR-0009 | Smoke manual cancel durante lote; `tsc`/`npm test` UI; TC-PROD-014 **not-run** formal hasta G2 | **TASK-0036** |
+| **WBS-4.2** (evidencia) | Runbook smoke `tauri dev` + registros TC-PROD-001/002/006 (y 007 si aplica) con plantilla TEST_PLAN; capturas o walkthrough opcional | R-PROD-001, 002, 006 (parcial), 105 (parcial vía búsqueda) | ADR-0006–0008 | Evidencia `pass`/`not-run` (Ollama RSK-12) en `docs/04-quality/evidence/`; actualizar TRACEABILITY sin inflar conteo 26/26 | **TASK-0037** |
+| **WBS-2.5** (CI desktop TS) | Job CI: `npm ci` + `tsc --noEmit` (y tests npm si existen) en `apps/desktop`; **sin** build Tauri ni matriz 3 SO | R-ENG (proceso) | ADR-0006 | Workflow verde en PR; desktop Tauri build sigue `if: false` hasta decisión empaquetado | **TASK-0038** |
+
+### Orden y dependencias (OLA 4 — tramo 4)
+
+```text
+OLA 4 tramo 3 (0034, 0035)
+    ├── TASK-0036 (WBS-4.1.3 ext.)  [UI cancel; ∥ 0037, 0038]
+    ├── TASK-0037 (WBS-4.2)         [evidencia; prioriza import+search+chat visible]
+    └── TASK-0038 (WBS-2.5)         [CI tsc; ∥ 0036/0037]
+```
+
+- **Paralelizable:** **0036** ∥ **0037** ∥ **0038** (superficies disjointas; ver `.agents/FILE_RESERVATION.md`).
+- **TASK-0005 / G2:** humana; TC-PROD-006–008 ejecutados formalmente solo tras criterio patrocinador; Ollama real puede permanecer **not-run** en CI (`RSK-12`).
+- **Cuestiones abiertas:** `OPEN-005`..`008`, `OPEN-010` (sin SQLCipher); `OPEN-009`..`012` **humanas** — no bloquean estas tres tareas.
+
+**Fuera de OLA 4 tramo 4:** `job_retry` IPC dedicado, parsers PDF/DOCX productivos, conectores nube, artefactos (`R-PROD-009+`), embeddings sqlite-vec, habilitar job CI Tauri completo, declaración G2.
