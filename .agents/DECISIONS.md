@@ -33,3 +33,5 @@ El contenido normativo y completo de cada decisión está en [ADR](../docs/03-ar
 **Integración TASK-0027 (2026-10-17):** reviewer r2 + security r2 APPROVE con residuales — estado de jobs en memoria (`job_memory`) hasta migración/tabla `jobs`; sidecar spawn y paths bajo staging acordados; R-PROD-105 egress/capabilities al ampliar superficie IPC; no bloquean merge PR #8 @ `16acd90` + follow-up `8cc33d3`.
 
 **Planificación TASK-0029 (2026-10-17):** planner — anexo OLA 4 tramo 2 en WBS (WBS-4.1.4–4.1.7), fichas TASK-0030..0033, reserva tramo 2; OPEN-015 resuelta; sin código Rust de producto; G2 no declarado; `validate_docs.py` OK.
+
+**Integración TASK-0031 (2026-10-16):** reviewer + security APPROVE con residuales — orquestación RAG notebook vs chat general y abstención sin hits FTS en crate `retrieval`; revalidación SQL `chunk_id`/`quote` prepara TASK-0032 (R-PROD-104/105); egress/capabilities al cablear invoke Tauri; no bloquean merge PR #10 @ `2222bf4` → `integration/mvp` @ `7826254`.
