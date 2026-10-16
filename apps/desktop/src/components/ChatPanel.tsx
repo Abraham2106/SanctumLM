@@ -26,7 +26,11 @@ const VERIFICATION_ES: Record<ChatCitation["verification"], string> = {
 };
 
 function citationLabel(citation: ChatCitation): string {
-  return `${citation.quote.slice(0, 72)}${citation.quote.length > 72 ? "…" : ""} (${VERIFICATION_ES[citation.verification]})`;
+  return `${citation.quote.slice(0, 72)}${citation.quote.length > 72 ? "…" : ""}`;
+}
+
+function transportDisplayLabel(): string {
+  return getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri";
 }
 
 export default function ChatPanel() {
@@ -42,6 +46,7 @@ export default function ChatPanel() {
   const [activeNotebookId, setActiveNotebookId] = useState("");
   const [models, setModels] = useState<ModelDescriptor[]>([]);
   const [modelId, setModelId] = useState("");
+  const [modelsLoading, setModelsLoading] = useState(true);
   const [activeChat, setActiveChat] = useState<ChatSummary | null>(null);
   const [messages, setMessages] = useState<ChatMessageRecord[]>([]);
   const [draft, setDraft] = useState("");
@@ -51,10 +56,21 @@ export default function ChatPanel() {
   const [transportLabel, setTransportLabel] = useState("");
   const [citationNotice, setCitationNotice] = useState("");
   const [threadSyncing, setThreadSyncing] = useState(true);
+  const [threadError, setThreadError] = useState("");
+
+  const refreshTransportLabel = useCallback(() => {
+    setTransportLabel(transportDisplayLabel());
+  }, []);
 
   const loadModels = useCallback(async () => {
+    setModelsLoading(true);
+    setErrorMessage("");
     const result = await listModels();
+    setModelsLoading(false);
+    refreshTransportLabel();
     if (!result.ok) {
+      setModels([]);
+      setModelId("");
       setErrorMessage(formatProductError(result.error));
       return;
     }
@@ -65,10 +81,16 @@ export default function ChatPanel() {
       }
       return result.data.models[0]?.model_id ?? "";
     });
-  }, []);
+    if (result.data.models.length === 0) {
+      setErrorMessage(
+        "No hay modelos locales disponibles. Comprueba Ollama en loopback o el núcleo Tauri.",
+      );
+    }
+  }, [refreshTransportLabel]);
 
   const loadNotebooks = useCallback(async () => {
     let result = await notebookList();
+    refreshTransportLabel();
     if (!result.ok) {
       setErrorMessage(formatProductError(result.error));
       return;
@@ -88,20 +110,27 @@ export default function ChatPanel() {
       }
       return result.ok && result.data.notebooks[0] ? result.data.notebooks[0].notebook_id : "";
     });
-  }, []);
+    if (chatMode === "notebook" && result.ok && result.data.notebooks.length === 0) {
+      setErrorMessage("No hay cuadernos. Crea uno en el panel Fuentes o usa chat general.");
+    }
+  }, [chatMode, refreshTransportLabel]);
 
   const syncThread = useCallback(async (mode: ChatMode, notebookId: string) => {
+    setThreadError("");
     setErrorMessage("");
     const listResult = await chatList(
       mode,
       mode === "notebook" ? notebookId : undefined,
     );
+    refreshTransportLabel();
     if (!listResult.ok) {
-      setErrorMessage(formatProductError(listResult.error));
+      const msg = formatProductError(listResult.error);
+      setThreadError(msg);
+      setErrorMessage(msg);
       return;
     }
 
-    let chat = listResult.data.chats.sort((a, b) =>
+    const chat = listResult.data.chats.sort((a, b) =>
       b.updated_at.localeCompare(a.updated_at),
     )[0];
 
@@ -110,8 +139,11 @@ export default function ChatPanel() {
         mode,
         mode === "notebook" ? notebookId : undefined,
       );
+      refreshTransportLabel();
       if (!created.ok) {
-        setErrorMessage(formatProductError(created.error));
+        const msg = formatProductError(created.error);
+        setThreadError(msg);
+        setErrorMessage(msg);
         return;
       }
       setActiveChat(created.data.chat);
@@ -121,25 +153,27 @@ export default function ChatPanel() {
 
     setActiveChat(chat);
     setMessages(listResult.data.messages_by_chat[chat.chat_id] ?? []);
-  }, []);
+  }, [refreshTransportLabel]);
 
   useEffect(() => {
+    refreshTransportLabel();
     void loadModels();
     void loadNotebooks();
-    setTransportLabel(getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri");
-  }, [loadModels, loadNotebooks]);
+  }, [loadModels, loadNotebooks, refreshTransportLabel]);
 
   useEffect(() => {
     if (chatMode === "notebook" && !activeNotebookId) {
       setActiveChat(null);
       setMessages([]);
       setThreadSyncing(false);
+      setThreadError("");
       return;
     }
 
     setActiveChat(null);
     setMessages([]);
     setThreadSyncing(true);
+    setThreadError("");
 
     let cancelled = false;
     void syncThread(chatMode, activeNotebookId).finally(() => {
@@ -163,10 +197,11 @@ export default function ChatPanel() {
   const handleModeChange = (mode: ChatMode) => {
     setChatMode(mode);
     setCitationNotice("");
+    setErrorMessage("");
     setStatusMessage(
       mode === "general"
-        ? "Modo general: sin recuperación de fuentes del cuaderno."
-        : "Modo cuaderno: el núcleo recupera fragmentos FTS del cuaderno activo.",
+        ? "Modo general: el núcleo no recupera fragmentos de cuadernos (R-PROD-007)."
+        : "Modo cuaderno: las respuestas pueden incluir citas verificadas del cuaderno activo.",
     );
   };
 
@@ -200,6 +235,7 @@ export default function ChatPanel() {
 
     setBusy(false);
     setDraft("");
+    refreshTransportLabel();
 
     if (!result.ok) {
       setErrorMessage(formatProductError(result.error));
@@ -211,9 +247,11 @@ export default function ChatPanel() {
       chatMode,
       chatMode === "notebook" ? activeNotebookId : undefined,
     );
-    if (refreshed.ok && activeChat) {
+    refreshTransportLabel();
+    if (refreshed.ok) {
       setMessages(refreshed.data.messages_by_chat[result.data.chat_id] ?? []);
     } else {
+      setErrorMessage(formatProductError(refreshed.error));
       setMessages((prev) => [
         ...prev,
         {
@@ -231,7 +269,7 @@ export default function ChatPanel() {
           role: "assistant",
           content: result.data.content,
           model_id: modelId,
-          citations: result.data.citations,
+          citations: chatMode === "notebook" ? result.data.citations : [],
           created_at: new Date().toISOString(),
         },
       ]);
@@ -251,8 +289,12 @@ export default function ChatPanel() {
       );
     }
 
-    setStatusMessage("Respuesta recibida.");
-    setTransportLabel(getIpcTransport() === "mock" ? "simulado" : "núcleo Tauri");
+    const simulado = getIpcTransport() === "mock";
+    setStatusMessage(
+      simulado
+        ? "Respuesta recibida (transporte simulado; sin núcleo Tauri)."
+        : "Respuesta recibida.",
+    );
   };
 
   const handleCitationClick = (citation: ChatCitation) => {
@@ -262,6 +304,7 @@ export default function ChatPanel() {
   };
 
   const showNotebookChrome = chatMode === "notebook";
+  const usingMockTransport = transportLabel === "simulado";
 
   return (
     <div className="chat-panel">
@@ -269,6 +312,13 @@ export default function ChatPanel() {
         Conversación vía IPC (<strong>{transportLabel || "…"}</strong>). El núcleo enruta el
         modelo local; la UI no contacta Ollama directamente.
       </p>
+
+      {usingMockTransport && (
+        <p className="chat-mock-banner" role="note">
+          Transporte <strong>simulado</strong>: los datos de demostración solo se cargan en este
+          modo. En Tauri embebido debe usarse el núcleo real (sin degradación silenciosa).
+        </p>
+      )}
 
       <fieldset className="chat-mode-fieldset">
         <legend>Modo de chat</legend>
@@ -279,6 +329,7 @@ export default function ChatPanel() {
             name="chat-mode"
             checked={chatMode === "notebook"}
             onChange={() => handleModeChange("notebook")}
+            disabled={busy || threadSyncing}
           />
           Cuaderno (fuentes indexadas)
         </label>
@@ -289,6 +340,7 @@ export default function ChatPanel() {
             name="chat-mode"
             checked={chatMode === "general"}
             onChange={() => handleModeChange("general")}
+            disabled={busy || threadSyncing}
           />
           General (sin contexto de fuentes)
         </label>
@@ -301,9 +353,12 @@ export default function ChatPanel() {
             id={modelSelectId}
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            disabled={busy || threadSyncing || models.length === 0}
+            disabled={busy || threadSyncing || modelsLoading || models.length === 0}
+            aria-busy={modelsLoading}
           >
-            {models.length === 0 ? (
+            {modelsLoading ? (
+              <option value="">Cargando modelos…</option>
+            ) : models.length === 0 ? (
               <option value="">Sin modelos</option>
             ) : (
               models.map((m) => (
@@ -314,6 +369,14 @@ export default function ChatPanel() {
             )}
           </select>
         </label>
+        <button
+          type="button"
+          className="ipc-button chat-retry-button"
+          disabled={modelsLoading || busy}
+          onClick={() => void loadModels()}
+        >
+          Actualizar modelos
+        </button>
 
         {showNotebookChrome && (
           <label className="field" htmlFor={notebookSelectId}>
@@ -340,18 +403,18 @@ export default function ChatPanel() {
 
       {!showNotebookChrome && (
         <p className="general-mode-note" role="note">
-          En chat general no se muestran fuentes ni panel de importación: el núcleo no debe
-          recuperar fragmentos de cuadernos (R-PROD-007).
+          En chat general no se muestran fuentes ni citas de cuadernos: el núcleo no debe recuperar
+          fragmentos indexados (R-PROD-007).
         </p>
       )}
 
       <div className="chat-layout">
         {showNotebookChrome && (
           <aside className="chat-context-aside" aria-label="Contexto del cuaderno">
-            <h3>Fuentes del cuaderno</h3>
+            <h3>Contexto del cuaderno</h3>
             <p className="placeholder-note">
-              Resumen contextual: las citas en respuestas enlazarán fragmentos indexados del
-              cuaderno seleccionado. Importación y búsqueda detallada están en el panel Fuentes.
+              Las citas en las respuestas del asistente enlazan fragmentos FTS del cuaderno
+              seleccionado. Importación y búsqueda detallada están en el panel Fuentes.
             </p>
           </aside>
         )}
@@ -363,38 +426,70 @@ export default function ChatPanel() {
             role="log"
             aria-live="polite"
             aria-relevant="additions"
+            aria-busy={threadSyncing || busy}
           >
             {threadSyncing ? (
-              <p className="placeholder-note" aria-busy="true">
-                Cargando conversación…
-              </p>
+              <p className="placeholder-note">Cargando conversación…</p>
+            ) : threadError ? (
+              <div className="chat-thread-error">
+                <p className="status-error" role="alert">{threadError}</p>
+                <button
+                  type="button"
+                  className="ipc-button"
+                  onClick={() => {
+                    setThreadSyncing(true);
+                    void syncThread(chatMode, activeNotebookId).finally(() =>
+                      setThreadSyncing(false),
+                    );
+                  }}
+                >
+                  Reintentar carga del hilo
+                </button>
+              </div>
             ) : messages.length === 0 ? (
               <p className="placeholder-note">Escribe un mensaje para iniciar la conversación.</p>
             ) : (
-              messages.map((msg) => (
-                <article
-                  key={msg.message_id}
-                  className={`chat-bubble chat-bubble-${msg.role}`}
-                >
-                  <header>{msg.role === "user" ? "Tú" : "Asistente"}</header>
-                  <p>{msg.content}</p>
-                  {msg.citations.length > 0 && (
-                    <ul className="citation-list">
-                      {msg.citations.map((citation) => (
-                        <li key={`${msg.message_id}-${citation.chunk_id}`}>
-                          <button
-                            type="button"
-                            className="citation-link"
-                            onClick={() => handleCitationClick(citation)}
-                          >
-                            {citationLabel(citation)}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </article>
-              ))
+              messages.map((msg) => {
+                const citations =
+                  chatMode === "notebook" && msg.role === "assistant" ? msg.citations : [];
+                return (
+                  <article
+                    key={msg.message_id}
+                    className={`chat-bubble chat-bubble-${msg.role}`}
+                  >
+                    <header>
+                      {msg.role === "user" ? "Tú" : "Asistente"}
+                      {msg.role === "assistant" && msg.model_id ? (
+                        <span className="chat-bubble-model"> · {msg.model_id}</span>
+                      ) : null}
+                    </header>
+                    <p>{msg.content}</p>
+                    {citations.length > 0 && (
+                      <section className="citation-block" aria-label="Citas de fuentes">
+                        <h4 className="citation-block-title">Citas</h4>
+                        <ul className="citation-list">
+                          {citations.map((citation) => (
+                            <li key={`${msg.message_id}-${citation.chunk_id}`}>
+                              <button
+                                type="button"
+                                className="citation-link"
+                                onClick={() => handleCitationClick(citation)}
+                              >
+                                <span
+                                  className={`citation-verification citation-verification-${citation.verification}`}
+                                >
+                                  {VERIFICATION_ES[citation.verification]}
+                                </span>
+                                <span className="citation-quote">{citationLabel(citation)}</span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+                  </article>
+                );
+              })
             )}
           </div>
 
@@ -405,7 +500,13 @@ export default function ChatPanel() {
                 id={composerId}
                 rows={3}
                 value={draft}
-                disabled={busy || threadSyncing || !modelId}
+                disabled={
+                  busy ||
+                  threadSyncing ||
+                  !modelId ||
+                  Boolean(threadError) ||
+                  (chatMode === "notebook" && !activeNotebookId)
+                }
                 placeholder={
                   chatMode === "general"
                     ? "Pregunta general al modelo local…"
@@ -423,10 +524,17 @@ export default function ChatPanel() {
             <button
               type="button"
               className="ipc-button send-button"
-              disabled={busy || threadSyncing || !draft.trim() || !modelId}
+              disabled={
+                busy ||
+                threadSyncing ||
+                Boolean(threadError) ||
+                !draft.trim() ||
+                !modelId ||
+                (chatMode === "notebook" && !activeNotebookId)
+              }
               onClick={() => void handleSend()}
             >
-              Enviar
+              {busy ? "Enviando…" : "Enviar"}
             </button>
           </div>
         </div>
