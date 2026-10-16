@@ -126,3 +126,14 @@ OLA 4 tramo 1 (0026..0028)
 - **Cuestiones abiertas:** `OPEN-010`; `OPEN-008`/`RSK-12`; `OPEN-005`; `OPEN-007` (layout chat).
 
 **Fuera de OLA 4 tramo 2:** adaptador remoto real, `import_url`/`web_search`, artefactos (`R-PROD-009+`), embeddings sqlite-vec productivos, CI desktop habilitado, PDF/DOCX pesados — `WBS-4.2+` o fases v1.
+
+## Anexo — OLA 4 tramo 3 (E2E + jobs durables)
+
+**Alcance:** post TASK-0032/0033 en `main`; **no** declara G2. Cableado **UI → invoke Tauri real** y **jobs SQLite** (residuo MVP in-memory).
+
+| WBS | Entregable | R-PROD (parcial) | Tarea |
+| --- | --- | --- | --- |
+| **WBS-4.1.7** (cierre) | `ipc-client` sin fallback silencioso en Tauri; smoke chat/fuentes | 006, 007, 108 | **TASK-0034** |
+| **WBS-4.1.2** (ext.) | Migración `jobs` + repos; cancel/retry durable | 014, 106 | **TASK-0035** |
+
+**Paralelo:** 0034 ∥ 0035 (superficies disjointas; ver `.agents/FILE_RESERVATION.md`).
