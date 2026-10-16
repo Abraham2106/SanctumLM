@@ -73,11 +73,11 @@ impl SqliteJobStore {
         .expect("select job")
     }
 
-    pub fn update(&self, record: JobRecord) {
+    pub fn update(&self, record: JobRecord, notebook_id: Option<&NotebookId>) {
         let updated_at = Self::now_rfc3339().expect("timestamp");
-        let conn = self.conn.lock().expect("sqlite lock");
-        let rows = conn
-            .execute(
+        let rows = {
+            let conn = self.conn.lock().expect("sqlite lock");
+            conn.execute(
                 "UPDATE jobs SET type = ?2, state = ?3, progress = ?4, error_code = ?5, updated_at = ?6 \
                  WHERE id = ?1",
                 (
@@ -92,10 +92,28 @@ impl SqliteJobStore {
                     updated_at.as_str(),
                 ),
             )
-            .expect("update job");
+            .expect("update job")
+        };
         if rows == 0 {
-            self.insert(record, None);
+            let stored = self.notebook_id_for(&record.job_id);
+            let nb = notebook_id.or(stored.as_ref());
+            self.insert(record, nb);
         }
+    }
+
+    fn notebook_id_for(&self, job_id: &JobId) -> Option<NotebookId> {
+        let conn = self.conn.lock().expect("sqlite lock");
+        conn.query_row(
+            "SELECT notebook_id FROM jobs WHERE id = ?1",
+            [job_id.0.to_string()],
+            |row| {
+                let raw: Option<String> = row.get(0)?;
+                Ok(raw.map(NotebookId))
+            },
+        )
+        .optional()
+        .expect("notebook_id lookup")
+        .flatten()
     }
 
     pub fn mark_cancelled(&self, job_id: &JobId) -> Result<JobRecord, ProductError> {
@@ -109,7 +127,8 @@ impl SqliteJobStore {
         job.state = JobState::Cancelled;
         job.error_code = Some(JobErrorCode::Cancelled);
         job.progress = job.progress.min(99);
-        self.update(job.clone());
+        let nb = self.notebook_id_for(job_id);
+        self.update(job.clone(), nb.as_ref());
         Ok(job)
     }
 }
@@ -180,6 +199,77 @@ mod tests {
         let conn = open_memory_connection().expect("open db");
         let arc = Arc::new(Mutex::new(conn));
         (SqliteJobStore::new(Arc::clone(&arc)), arc)
+    }
+
+    #[test]
+    fn non_terminal_job_status_after_reconnect() {
+        let dir = std::env::temp_dir().join(format!(
+            "sanctumlm-jobs-status-{}",
+            uuid::Uuid::new_v4()
+        ));
+        std::fs::create_dir_all(&dir).expect("temp dir");
+        let path = dir.join("jobs.db");
+
+        let conn1 = crate::open_connection(&path).expect("open");
+        let now = OffsetDateTime::now_utc()
+            .format(&Rfc3339)
+            .expect("rfc3339");
+        conn1
+            .execute(
+                "INSERT INTO notebooks (id, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
+                ("nb-status", "Test", now.as_str()),
+            )
+            .expect("notebook");
+        let arc1 = Arc::new(Mutex::new(conn1));
+        let store1 = SqliteJobStore::new(Arc::clone(&arc1));
+        let notebook_id = NotebookId("nb-status".into());
+        let mut job = JobRecord::new(JobType::ImportBatch);
+        job.state = JobState::Queued;
+        job.progress = 0;
+        let id = job.job_id;
+        store1.insert(job, Some(&notebook_id));
+
+        drop(arc1);
+
+        let conn2 = crate::open_connection(&path).expect("reopen");
+        let store2 = SqliteJobStore::new(Arc::new(Mutex::new(conn2)));
+        let status = store2.get(&id).expect("job_status row");
+        assert_eq!(status.state, JobState::Queued);
+        assert!(matches!(status.state, JobState::Queued | JobState::Running));
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn update_upsert_keeps_notebook_id() {
+        let (store, arc) = store_with_migrations();
+        let conn = arc.lock().expect("lock");
+        let now = OffsetDateTime::now_utc()
+            .format(&Rfc3339)
+            .expect("rfc3339");
+        conn.execute(
+            "INSERT INTO notebooks (id, title, created_at, updated_at) VALUES (?1, ?2, ?3, ?3)",
+            ("nb-upsert", "Test", now.as_str()),
+        )
+        .expect("notebook");
+        drop(conn);
+
+        let notebook_id = NotebookId("nb-upsert".into());
+        let mut job = JobRecord::new(JobType::ImportBatch);
+        job.state = JobState::Queued;
+        let id = job.job_id;
+        store.insert(job.clone(), Some(&notebook_id));
+
+        arc.lock()
+            .expect("lock")
+            .execute("DELETE FROM jobs WHERE id = ?1", [id.0.to_string()])
+            .expect("delete job");
+
+        job.state = JobState::Running;
+        store.update(job, Some(&notebook_id));
+
+        let nb = store.notebook_id_for(&id).expect("notebook_id kept");
+        assert_eq!(nb.0, "nb-upsert");
     }
 
     #[test]

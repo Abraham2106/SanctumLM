@@ -6,15 +6,19 @@ const MIGRATION_0001: &str = include_str!("../migrations/0001_notebooks_sources_
 const MIGRATION_0002: &str = include_str!("../migrations/0002_chats_messages_citations.sql");
 const MIGRATION_0003: &str = include_str!("../migrations/0003_jobs.sql");
 
-const TARGET_VERSION: i64 = 3;
+const MIGRATIONS: &[(i64, &str)] = &[
+    (1, MIGRATION_0001),
+    (2, MIGRATION_0002),
+    (3, MIGRATION_0003),
+];
 
 /// Aplica migraciones pendientes (0001). Idempotente: no reejecuta una versión ya registrada.
 pub fn migrate_to_latest(conn: &Connection) -> rusqlite::Result<()> {
     conn.execute_batch("PRAGMA foreign_keys = ON;")?;
 
-    apply_if_pending(conn, 1, MIGRATION_0001)?;
-    apply_if_pending(conn, 2, MIGRATION_0002)?;
-    apply_if_pending(conn, 3, MIGRATION_0003)?;
+    for &(version, sql) in MIGRATIONS {
+        apply_if_pending(conn, version, sql)?;
+    }
     Ok(())
 }
 
