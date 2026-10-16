@@ -22,25 +22,26 @@ fn resolve_read_path(
     staging_root: &Path,
     validated_path: &Path,
 ) -> Result<PathBuf, ProductError> {
-    if staging_root.exists() {
-        let canon_root = staging_root.canonicalize().map_err(|e| io_policy_err(e, "staging"))?;
-        let canon_file = validated_path.canonicalize().map_err(|e| io_policy_err(e, "archivo"))?;
-        if !canon_file.starts_with(&canon_root) {
-            return Err(ProductError::new(
-                ProductErrorCode::PolicyDenied,
-                "ruta resuelta fuera de staging acordado",
-            ));
-        }
-        return Ok(canon_file);
-    }
-
-    if !validated_path.starts_with(staging_root) {
+    if !staging_root.exists() {
         return Err(ProductError::new(
             ProductErrorCode::PolicyDenied,
-            "ruta fuera de staging acordado",
+            "staging_root no materializado en disco",
         ));
     }
-    Ok(validated_path.to_path_buf())
+
+    let canon_root = staging_root
+        .canonicalize()
+        .map_err(|e| io_policy_err(e, "staging"))?;
+    let canon_file = validated_path
+        .canonicalize()
+        .map_err(|e| io_policy_err(e, "archivo"))?;
+    if !canon_file.starts_with(&canon_root) {
+        return Err(ProductError::new(
+            ProductErrorCode::PolicyDenied,
+            "ruta resuelta fuera de staging acordado",
+        ));
+    }
+    Ok(canon_file)
 }
 
 fn read_limited(path: &Path, max_bytes: u64) -> Result<Vec<u8>, ProductError> {
@@ -114,5 +115,89 @@ mod tests {
         let err = read_staging_file(&root, &file, 8).unwrap_err();
         assert_eq!(err.code, ProductErrorCode::PolicyDenied);
         let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn rejects_read_when_staging_root_missing() {
+        let root = temp_staging();
+        let file = root.join("a.txt");
+        fs::write(&file, b"x").unwrap();
+        fs::remove_dir_all(&root).unwrap();
+        let err = read_staging_file(&root, &file, 1024).unwrap_err();
+        assert_eq!(err.code, ProductErrorCode::PolicyDenied);
+    }
+
+    #[test]
+    fn rejects_symlink_outside_staging() {
+        rejects_symlink_outside_staging_impl();
+    }
+
+    #[cfg(unix)]
+    fn rejects_symlink_outside_staging_impl() {
+        use std::os::unix::fs::symlink;
+
+        let seq = TEST_DIR_SEQ.fetch_add(1, Ordering::Relaxed);
+        let outside = std::env::temp_dir().join(format!("documents-worker-outside-{seq}"));
+        fs::write(&outside, b"fuera").unwrap();
+
+        let staging = temp_staging();
+        let link = staging.join("escape.txt");
+        symlink(&outside, &link).expect("symlink unix en test");
+
+        let err = read_staging_file(&staging, &link, 1024).unwrap_err();
+        assert_eq!(err.code, ProductErrorCode::PolicyDenied);
+
+        let _ = fs::remove_dir_all(&staging);
+        let _ = fs::remove_file(&outside);
+    }
+
+    /// En Windows sin privilegio de symlink se intenta junction (`mklink /J`); si falla, el
+    /// test se omite (unix sigue siendo la barrera obligatoria en CI Linux).
+    #[cfg(windows)]
+    fn rejects_symlink_outside_staging_impl() {
+        use std::os::windows::fs::symlink_file;
+        use std::process::Command;
+
+        let seq = TEST_DIR_SEQ.fetch_add(1, Ordering::Relaxed);
+        let staging = temp_staging();
+
+        let validated_path = {
+            let outside = std::env::temp_dir().join(format!("documents-worker-outside-{seq}"));
+            fs::write(&outside, b"fuera").unwrap();
+            let link = staging.join("escape.txt");
+            if symlink_file(&outside, &link).is_ok() {
+                link
+            } else {
+                let outside_dir =
+                    std::env::temp_dir().join(format!("documents-worker-outside-dir-{seq}"));
+                fs::create_dir_all(&outside_dir).unwrap();
+                fs::write(outside_dir.join("secret.txt"), b"fuera").unwrap();
+                let junction = staging.join("escape_dir");
+                let status = Command::new("cmd")
+                    .args([
+                        "/C",
+                        "mklink",
+                        "/J",
+                        junction.to_str().expect("utf-8"),
+                        outside_dir.to_str().expect("utf-8"),
+                    ])
+                    .status()
+                    .expect("mklink junction");
+                if !status.success() {
+                    eprintln!(
+                        "rejects_symlink_outside_staging: omitido en Windows (sin privilegio symlink/junction)"
+                    );
+                    let _ = fs::remove_dir_all(&staging);
+                    let _ = fs::remove_file(&outside);
+                    return;
+                }
+                junction.join("secret.txt")
+            }
+        };
+
+        let err = read_staging_file(&staging, &validated_path, 1024).unwrap_err();
+        assert_eq!(err.code, ProductErrorCode::PolicyDenied);
+
+        let _ = fs::remove_dir_all(&staging);
     }
 }
