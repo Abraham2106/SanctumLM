@@ -15,7 +15,7 @@ use core_domain::{
 };
 use rusqlite::Connection;
 use storage::{
-    chunk_inline_text, sha256_hex, validate_inline_size, CancelFlag, InMemoryJobStore,
+    chunk_inline_text, sha256_hex, validate_inline_size, CancelFlag, SqliteJobRepository,
     SqliteSourceRepository,
 };
 use uuid::Uuid;
@@ -50,7 +50,7 @@ impl ImportRuntime {
 
     pub fn enqueue_batch(
         &self,
-        jobs: Arc<InMemoryJobStore>,
+        jobs: SqliteJobRepository,
         notebook_id: NotebookId,
         items: Vec<ImportSourceInlineItem>,
     ) -> ImportSourcesResponse {
@@ -62,7 +62,13 @@ impl ImportRuntime {
         };
         job.progress = if items.is_empty() { 100 } else { 0 };
         let job_id = job.job_id;
-        jobs.insert(job.clone());
+        if let Err(err) = jobs.insert(&notebook_id, &job) {
+            eprintln!("persist job: {err:?}");
+            return ImportSourcesResponse {
+                job_id: job_id.0.to_string(),
+                item_results: vec![],
+            };
+        }
 
         let cancel = CancelFlag::new();
         self.cancel_flags
@@ -133,7 +139,7 @@ impl ImportRuntime {
 
     fn run_batch(
         &self,
-        jobs: Arc<InMemoryJobStore>,
+        jobs: SqliteJobRepository,
         job_id: JobId,
         notebook_id: NotebookId,
         items: Vec<ImportSourceInlineItem>,
@@ -142,9 +148,13 @@ impl ImportRuntime {
     ) {
         let sources = SqliteSourceRepository::new(Arc::clone(&self.conn));
         let total = items.len().max(1);
-        let mut job = jobs.get(&job_id).unwrap_or_else(|| JobRecord::new(JobType::ImportBatch));
+        let mut job = jobs
+            .get(&job_id)
+            .ok()
+            .flatten()
+            .unwrap_or_else(|| JobRecord::new(JobType::ImportBatch));
         job.state = JobState::Running;
-        jobs.update(job.clone());
+        let _ = jobs.update(&job);
 
         for (item_index, item) in items.iter().enumerate() {
             #[cfg(test)]
@@ -155,7 +165,7 @@ impl ImportRuntime {
             if cancel.is_cancelled() {
                 job.state = JobState::Cancelled;
                 job.error_code = Some(core_domain::JobErrorCode::Cancelled);
-                jobs.update(job);
+                let _ = jobs.update(&job);
                 return;
             }
 
@@ -170,7 +180,7 @@ impl ImportRuntime {
             if let Ok(Some(existing)) = sources.find_ready_by_sha256(&notebook_id, &hash) {
                 item_results[item_index].source_id = Some(existing.0.clone());
                 job.progress = ((item_index + 1) * 100 / total).min(99) as u8;
-                jobs.update(job.clone());
+                let _ = jobs.update(&job);
                 continue;
             }
 
@@ -184,7 +194,7 @@ impl ImportRuntime {
             }
 
             job.progress = ((item_index + 1) * 100 / total).min(99) as u8;
-            jobs.update(job.clone());
+            let _ = jobs.update(&job);
         }
 
         if cancel.is_cancelled() {
@@ -194,7 +204,7 @@ impl ImportRuntime {
             job.state = JobState::Completed;
             job.progress = 100;
         }
-        jobs.update(job);
+        let _ = jobs.update(&job);
     }
 
     fn import_one(

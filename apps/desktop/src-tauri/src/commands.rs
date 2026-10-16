@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use core_domain::{IpcResult, NotebookId, ProductError, ProductErrorCode};
 use storage::{parse_job_id, search_sources_fts, source_meta, NotebookRepository, SourceMeta};
@@ -142,7 +141,7 @@ pub fn import_sources_inner(
         return IpcResult::err(ProductError::not_found("notebook"));
     }
     let response = state.import_runtime.enqueue_batch(
-        Arc::clone(&state.jobs),
+        state.jobs.clone(),
         NotebookId(request.notebook_id),
         request.items,
     );
@@ -166,8 +165,9 @@ pub fn job_status_inner(state: &AppState, request: JobStatusRequest) -> IpcResul
         Err(err) => return IpcResult::err(err),
     };
     match state.jobs.get(&job_id) {
-        Some(job) => IpcResult::ok(JobRecordDto::from(job)),
-        None => IpcResult::err(ProductError::not_found("job")),
+        Ok(Some(job)) => IpcResult::ok(JobRecordDto::from(job)),
+        Ok(None) => IpcResult::err(ProductError::not_found("job")),
+        Err(err) => IpcResult::err(err),
     }
 }
 

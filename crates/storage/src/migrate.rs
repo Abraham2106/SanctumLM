@@ -4,8 +4,9 @@ use time::OffsetDateTime;
 
 const MIGRATION_0001: &str = include_str!("../migrations/0001_notebooks_sources_chunks_fts.sql");
 const MIGRATION_0002: &str = include_str!("../migrations/0002_chats_messages_citations.sql");
+const MIGRATION_0003: &str = include_str!("../migrations/0003_jobs.sql");
 
-const TARGET_VERSION: i64 = 2;
+const TARGET_VERSION: i64 = 3;
 
 /// Aplica migraciones pendientes (0001). Idempotente: no reejecuta una versión ya registrada.
 pub fn migrate_to_latest(conn: &Connection) -> rusqlite::Result<()> {
@@ -13,6 +14,7 @@ pub fn migrate_to_latest(conn: &Connection) -> rusqlite::Result<()> {
 
     apply_if_pending(conn, 1, MIGRATION_0001)?;
     apply_if_pending(conn, 2, MIGRATION_0002)?;
+    apply_if_pending(conn, 3, MIGRATION_0003)?;
     Ok(())
 }
 

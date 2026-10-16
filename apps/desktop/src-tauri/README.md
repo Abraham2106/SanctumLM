@@ -1,18 +1,15 @@
 # Núcleo Tauri (SanctumLM desktop)
 
-## Jobs de importación (MVP / TASK-0027)
+## Jobs de importación
 
-Los estados de `import_batch` (`queued`, `running`, `completed`, `cancelled`, …) viven en
-[`InMemoryJobStore`](../../../crates/storage/src/job_memory.rs) dentro del proceso Tauri.
-**No hay tabla `jobs` en SQLite** en la migración 0001 actual; la fila `jobs` descrita en
-[ADR-0007](../../../docs/03-architecture/adr/ADR-0007-storage.md) queda para una tarea planner
-posterior (sin schema ad hoc en este crate).
+Los estados de `import_batch` persisten en SQLite (migración **0003**, tabla `jobs`, ADR-0007) vía
+[`SqliteJobRepository`](../../../crates/storage/src/sqlite_job.rs). Tras reiniciar el proceso,
+`job_status` puede consultar jobs no terminales que quedaron en disco.
 
-Implicaciones MVP:
-
-- Tras reiniciar la app, `job_status` no recupera jobs antiguos; fuentes/chunks ya `ready` sí persisten.
-- `job_cancel` es **cooperativo**: la señal se observa **entre ítems** del lote, no a mitad de un ítem
-  (ver comentario en `src/import_service.rs`).
+`job_cancel` es **cooperativo**: [`CancelFlag`](../../../crates/storage/src/job_memory.rs) vive en
+memoria del proceso; la señal se observa **entre ítems** del lote (ver `src/import_service.rs`).
+Fuentes ya persistidas como `ready` en ítems anteriores no se revierten (R-PROD-014); reimportar
+el mismo SHA-256 reutiliza la fuente `ready` existente.
 
 ## Sidecar opcional
 

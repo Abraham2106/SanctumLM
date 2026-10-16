@@ -7,7 +7,7 @@ use retrieval::citations::CitationValidator;
 use retrieval::search::ChunkSearch;
 use rusqlite::Connection;
 use storage::{
-    open_memory_connection, InMemoryJobStore, SqliteChatRepository, SqliteNotebookRepository,
+    open_memory_connection, SqliteChatRepository, SqliteJobRepository, SqliteNotebookRepository,
     SqliteSourceRepository,
 };
 
@@ -18,7 +18,7 @@ use crate::import_service::ImportRuntime;
 pub struct AppState {
     pub notebooks: Mutex<SqliteNotebookRepository>,
     pub sources: SqliteSourceRepository,
-    pub jobs: Arc<InMemoryJobStore>,
+    pub jobs: SqliteJobRepository,
     pub import_runtime: ImportRuntime,
     pub conn: Arc<Mutex<Connection>>,
     pub chat: ChatRuntime,
@@ -62,7 +62,7 @@ impl AppState {
         Self {
             notebooks: Mutex::new(SqliteNotebookRepository::new(Arc::clone(&conn))),
             sources: SqliteSourceRepository::new(Arc::clone(&conn)),
-            jobs: Arc::new(InMemoryJobStore::new()),
+            jobs: SqliteJobRepository::new(Arc::clone(&conn)),
             import_runtime: ImportRuntime::new(
                 Arc::clone(&conn),
                 staging_root,
