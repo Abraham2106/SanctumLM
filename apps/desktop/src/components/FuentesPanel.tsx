@@ -13,6 +13,7 @@ import {
   ensureMockSeed,
   getIpcTransport,
   importSources,
+  jobCancel,
   jobStatus,
   listSources,
   notebookCreate,
@@ -84,6 +85,7 @@ export default function FuentesPanel() {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [activeJob, setActiveJob] = useState<JobRecord | null>(null);
+  const [cancellingImport, setCancellingImport] = useState(false);
   const [transportLabel, setTransportLabel] = useState("");
 
   const refreshSources = useCallback(async (notebookId: string) => {
@@ -250,6 +252,28 @@ export default function FuentesPanel() {
     }
   };
 
+  const handleCancelImport = async () => {
+    if (!activeJob || !isActiveImportJob(activeJob)) {
+      return;
+    }
+    setCancellingImport(true);
+    setErrorMessage("");
+    const result = await jobCancel(activeJob.job_id);
+    setCancellingImport(false);
+    if (!result.ok) {
+      setErrorMessage(formatProductError(result.error));
+      return;
+    }
+    setActiveJob(result.data);
+    if (result.data.state === "cancelled") {
+      setStatusMessage("Importación cancelada.");
+      setActiveJob(null);
+      await refreshSources(activeNotebookId);
+    } else {
+      setStatusMessage("Cancelación solicitada; el trabajo terminará en breve.");
+    }
+  };
+
   const handleSearch = async () => {
     if (!activeNotebookId) {
       return;
@@ -319,9 +343,19 @@ export default function FuentesPanel() {
       </div>
 
       {activeJob && isActiveImportJob(activeJob) && (
-        <p className="job-status" aria-live="polite">
-          Importación: {activeJob.progress}% ({formatJobState(activeJob.state)})
-        </p>
+        <div className="job-status-row" aria-live="polite">
+          <p className="job-status">
+            Importación: {activeJob.progress}% ({formatJobState(activeJob.state)})
+          </p>
+          <button
+            type="button"
+            className="ipc-button ipc-button-danger"
+            onClick={() => void handleCancelImport()}
+            disabled={busy || cancellingImport}
+          >
+            {cancellingImport ? "Cancelando…" : "Cancelar importación"}
+          </button>
+        </div>
       )}
 
       {activeNotebook && (
