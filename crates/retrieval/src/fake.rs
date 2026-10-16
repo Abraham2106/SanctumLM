@@ -13,6 +13,9 @@ impl FakeChunkSearch {
 
 impl ChunkSearch for FakeChunkSearch {
     fn search(&self, query: SearchQuery) -> Vec<ChunkHit> {
+        if query.notebook_id.is_none() {
+            return Vec::new();
+        }
         self.hits
             .iter()
             .filter(|h| {
@@ -55,12 +58,29 @@ mod tests {
             },
         ]);
         let hits = search.search(SearchQuery {
-            notebook_id: NotebookId("nb-1".into()),
+            notebook_id: Some(NotebookId("nb-1".into())),
             query: "agua".into(),
             selected_source_ids: vec![SourceId("s1".into())],
             limit: 10,
         });
         assert_eq!(hits.len(), 1);
         assert_eq!(hits[0].chunk_id.0, "c1");
+    }
+
+    #[test]
+    fn general_chat_returns_empty() {
+        let search = FakeChunkSearch::with_static_hits(vec![ChunkHit {
+            chunk_id: ChunkId("c1".into()),
+            source_id: SourceId("s1".into()),
+            quote: "agua".into(),
+            score: 1.0,
+        }]);
+        let hits = search.search(SearchQuery {
+            notebook_id: None,
+            query: "agua".into(),
+            selected_source_ids: vec![],
+            limit: 10,
+        });
+        assert!(hits.is_empty());
     }
 }
