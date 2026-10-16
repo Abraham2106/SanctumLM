@@ -6,4 +6,10 @@ publish.workspace = true
 
 [dependencies]
 core-domain = { path = "../core-domain" }
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls"] }
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+url = "2"
+
+[dev-dependencies]
+tiny_http = "0.12"
